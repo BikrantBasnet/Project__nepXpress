@@ -1,0 +1,16 @@
+[33m39b9bb2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpratish[m[33m, [m[1;31morigin/pratish[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33m39b9bb2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpratish[m[33m, [m[1;31morigin/pratish[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: checkout: moving from pratish to pratish
+[33m39b9bb2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpratish[m[33m, [m[1;31morigin/pratish[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{2}: reset: moving to origin/main
+[33m39b9bb2[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpratish[m[33m, [m[1;31morigin/pratish[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{3}: reset: moving to origin/main
+[33m9dadaf6[m[33m ([m[1;31mproject/pratish[m[33m)[m HEAD@{4}: checkout: moving from pratish to pratish
+[33m9dadaf6[m[33m ([m[1;31mproject/pratish[m[33m)[m HEAD@{5}: commit: registration add
+[33mbbea267[m HEAD@{6}: commit: registration add
+[33me67f369[m HEAD@{7}: checkout: moving from e67f3696741882afe06baba680888965133f3816 to pratish
+[33me67f369[m HEAD@{8}: pull origin pratish: Fast-forward
+[33m019f3df[m[33m ([m[1;31mupstream/main[m[33m, [m[1;31mupstream/HEAD[m[33m)[m HEAD@{9}: checkout: moving from pratish to origin/main
+[33me67f369[m HEAD@{10}: checkout: moving from pratish to pratish
+[33me67f369[m HEAD@{11}: commit: registration page
+[33m39679fb[m HEAD@{12}: pull origin main --allow-unrelated-histories: Merge made by the 'ort' strategy.
+[33m18ae665[m HEAD@{13}: Branch: renamed refs/heads/registration-page to refs/heads/pratish
+[33m18ae665[m HEAD@{15}: commit: Added registration page files
+[33m1533269[m HEAD@{16}: commit (initial): Added registration page
