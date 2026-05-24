@@ -41,6 +41,11 @@ body {
   padding: 36px 44px;
   position: relative;
   overflow: hidden;
+  /* Fixed so it stays in place while the right panel scrolls */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  flex-shrink: 0;
 }
 
 /* Subtle grid texture */
