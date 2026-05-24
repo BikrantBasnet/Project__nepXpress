@@ -96,8 +96,9 @@
 
       <!-- Login / Register Tabs -->
       <div class="tab-bar">
-        <button class="tab active" id="tabLogin" onclick="switchTab('login')">Login</button>
+        <span class="tab active">Login</span>
         <a href="{{ url_for('auth.register') }}" class="tab">Register</a>
+        
       </div>
 
       <!-- Form -->
@@ -126,7 +127,7 @@
 
       <button class="btn-primary" id="loginBtn" onclick="handleLogin(event)">Login as Customer</button>
 
-      <p class="register-link">Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+      <p class="register-link">Don't have an account? <a href="#">Register here</a></p>
 
     </div>
   </main>
