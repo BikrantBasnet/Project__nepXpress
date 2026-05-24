@@ -228,13 +228,37 @@ body {
 .right-panel {
   flex: 1;
   display: flex;
-  align-items: center;
   justify-content: center;
   padding: 48px 64px;
   background: #fff;
   position: relative;
+
+  /* Enable vertical scroll on the right panel only */
+  overflow-y: auto;
+  height: 100vh;
+
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #d0d4de #f7f8fa;
 }
 
+/* Webkit scrollbar styling */
+.right-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.right-panel::-webkit-scrollbar-track {
+  background: #f7f8fa;
+}
+
+.right-panel::-webkit-scrollbar-thumb {
+  background: #d0d4de;
+  border-radius: 999px;
+}
+
+.right-panel::-webkit-scrollbar-thumb:hover {
+  background: #b0b6c4;
+}
 /* ── Login Card ────────────────────────────────────────────── */
 .login-card {
   width: 100%;
