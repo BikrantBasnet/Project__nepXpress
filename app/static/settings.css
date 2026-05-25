@@ -27,7 +27,7 @@ svg {
 /* DARK MODE */
 body.dark-mode {
   background: #121212;
-  color: #ffffff;
+  color: #e0e0e0;
 }
 
 body.dark-mode .card {
@@ -40,31 +40,67 @@ body.dark-mode .card-title,
 body.dark-mode .toggle-label,
 body.dark-mode .danger-label,
 body.dark-mode label {
-  color: #ffffff;
+  color: #e0e0e0;
 }
 
 body.dark-mode .card-desc,
 body.dark-mode .toggle-desc,
 body.dark-mode .danger-desc,
 body.dark-mode .page-sub {
-  color: #bbbbbb;
+  color: #aaaaaa;
 }
 
 body.dark-mode input,
 body.dark-mode select {
   background: #2a2a2a;
   border-color: #444;
-  color: white;
+  color: #e0e0e0;
+}
+
+body.dark-mode input:hover,
+body.dark-mode select:hover {
+  background: #333;
+  border-color: #666;
+  color: #e0e0e0;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+  background: #333;
+  border-color: #888;
+  color: #e0e0e0;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
+}
+
+body.dark-mode input::placeholder {
+  color: #666;
 }
 
 body.dark-mode .btn-outline {
-  border-color: white;
-  color: white;
+  border-color: #555;
+  color: #e0e0e0;
 }
 
 body.dark-mode .btn-outline:hover {
-  background: white;
-  color: black;
+  background: #333;
+  border-color: #888;
+  color: #e0e0e0;
+}
+
+body.dark-mode .card-head {
+  border-bottom-color: #333;
+}
+
+body.dark-mode .divider {
+  border-top-color: #333;
+}
+
+body.dark-mode .danger-card {
+  border-color: #5a1a1a;
+}
+
+body.dark-mode .slider {
+  background: #444;
 }
 
 /* ── SIDEBAR ── */

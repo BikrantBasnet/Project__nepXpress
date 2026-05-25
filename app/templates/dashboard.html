@@ -10,9 +10,8 @@
 </head>
 <body>
 
-  <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-
     <div class="sidebar-brand">
       <img src="{{ url_for('static', filename='logo.png') }}" alt="NepXpress" class="sidebar-logo"/>
       <span class="sidebar-tagline">Logistics Management</span>
@@ -27,7 +26,7 @@
         <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Create Delivery
       </a>
-      <a href="/shipment-history" class="nav-item">
+      <a href="/track-shipment" class="nav-item">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Track Shipment
       </a>
@@ -48,13 +47,11 @@
         <span class="user-role">Customer</span>
       </div>
     </div>
-
   </aside>
 
-  <!-- ══ MAIN ═════════════════════════════════════════════════ -->
+  <!-- MAIN -->
   <div class="main-wrapper">
 
-    <!-- Topbar -->
     <header class="topbar">
       <div class="topbar-title">
         <h1>Dashboard</h1>
@@ -66,13 +63,11 @@
       </button>
     </header>
 
-    <!-- Content -->
     <main class="content">
 
       <!-- Quick Actions -->
       <section class="quick-actions">
-
-<a href="/create-shipment" class="action-card light">
+        <a href="/create-shipment" class="action-card light">
           <div class="action-icon">
             <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           </div>
@@ -91,7 +86,6 @@
             <p>Find your package</p>
           </div>
         </a>
-
       </section>
 
       <!-- Map -->
@@ -118,7 +112,7 @@
     </main>
   </div>
 
-  <!-- ══ RIGHT PANEL ═══════════════════════════════════════════ -->
+  <!-- RIGHT PANEL -->
   <aside class="right-panel">
 
     <!-- Notifications -->
@@ -131,22 +125,11 @@
 
         <div class="notif-item">
           <div class="notif-icon blue">
-            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
           </div>
           <div class="notif-body">
             <strong>Out for Delivery</strong>
-            <p>Package #NXP-2849 is out for delivery</p>
-            <time>1 hour ago</time>
-          </div>
-        </div>
-
-        <div class="notif-item">
-          <div class="notif-icon green">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div class="notif-body">
-            <strong>Payment Received</strong>
-            <p>Payment for order #NXP-2846 confirmed</p>
+            <p>NXP-2849 is out for delivery to Kathmandu</p>
             <time>2 hours ago</time>
           </div>
         </div>
@@ -156,9 +139,20 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           </div>
           <div class="notif-body">
-            <strong>Delivery Delayed</strong>
-            <p>Package #NXP-2845 delayed due to weather</p>
-            <time>3 hours ago</time>
+            <strong>New Order Processing</strong>
+            <p>NXP-2842 is being processed for Dharan</p>
+            <time>1 hour ago</time>
+          </div>
+        </div>
+
+        <div class="notif-item">
+          <div class="notif-icon green">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="notif-body">
+            <strong>Delivered Successfully</strong>
+            <p>NXP-2847 delivered to Sita Gurung in Lalitpur</p>
+            <time>1 day ago</time>
           </div>
         </div>
 
@@ -169,7 +163,7 @@
     <section class="panel-section">
       <div class="panel-header">
         <h3>Recent Shipments</h3>
-        <a href="#">View All</a>
+        <a href="/shipment-history">View All</a>
       </div>
       <div class="shipment-list">
 
@@ -179,7 +173,7 @@
           </div>
           <div class="shipment-body">
             <strong>NXP-2849</strong>
-            <span>Kathmandu</span>
+            <span>Kathmandu — Priya Sharma</span>
             <time>2 hours ago</time>
           </div>
           <span class="badge transit">In Transit</span>
@@ -191,7 +185,7 @@
           </div>
           <div class="shipment-body">
             <strong>NXP-2848</strong>
-            <span>Pokhara</span>
+            <span>Pokhara — Rajan Lama</span>
             <time>5 hours ago</time>
           </div>
           <span class="badge processing">Processing</span>
@@ -203,7 +197,7 @@
           </div>
           <div class="shipment-body">
             <strong>NXP-2847</strong>
-            <span>Lalitpur</span>
+            <span>Lalitpur — Sita Gurung</span>
             <time>1 day ago</time>
           </div>
           <span class="badge delivered">Delivered</span>
@@ -215,7 +209,7 @@
           </div>
           <div class="shipment-body">
             <strong>NXP-2846</strong>
-            <span>Bhaktapur</span>
+            <span>Bhaktapur — Hari Tamang</span>
             <time>2 days ago</time>
           </div>
           <span class="badge delivered">Delivered</span>
@@ -226,7 +220,6 @@
 
   </aside>
 
-  <!-- Help -->
   <button class="help-btn">?</button>
 
 </body>

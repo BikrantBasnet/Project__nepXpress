@@ -27,7 +27,7 @@
         <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Create Delivery
       </a>
-      <a href="/settings" class="nav-item">
+      <a href="/track-shipment" class="nav-item">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Track Shipment
       </a>
@@ -35,7 +35,7 @@
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         History
       </a>
-      <a href="#" class="nav-item">
+      <a href="/settings" class="nav-item">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
         Settings
       </a>
@@ -69,7 +69,7 @@
           <h2 class="card-title">Sender Information</h2>
           <div class="form-group">
             <label>Full Name</label>
-            <input type="text" placeholder="Enter sender's full name" />
+            <input type="text" id="senderName" placeholder="Enter sender's full name" />
           </div>
           <div class="form-group">
             <label>Phone Number</label>
@@ -102,7 +102,7 @@
           <h2 class="card-title">Receiver Information</h2>
           <div class="form-group">
             <label>Full Name</label>
-            <input type="text" placeholder="Enter receiver's full name" />
+            <input type="text" id="receiverName" placeholder="Enter receiver's full name" />
           </div>
           <div class="form-group">
             <label>Phone Number</label>
@@ -241,8 +241,8 @@
           <div class="summary-amount">NPR 150</div>
         </div>
         <div class="summary-actions">
-          <button class="btn-outline">Save as Draft</button>
-          <button class="btn-primary">Confirm &amp; Create Shipment</button>
+          <button class="btn-outline" id="saveDraftBtn">Save as Draft</button>
+          <button class="btn-primary" id="confirmBtn">Confirm &amp; Create Shipment</button>
         </div>
       </div>
     </main>
@@ -251,48 +251,45 @@
   <button class="help-btn">?</button>
 
   <script>
-    document.querySelector('.nav-item:nth-child(4)').href = '/shipment-history';
-document.querySelector('.nav-item:nth-child(5)').href = '/settings';
-
-  // ── DELIVERY OPTION CARDS (click whole card to select) ──
-  document.querySelectorAll('.option-card').forEach(function(card) {
-    card.addEventListener('click', function() {
-      document.querySelectorAll('.option-card').forEach(function(c) {
-        c.classList.remove('selected');
+    // ── DELIVERY OPTION CARDS ──
+    document.querySelectorAll('.option-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.option-card').forEach(function(c) {
+          c.classList.remove('selected');
+        });
+        card.classList.add('selected');
       });
-      card.classList.add('selected');
     });
-  });
 
-  // ── PAYMENT CARDS (click whole card to select) ──────────
-  document.querySelectorAll('.payment-card').forEach(function(card) {
-    card.addEventListener('click', function() {
-      document.querySelectorAll('.payment-card').forEach(function(c) {
-        c.classList.remove('selected');
+    // ── PAYMENT CARDS ──
+    document.querySelectorAll('.payment-card').forEach(function(card) {
+      card.addEventListener('click', function() {
+        document.querySelectorAll('.payment-card').forEach(function(c) {
+          c.classList.remove('selected');
+        });
+        card.classList.add('selected');
       });
-      card.classList.add('selected');
     });
-  });
 
-  // ── SAVE AS DRAFT BUTTON ────────────────────────────────
-  document.querySelector('.btn-outline').addEventListener('click', function() {
-    alert('Shipment saved as draft!');
-    // TODO: send draft data to your backend here
-  });
+    // ── SAVE AS DRAFT ──
+    document.getElementById('saveDraftBtn').addEventListener('click', function() {
+      alert('Shipment saved as draft!');
+    });
 
-  // ── CONFIRM & CREATE SHIPMENT BUTTON ───────────────────
-  document.querySelector('.btn-primary').addEventListener('click', function() {
-    // Simple check: make sure key fields are not empty
-    var senderName = document.querySelectorAll('input[type="text"]')[0].value;
-    var receiverName = document.querySelectorAll('input[type="text"]')[3].value;
+    // ── CONFIRM & CREATE ──
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      var senderName = document.getElementById('senderName').value;
+      var receiverName = document.getElementById('receiverName').value;
 
-    if (senderName === '' || receiverName === '') {
-      alert('Please fill in sender and receiver names before submitting.');
-      return;
-    }
+      if (senderName === '' || receiverName === '') {
+        alert('Please fill in sender and receiver names before submitting.');
+        return;
+      }
 
-    alert('Shipment created successfully! Redirecting to history...');
-    // TODO: collect all form data and POST to your backend, then redirect
-    // window.location.href = 'history.html';
-  });
-</script>
+      alert('Shipment created successfully! Redirecting to history...');
+      // window.location.href = '/shipment-history';
+    });
+  </script>
+
+</body>
+</html>

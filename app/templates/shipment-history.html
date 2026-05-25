@@ -27,7 +27,7 @@
         <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Create Delivery
       </a>
-      <a href="#" class="nav-item">
+      <a href="/track-shipment" class="nav-item">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Track Shipment
       </a>
@@ -71,7 +71,7 @@
           <h1 class="page-title">Shipment History</h1>
           <p class="page-sub">View and manage all your past deliveries</p>
         </div>
-        <button class="btn-primary">+ Create New Shipment</button>
+        <button class="btn-primary" onclick="window.location.href='/create-shipment'">+ Create New Shipment</button>
       </div>
 
       <!-- STATS -->
@@ -97,18 +97,18 @@
       <!-- FILTERS -->
       <div class="filters-bar">
         <div class="filter-tabs">
-          <button class="filter-tab active">All</button>
-          <button class="filter-tab">Delivered</button>
-          <button class="filter-tab">In Transit</button>
-          <button class="filter-tab">Processing</button>
-          <button class="filter-tab">Cancelled</button>
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="delivered">Delivered</button>
+          <button class="filter-tab" data-filter="transit">In Transit</button>
+          <button class="filter-tab" data-filter="processing">Processing</button>
+          <button class="filter-tab" data-filter="cancelled">Cancelled</button>
         </div>
         <div class="filter-right">
           <div class="search-box">
             <span class="search-icon">◎</span>
-            <input type="text" placeholder="Search by tracking ID or address..." />
+            <input type="text" id="searchInput" placeholder="Search by tracking ID or address..." />
           </div>
-          <select class="filter-select">
+          <select class="filter-select" id="dateFilter">
             <option>All Time</option>
             <option>Last 7 days</option>
             <option>Last 30 days</option>
@@ -133,7 +133,240 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="shipmentTableBody">
 
-            <tr>
-              <td class="tracking-id">NXP-
+            <tr data-status="transit">
+              <td class="tracking-id">NXP-2849</td>
+              <td>
+                <div class="recipient-name">Priya Sharma</div>
+                <div class="recipient-phone">+977 9801234567</div>
+              </td>
+              <td>Kathmandu</td>
+              <td>
+                <div>25 May 2026</div>
+                <div class="time-sub">2 hours ago</div>
+              </td>
+              <td>Parcel</td>
+              <td>NPR 350</td>
+              <td><span class="badge transit">In Transit</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Track</button>
+                  <button class="action-btn">Details</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="processing">
+              <td class="tracking-id">NXP-2848</td>
+              <td>
+                <div class="recipient-name">Rajan Lama</div>
+                <div class="recipient-phone">+977 9812345678</div>
+              </td>
+              <td>Pokhara</td>
+              <td>
+                <div>25 May 2026</div>
+                <div class="time-sub">5 hours ago</div>
+              </td>
+              <td>Document</td>
+              <td>NPR 150</td>
+              <td><span class="badge processing">Processing</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Track</button>
+                  <button class="action-btn">Details</button>
+                  <button class="action-btn danger">Cancel</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="delivered">
+              <td class="tracking-id">NXP-2847</td>
+              <td>
+                <div class="recipient-name">Sita Gurung</div>
+                <div class="recipient-phone">+977 9823456789</div>
+              </td>
+              <td>Lalitpur</td>
+              <td>
+                <div>24 May 2026</div>
+                <div class="time-sub">1 day ago</div>
+              </td>
+              <td>Electronics</td>
+              <td>NPR 500</td>
+              <td><span class="badge delivered">Delivered</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Details</button>
+                  <button class="action-btn">Receipt</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="delivered">
+              <td class="tracking-id">NXP-2846</td>
+              <td>
+                <div class="recipient-name">Hari Tamang</div>
+                <div class="recipient-phone">+977 9834567890</div>
+              </td>
+              <td>Bhaktapur</td>
+              <td>
+                <div>23 May 2026</div>
+                <div class="time-sub">2 days ago</div>
+              </td>
+              <td>Clothing</td>
+              <td>NPR 150</td>
+              <td><span class="badge delivered">Delivered</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Details</button>
+                  <button class="action-btn">Receipt</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="transit">
+              <td class="tracking-id">NXP-2845</td>
+              <td>
+                <div class="recipient-name">Nisha Karki</div>
+                <div class="recipient-phone">+977 9845678901</div>
+              </td>
+              <td>Biratnagar</td>
+              <td>
+                <div>22 May 2026</div>
+                <div class="time-sub">3 days ago</div>
+              </td>
+              <td>Fragile</td>
+              <td>NPR 500</td>
+              <td><span class="badge transit">In Transit</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Track</button>
+                  <button class="action-btn">Details</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="cancelled">
+              <td class="tracking-id">NXP-2844</td>
+              <td>
+                <div class="recipient-name">Bikash Rai</div>
+                <div class="recipient-phone">+977 9856789012</div>
+              </td>
+              <td>Chitwan</td>
+              <td>
+                <div>20 May 2026</div>
+                <div class="time-sub">5 days ago</div>
+              </td>
+              <td>Parcel</td>
+              <td>NPR 150</td>
+              <td><span class="badge cancelled">Cancelled</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Details</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="delivered">
+              <td class="tracking-id">NXP-2843</td>
+              <td>
+                <div class="recipient-name">Sunita Thapa</div>
+                <div class="recipient-phone">+977 9867890123</div>
+              </td>
+              <td>Pokhara</td>
+              <td>
+                <div>18 May 2026</div>
+                <div class="time-sub">7 days ago</div>
+              </td>
+              <td>Document</td>
+              <td>NPR 150</td>
+              <td><span class="badge delivered">Delivered</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Details</button>
+                  <button class="action-btn">Receipt</button>
+                </div>
+              </td>
+            </tr>
+
+            <tr data-status="processing">
+              <td class="tracking-id">NXP-2842</td>
+              <td>
+                <div class="recipient-name">Dipak Shrestha</div>
+                <div class="recipient-phone">+977 9878901234</div>
+              </td>
+              <td>Dharan</td>
+              <td>
+                <div>25 May 2026</div>
+                <div class="time-sub">1 hour ago</div>
+              </td>
+              <td>Parcel</td>
+              <td>NPR 350</td>
+              <td><span class="badge processing">Processing</span></td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn">Track</button>
+                  <button class="action-btn">Details</button>
+                  <button class="action-btn danger">Cancel</button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <div class="page-info">Showing 1–8 of 48 shipments</div>
+        <div class="page-controls">
+          <button class="page-btn" disabled>← Prev</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">Next →</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <button class="help-btn">?</button>
+
+  <script>
+    // ── FILTER TABS ──
+    document.querySelectorAll('.filter-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(function(t) {
+          t.classList.remove('active');
+        });
+        tab.classList.add('active');
+
+        var filter = tab.getAttribute('data-filter');
+        document.querySelectorAll('#shipmentTableBody tr').forEach(function(row) {
+          if (filter === 'all' || row.getAttribute('data-status') === filter) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // ── SEARCH ──
+    document.getElementById('searchInput').addEventListener('input', function() {
+      var query = this.value.toLowerCase();
+      document.querySelectorAll('#shipmentTableBody tr').forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    });
+
+    // ── CREATE NEW SHIPMENT ──
+    document.querySelector('.btn-primary').addEventListener('click', function() {
+      window.location.href = '/create-shipment';
+    });
+  </script>
+
+</body>
+</html>
