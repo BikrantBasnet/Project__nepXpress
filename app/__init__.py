@@ -1,10 +1,14 @@
 from flask import Flask, render_template
 from app.routes.authroutes import Authroutes
+from app.models.database import Database
+import config
 
 
 def create_app():
     app = Flask(__name__)
-   
+    app.secret_key = config.SECRET_KEY
+    with app.app_context():
+        Database.create_tables()  # Static method — called on the class, not an object
     auth_routes = Authroutes()
     app.register_blueprint(auth_routes.login())
 
