@@ -1,25 +1,30 @@
 from flask import Blueprint
 from app.controllers.authcontrollers import AuthController
+
 class Authroutes:
-   def __init__(self):
-      self.bp=Blueprint("auth",__name__)
-      self.controller=AuthController()
+    def __init__(self):
+        self.bp = Blueprint("auth", __name__)
+        self.controller = AuthController()
 
-   def login(self):
-   
-     
-      self.bp.route("/login", methods=["GET", "POST"])(
+    def login(self):
+        # Register login route (accepts GET and POST methods)
+        self.bp.route("/login", methods=["GET", "POST"])(
             self.controller.login
-      )
-      self.bp.route("/register", methods=["GET", "POST"])(
+        )
+        
+        # Register register route (accepts GET and POST methods)
+        self.bp.route("/register", methods=["GET", "POST"])(
             self.controller.register
-      )
-       
-      self.bp.route("/settings", methods=["GET", "POST"])(
+        )
+        
+        # Register settings route
+        self.bp.route("/settings", methods=["GET", "POST"])(
             self.controller.settings
-      )
-      self.bp.route("/base", methods=["GET", "POST"])(
+        )
+        
+        # Register base route
+        self.bp.route("/base", methods=["GET", "POST"])(
             self.controller.base
-      )
-
-      return self.bp    
+        )
+        
+        return self.bp

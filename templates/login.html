@@ -61,116 +61,73 @@
     <div class="copyright">© 2026 nepXpress. All rights reserved.</div>
   </aside>
 
-  <!-- ══ RIGHT PANEL ══════════════════════════════════════════ -->
-  <main class="right-panel">
-    <div class="login-card">
+ <!-- ══ RIGHT PANEL ══════════════════════════════════════════ -->
+<main class="right-panel">
+  <div class="login-card">
 
-      <h1 class="login-heading">Welcome Back</h1>
-      <p class="login-sub">Login to access your account</p>
+    <h1 class="login-heading">Welcome Back</h1>
+    <p class="login-sub">Login to access your account</p>
 
-      <!-- Role Selector -->
-      <div class="role-label">Select your role</div>
-      <div class="role-grid">
+    <!-- ── Tab Bar ── -->
+    <div class="tab-bar">
+      <span class="tab active">Login</span>
+      <a href="{{ url_for('auth.register') }}" class="tab">Register</a>
+    </div>
 
-        <div class="role-card active" id="roleCustomer" onclick="selectRole('customer')">
-          <div class="role-card-icon">
-            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          </div>
-          <div class="role-card-text">
-            <div class="role-card-name">Customer</div>
-            <div class="role-card-desc">Send packages</div>
-          </div>
-        </div>
+    <!-- ════════════════════════════════════════════
+         LOGIN FORM - SUBMIT TO /login
+    ════════════════════════════════════════════ -->
+    <form method="POST" action="{{ url_for('auth.login') }}">
 
-        <div class="role-card" id="roleAgent" onclick="selectRole('agent')">
-          <div class="role-card-icon">
-            <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          </div>
-          <div class="role-card-text">
-            <div class="role-card-name">Delivery Agent</div>
-            <div class="role-card-desc">Deliver packages</div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Login / Register Tabs -->
-      <div class="tab-bar">
-        <span class="tab active">Login</span>
-        <a href="{{ url_for('auth.register') }}" class="tab">Register</a>
-        
-      </div>
-
-      <!-- Form -->
+      <!-- Email Field -->
       <div class="field">
         <label class="field-label" for="email">Email Address</label>
         <div class="input-wrap">
           <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <input type="email" id="email" placeholder="Enter your email"/>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="Enter your email"
+            required
+            autocomplete="email"
+          />
         </div>
       </div>
 
+      <!-- Password Field -->
       <div class="field">
         <label class="field-label" for="password">Password</label>
         <div class="input-wrap">
           <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input type="password" id="password" placeholder="Enter your password"/>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          />
         </div>
       </div>
 
+      <!-- Remember Me & Forgot Password -->
       <div class="row-between">
         <label class="checkbox-label">
-          <input type="checkbox"/> Remember me
+          <input type="checkbox" name="remember"/> Remember me
         </label>
         <a href="#" class="forgot-link">Forgot password?</a>
       </div>
 
-      <button class="btn-primary" id="loginBtn" onclick="handleLogin(event)">Login as Customer</button>
+      <!-- Submit Button -->
+      <button type="submit" class="btn-primary">Login</button>
 
+      <!-- Register Link -->
       <p class="register-link">Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
 
-    </div>
-  </main>
+    </form>
 
-  <button class="help-btn">?</button>
+  </div>
+</main>
 
-  <script>
-    let currentRole = 'customer';
-    let currentTab  = 'login';
-
-    function handleLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      if (email === 'admin123@gmail.com' && password === 'admin123') {
-        window.location.href = '/admin-dashboard';
-        return;
-      }
-
-      window.location.href = '/dashboard';
-    }
-
-    function selectRole(role) {
-      currentRole = role;
-      document.getElementById('roleCustomer').classList.toggle('active', role === 'customer');
-      document.getElementById('roleAgent').classList.toggle('active', role === 'agent');
-      updateBtn();
-    }
-
-    function switchTab(tab) {
-      currentTab = tab;
-      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
-      document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
-      updateBtn();
-    }
-
-    function updateBtn() {
-      const roleName = currentRole === 'customer' ? 'Customer' : 'Delivery Agent';
-      const action   = currentTab === 'login' ? 'Login' : 'Register';
-      document.getElementById('loginBtn').textContent = `${action} as ${roleName}`;
-    }
-  </script>
-
-</body>
-</html>
+<button class="help-btn">?</button>
