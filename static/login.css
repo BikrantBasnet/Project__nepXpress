@@ -31,17 +31,16 @@ body {
   overflow: hidden;
 }
 
-/* ── Left Panel ────────────────────────────────────────────── */
+/* ── Left Panel (REDUCED SIZE) ─────────────────────────────── */
 .left-panel {
-  width: 40%;
-  min-width: 360px;
+  width: 28%;
+  min-width: 280px;
   background: var(--dark);
   display: flex;
   flex-direction: column;
-  padding: 36px 44px;
+  padding: 24px 28px;
   position: relative;
   overflow: hidden;
-  /* Fixed so it stays in place while the right panel scrolls */
   position: sticky;
   top: 0;
   height: 100vh;
@@ -64,11 +63,11 @@ body {
 .left-panel::after {
   content: '';
   position: absolute;
-  width: 320px;
-  height: 320px;
+  width: 250px;
+  height: 250px;
   background: radial-gradient(circle, rgba(232, 160, 32, 0.12) 0%, transparent 70%);
-  bottom: 80px;
-  right: -60px;
+  bottom: 50px;
+  right: -40px;
   pointer-events: none;
 }
 
@@ -76,16 +75,16 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 14px;
   position: relative;
   z-index: 1;
-  padding: 22px 26px;
+  padding: 14px 16px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
   border: 1px solid rgba(255, 255, 255, 0.24);
-  border-radius: 24px;
+  border-radius: 14px;
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(18px);
-  margin-bottom: 36px;
+  margin-bottom: 24px;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
@@ -97,26 +96,29 @@ body {
 }
 
 .brand-icon {
-  width: 120px;
-  height: 120px;
+  width: 72px;
+  height: 72px;
   background: #fff;
-  border-radius: 26px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 6px;
 }
 
 .brand-icon:hover {
-  transform: translateY(-4px) scale(1.12);
+  transform: translateY(-3px) scale(1.08);
   box-shadow: 0 34px 95px rgba(0, 0, 0, 0.26);
   background: #f4f7ff;
 }
 
 .brand-logo {
-  width: 84px;
-  height: auto;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   margin: 0;
   filter: none;
@@ -125,7 +127,7 @@ body {
 }
 
 .brand-icon:hover .brand-logo {
-  transform: scale(1.22);
+  transform: scale(1.1);
 }
 
 .brand:hover .brand-name {
@@ -136,18 +138,14 @@ body {
   color: #ffffff;
 }
 
-.brand-icon:hover .brand-logo {
-  transform: scale(1.22);
-}
-
 .brand-text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
 .brand-name {
-  font-size: 42px;
+  font-size: 22px;
   font-weight: 900;
   color: #ffffff;
   letter-spacing: -0.5px;
@@ -155,28 +153,53 @@ body {
 }
 
 .brand-sub-text {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.35px;
-  margin-top: 1px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.3px;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.22);
 }
 
-/* ── Features ──────────────────────────────────────────────── */
+/* ── Project Description (EXPANDED) ─────────────────────────── */
+.project-description {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.project-description-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 10px;
+}
+
+.project-description-text {
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.6;
+}
+
+/* ── Features (REDUCED SPACING) ────────────────────────────── */
 .features {
   margin-top: auto;
-  margin-bottom: 48px;
+  margin-bottom: 24px;
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 14px;
 }
 
 .feature {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 10px;
   animation: fadeUp 0.6s ease both;
 }
 
@@ -185,40 +208,40 @@ body {
 .feature:nth-child(3) { animation-delay: 0.3s; }
 
 .feature-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   background: var(--dark-card);
   border: 1px solid var(--dark-border);
-  border-radius: 10px;
+  border-radius: 7px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
 }
 
 .feature-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   stroke: var(--text-muted);
   fill: none;
   stroke-width: 1.8;
 }
 
 .feature-title {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 3px;
+  margin-bottom: 0px;
 }
 
 .feature-desc {
-  font-size: 13.5px;
+  font-size: 10px;
   color: var(--text-muted);
-  line-height: 1.6;
+  line-height: 1.3;
 }
 
 /* ── Copyright ─────────────────────────────────────────────── */
 .copyright {
-  font-size: 12.5px;
+  font-size: 10px;
   color: var(--text-muted);
   position: relative;
   z-index: 1;
@@ -229,26 +252,17 @@ body {
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 48px 64px;
+  padding: 40px 48px;
   background: #fff;
   position: relative;
-
-  /* Enable vertical scroll on the right panel only */
   overflow-y: auto;
   height: 100vh;
-
-  /* Custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #d0d4de #f7f8fa;
 }
 
-/* Webkit scrollbar styling */
 .right-panel::-webkit-scrollbar {
   width: 6px;
-}
-
-.right-paxnel::-webkit-scrollbar-track {
-  background: #f7f8fa;
 }
 
 .right-panel::-webkit-scrollbar-thumb {
@@ -263,151 +277,71 @@ body {
 /* ── Login Card ────────────────────────────────────────────── */
 .login-card {
   width: 100%;
-  max-width: 560px;
+  max-width: 480px;
   animation: fadeUp 0.5s ease both;
 }
 
 .login-heading {
-  font-size: 42px;
+  font-size: 38px;
   font-weight: 900;
   color: var(--light-text);
   letter-spacing: -0.6px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .login-sub {
-  font-size: 17px;
+  font-size: 16px;
   color: var(--light-muted);
-  margin-bottom: 36px;
-  line-height: 1.75;
-}
-
-/* ── Role Selector ─────────────────────────────────────────── */
-.role-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--light-muted);
-  margin-bottom: 10px;
-  letter-spacing: 0.2px;
-}
-
-.role-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
   margin-bottom: 28px;
-}
-
-.role-card {
-  border: 1.5px solid var(--light-border);
-  border-radius: 16px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
-  background: #fff;
-  user-select: none;
-}
-
-.role-card.active {
-  border-color: var(--light-text);
-  background: #f9f9f9;
-  box-shadow: 0 0 0 1px var(--light-text);
-}
-
-.role-card:hover:not(.active) {
-  border-color: #9ab2f1;
-  background: #f4f7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(46, 81, 148, 0.08);
-}
-
-.role-card-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--input-bg);
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  transition: background 0.2s, transform 0.2s;
-}
-
-.role-card:hover .role-card-icon {
-  background: #e9f0ff;
-  transform: translateY(-1px);
-}
-
-.role-card-icon svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: var(--light-muted);
-  stroke-width: 1.8;
-}
-
-.role-card.active .role-card-icon svg {
-  stroke: var(--light-text);
-}
-
-.role-card-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--light-text);
-}
-
-.role-card-desc {
-  font-size: 13px;
-  color: var(--light-muted);
+  line-height: 1.6;
+  font-weight: 400;
 }
 
 /* ── Tabs ──────────────────────────────────────────────────── */
 .tab-bar {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 1.5px solid var(--light-border);
-  border-radius: 8px;
+  background: transparent;
+  border-bottom: 2px solid var(--light-border);
+  border-radius: 0;
   overflow: hidden;
   margin-bottom: 28px;
+  gap: 0;
 }
 
 .tab {
-  padding: 12px 10px;
+  padding: 14px 12px;
   text-align: center;
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s;
   color: var(--light-muted);
-  background: #fff;
+  background: transparent;
   border: none;
+  border-bottom: 3px solid transparent;
   font-family: inherit;
+  margin-bottom: -2px;
 }
 
 .tab.active {
   color: var(--accent);
   font-weight: 600;
-  background: #fffaf3;
+  border-bottom-color: var(--accent);
+  background: transparent;
 }
 
-.tab:hover {
-  background: #f6f8ff;
-  color: #1d3ba8;
+.tab:hover:not(.active) {
+  color: var(--light-text);
 }
 
-.tab:first-child {
-  border-right: 1.5px solid var(--light-border);
-}
-
-/* ── Form Fields ───────────────────────────────────────────── */
+/* ── Form Fields (TIGHTER SPACING) ─────────────────────────── */
 .field {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .field-label {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--light-text);
   margin-bottom: 8px;
@@ -436,22 +370,24 @@ body {
   height: 50px;
   background: var(--input-bg);
   border: 1.5px solid transparent;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 0 16px 0 46px;
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   color: var(--light-text);
-  transition: border-color 0.2s, background 0.2s;
+  transition: all 0.2s;
   outline: none;
 }
 
 .input-wrap input::placeholder {
   color: var(--light-muted);
+  font-size: 15px;
 }
 
 .input-wrap input:focus {
   border-color: var(--light-text);
   background: #fff;
+  box-shadow: 0 0 0 3px rgba(26, 31, 46, 0.05);
 }
 
 /* ── Remember Me / Forgot Row ──────────────────────────────── */
@@ -459,16 +395,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: 8px;
   color: var(--light-muted);
   cursor: pointer;
+  font-size: 14px;
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -479,48 +416,49 @@ body {
 }
 
 .forgot-link {
-  font-size: 14px;
-  color: #3b6ef8;
+  color: var(--accent);
   text-decoration: none;
   font-weight: 500;
   transition: opacity 0.2s;
+  font-size: 14px;
 }
 
 .forgot-link:hover {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-/* ── Primary Button ────────────────────────────────────────── */
+/* ── Primary Button (BIGGER TEXT) ──────────────────────────── */
 .btn-primary {
   width: 100%;
   height: 52px;
   background: var(--light-text);
   color: #fff;
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 17px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  letter-spacing: 0.2px;
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.3px;
+  transition: all 0.2s;
+  margin-top: 6px;
 }
 
 .btn-primary:hover {
-  background: #2a2f3e;
+  background: var(--accent);
   transform: translateY(-2px);
-  box-shadow: 0 16px 30px rgba(42, 47, 62, 0.22);
+  box-shadow: 0 12px 24px rgba(232, 160, 32, 0.2);
 }
 
 .btn-primary:active {
-  transform: scale(0.99);
+  transform: scale(0.98);
 }
 
 /* ── Register Link ─────────────────────────────────────────── */
 .register-link {
   text-align: center;
-  margin-top: 22px;
-  font-size: 13.5px;
+  margin-top: 16px;
+  font-size: 14px;
   color: var(--light-muted);
 }
 
@@ -528,10 +466,11 @@ body {
   color: var(--light-text);
   font-weight: 600;
   text-decoration: none;
+  transition: color 0.2s;
 }
 
 .register-link a:hover {
-  text-decoration: underline;
+  color: var(--accent);
 }
 
 /* ── Help Button ───────────────────────────────────────────── */
@@ -550,11 +489,13 @@ body {
   font-size: 15px;
   font-weight: 700;
   color: var(--light-muted);
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .help-btn:hover {
-  background: #d0d4de;
+  background: var(--accent);
+  color: white;
+  transform: scale(1.1);
 }
 
 /* ── Animation ─────────────────────────────────────────────── */
@@ -582,7 +523,7 @@ body {
   gap: 6px;
   animation: alertFade 3s ease-out forwards;
   width: 100%;
-  max-width: 560px;
+  max-width: 480px;
   margin-left: auto;
   margin-right: auto;
   align-self: flex-start;
@@ -615,7 +556,6 @@ body {
   opacity: 0.7;
 }
 
-/* Alert auto-dismiss animation */
 @keyframes alertFade {
   0% {
     opacity: 1;
