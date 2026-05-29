@@ -7,7 +7,7 @@ class Database:
        self.connection = pymysql.connect(
     host="localhost",
     user="root",
-    password="Newbie007@",
+    password="samyograi15236",
     database="nepXpress",
     charset='utf8mb4'
 )
