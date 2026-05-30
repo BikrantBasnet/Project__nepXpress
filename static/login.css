@@ -33,18 +33,17 @@ body {
 
 /* ── Left Panel (REDUCED SIZE) ─────────────────────────────── */
 .left-panel {
-  width: 28%;
-  min-width: 280px;
+  width: 24%;
+  min-width: 260px;
   background: var(--dark);
   display: flex;
   flex-direction: column;
-  padding: 24px 28px;
-  position: relative;
-  overflow: hidden;
+  padding: 24px 22px;
   position: sticky;
   top: 0;
   height: 100vh;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 /* Subtle grid texture */
@@ -165,9 +164,10 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 18px;
-  margin-bottom: 24px;
   position: relative;
   z-index: 1;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .project-description-title {
@@ -187,58 +187,64 @@ body {
 
 /* ── Features (REDUCED SPACING) ────────────────────────────── */
 .features {
-  margin-top: auto;
+  margin-top: 0;
   margin-bottom: 24px;
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
-
 .feature {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 14px;
   animation: fadeUp 0.6s ease both;
 }
-
 .feature:nth-child(1) { animation-delay: 0.1s; }
 .feature:nth-child(2) { animation-delay: 0.2s; }
 .feature:nth-child(3) { animation-delay: 0.3s; }
-
 .feature-icon {
-  width: 32px;
-  height: 32px;
+  width: 42px;
+  height: 42px;
   background: var(--dark-card);
   border: 1px solid var(--dark-border);
-  border-radius: 7px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.feature-icon {
+  width: 46px;
+  height: 46px;
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-radius: 11px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
 }
 
 .feature-icon svg {
-  width: 14px;
-  height: 14px;
-  stroke: var(--text-muted);
+  width: 22px;
+  height: 22px;
+  stroke: rgba(255,255,255,0.6);
   fill: none;
   stroke-width: 1.8;
 }
 
 .feature-title {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0px;
+  margin-bottom: 3px;
 }
 
 .feature-desc {
-  font-size: 10px;
+  font-size: 12.5px;
   color: var(--text-muted);
-  line-height: 1.3;
+  line-height: 1.45;
 }
-
 /* ── Copyright ─────────────────────────────────────────────── */
 .copyright {
   font-size: 10px;
