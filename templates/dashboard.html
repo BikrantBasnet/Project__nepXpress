@@ -51,12 +51,11 @@
         Settings
       </a>
     </nav>
-
-    <div class="sidebar-user">
-      <div class="user-avatar">JD</div>
+<div class="sidebar-user">
+      <div class="user-avatar">{{ (user_name[0] if user_name else 'U') | upper }}</div>
       <div class="user-info">
-        <span class="user-name">John Doe</span>
-        <span class="user-role">Customer</span>
+        <span class="user-name">{{ user_name if user_name else 'User' }}</span>
+        <span class="user-role">{{ user_role | capitalize if user_role else 'Customer' }}</span>
       </div>
     </div>
   </aside>
@@ -66,8 +65,8 @@
 
     <header class="topbar">
       <div class="topbar-title">
-        <h1>Dashboard</h1>`
-        <p>Welcome back, John!</p>
+        <h1>Dashboard</h1>
+        <p>Welcome back, {{ user_name.split(' ')[0] if user_name else 'there' }}!</p>
       </div>
       <button class="notif-btn">
         <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>

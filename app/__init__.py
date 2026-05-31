@@ -86,12 +86,16 @@ def create_app():
         session.clear()
         flash("Your account has been permanently deleted.", "success")
         return redirect(url_for("auth.login"))
-
+    
     @app.route("/dashboard")
     @login_required
     @no_cache
     def dashboard():
-        return render_template("dashboard.html")
+        return render_template(
+            "dashboard.html",
+            user_name=session.get("user_name"),
+            user_role=session.get("user_role")
+        )
 
     @app.route("/create-shipment")
     @login_required
