@@ -45,7 +45,8 @@ class AuthController(BaseController):
             password = request.form.get("password", "").strip()
             confirm_password = request.form.get("confirmPassword", "").strip()
             role = request.form.get("role", "customer").strip()
-            if not name or not email or not password or not confirm_password:
+            security_answer = request.form.get("security_answer", "").strip()
+            if not name or not email or not password or not confirm_password or not security_answer:
                 flash("All fields are required.", "danger")
                 return render_template("register.html")
             if password != confirm_password:
@@ -57,7 +58,7 @@ class AuthController(BaseController):
             if len(name) > 100:
                 flash("Name must be under 100 characters.", "danger")
                 return render_template("register.html")
-            new_user = User(name=name, email=email, password=password, role=role)
+            new_user = User(name=name, email=email, password=password, role=role, security_answer=security_answer)
             if new_user.email_exists():
                 flash("Email already registered. Please login or use a different email.", "danger")
                 return render_template("register.html")

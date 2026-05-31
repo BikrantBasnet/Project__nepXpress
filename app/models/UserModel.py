@@ -6,12 +6,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class User(BaseModel):
     table = "users"
     
-    def __init__(self, name="", email="", password="", role="customer"):
+    
+    def __init__(self, name="", email="", password="", role="customer", security_answer=""):
         self.id = None
         self.name = name
         self.email = email
         self.__password = password  # Private attribute for plain text
         self.role = role
+        self.__security_answer = security_answer  # plain text, hashed on save
         self.created_at = None
     
     def delete_account(self):
@@ -21,20 +23,31 @@ class User(BaseModel):
         db.execute(query, (self.email,))
         db.close()
         
+    def check_security_answer(self, plain_answer):
+        """Check if the given security answer matches the stored hash (by email)."""
+        db = Database()
+        query = f"SELECT security_answer FROM {self.table} WHERE email=%s"
+        result = db.fetch_one(query, (self.email,))
+        db.close()
+
+        if not result or not result['security_answer']:
+            return False
+        return check_password_hash(result['security_answer'], plain_answer.strip().lower())
+    
     
     def save(self):
-        """Save user to database with hashed password"""
-        db = Database()
-        
-        # Hash the password before saving
-        hashed_password = generate_password_hash(self.__password)
-        
-        query = (
-            f"INSERT INTO {self.table} (name, email, password, role) "
-            f"VALUES (%s, %s, %s, %s)"
-        )
-        db.execute(query, (self.name, self.email, hashed_password, self.role))
-        db.close()
+            """Save user to database with hashed password and hashed security answer"""
+            db = Database()
+
+            hashed_password = generate_password_hash(self.__password)
+            hashed_answer = generate_password_hash(self.__security_answer.strip().lower())
+
+            query = (
+                f"INSERT INTO {self.table} (name, email, password, role, security_answer) "
+                f"VALUES (%s, %s, %s, %s, %s)"
+            )
+            db.execute(query, (self.name, self.email, hashed_password, self.role, hashed_answer))
+            db.close()
     
     
     def update(self):
