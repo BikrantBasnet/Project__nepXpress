@@ -58,6 +58,14 @@ class User(BaseModel):
         self.email = email
         self.update()
     
+    def update_password(self, new_password):
+        """Update the user's password (hashed) by email."""
+        db = Database()
+        hashed_password = generate_password_hash(new_password)
+        query = f"UPDATE {self.table} SET password=%s WHERE email=%s"
+        db.execute(query, (hashed_password, self.email))
+        db.close()
+    
     
     def email_exists(self):
         """Check if email already exists in database"""

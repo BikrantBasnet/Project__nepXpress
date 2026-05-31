@@ -24,6 +24,7 @@ class AuthController(BaseController):
             if not user.check_password(password):
                 flash("Incorrect password. Please try again.", "danger")
                 return render_template("login.html")
+           
             session["user_id"] = user_data["id"]
             session["user_name"] = user_data["name"]
             session["user_email"] = user_data["email"]
