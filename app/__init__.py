@@ -63,7 +63,6 @@ def create_app():
     @login_required
     @no_cache
     def dashboard():
-        
         return render_template("dashboard.html")
 
     @app.route("/create-shipment")
@@ -120,6 +119,7 @@ def create_app():
             session.clear()
             flash("You have been logged out successfully.", "success")
             return redirect(url_for("auth.login"))
+
     @app.route("/forgot-password", methods=["GET", "POST"])
     def forgot_password():
         if request.method == "GET":

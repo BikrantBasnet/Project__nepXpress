@@ -13,7 +13,7 @@ class User(BaseModel):
         self.__password = password  # Private attribute for plain text
         self.role = role
         self.created_at = None
-    
+        
     
     def save(self):
         """Save user to database with hashed password"""
