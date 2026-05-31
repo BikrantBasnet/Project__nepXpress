@@ -49,6 +49,12 @@ class User(BaseModel):
             db.execute(query, (self.name, self.email, hashed_password, self.role, hashed_answer))
             db.close()
     
+    def update_profile_info(self, name, phone, address):
+        """Update name, phone, and address by email (email stays the login key)."""
+        db = Database()
+        query = f"UPDATE {self.table} SET name=%s, phone=%s, address=%s WHERE email=%s"
+        db.execute(query, (name, phone, address, self.email))
+        db.close()
     
     def update(self):
         """Update user in database"""
