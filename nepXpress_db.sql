@@ -125,3 +125,13 @@ INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, 
 ('NXP-2845', 167, 4, 'Biratnagar', 'delayed',    950.00,  '2026-05-15 11:00:00'),
 ('NXP-2844', 168, 2, 'Dharan',     'delivered',  700.00,  '2026-05-15 08:00:00');
 SELECT id, tracking_id, customer_id, status FROM shipments;
+
+
+UPDATE shipments SET created_at = NOW() WHERE tracking_id IN 
+('NXP-2849','NXP-2848','NXP-2847','NXP-2846','NXP-2845','NXP-2844');
+
+-- Add some last month shipments for comparison
+INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, amount, created_at) VALUES
+('NXP-2843', 163, 1, 'Kathmandu', 'delivered', 900.00, DATE_SUB(NOW(), INTERVAL 35 DAY)),
+('NXP-2842', 164, 2, 'Pokhara',   'delivered', 750.00, DATE_SUB(NOW(), INTERVAL 38 DAY));
+

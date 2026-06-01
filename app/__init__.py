@@ -30,6 +30,7 @@ def login_required(f):
 
 
 def create_app():
+
     app_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(app_dir)
 
@@ -210,17 +211,16 @@ def create_app():
             user_role=session.get("user_role")
         )
     @app.route("/admin-dashboard")
-    @login_required
     @no_cache
     def admin_dashboard():
-        if session.get("user_role") != "admin":
-            flash("You don't have permission to access this page.", "danger")
-            return redirect(url_for("dashboard"))
+        # Accept either customer session or admin API session
+        if not session.get("user_id") and not session.get("admin_logged_in"):
+            return redirect(url_for("auth.login"))
         get_flashed_messages()
         return render_template(
             "admin-dashboard.html",
-            user_name=session.get("user_name"),
-            user_role=session.get("user_role")
+            user_name=session.get("user_name") or session.get("admin_name"),
+            user_role=session.get("user_role") or session.get("admin_role")
         )
 
     @app.route("/logout", methods=["GET", "POST"])
@@ -286,6 +286,12 @@ def create_app():
     @app.errorhandler(404)
     def error(e):
         return render_template("error.html"), 404
+    
+    @app.route("/debug-session")
+    def debug_session():
+      from flask import current_app
+      rules = {str(r): r.endpoint for r in current_app.url_map.iter_rules()}
+      return {"session": dict(session), "routes": rules}
 
     return app
 

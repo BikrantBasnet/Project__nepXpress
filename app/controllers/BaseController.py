@@ -75,14 +75,13 @@ class BaseController:
 # This one returns JSON 401 — for admin API routes only.
 
 def admin_required(f):
-    """
-    Decorator for admin API routes.
-    Checks session['admin_logged_in'] set by AdminAuthController.
-    Returns JSON 401 on failure — does NOT redirect to a template.
-    """
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not session.get('admin_logged_in'):
+        # Accept regular admin login OR API admin login
+        is_api_admin = session.get('admin_logged_in')
+        is_form_admin = session.get('user_id') and session.get('user_role') == 'admin'
+        
+        if not is_api_admin and not is_form_admin:
             return jsonify({"success": False, "message": "Unauthorized — admin login required"}), 401
         return f(*args, **kwargs)
     return decorated

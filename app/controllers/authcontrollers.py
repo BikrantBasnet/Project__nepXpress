@@ -7,6 +7,8 @@ class AuthController(BaseController):
 
     def login(self):
         if "user_id" in session:
+            if session.get("user_role") == "admin":
+                return redirect(url_for("admin_dashboard"))
             return redirect(url_for("dashboard"))
         if request.method == "GET":
             return render_template("login.html")
