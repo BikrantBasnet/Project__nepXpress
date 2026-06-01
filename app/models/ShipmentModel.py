@@ -27,17 +27,28 @@ class Shipment(BaseModel):
         db = Database()
         query = (
             "INSERT INTO shipments "
-            "(tracking_id, user_id, sender_name, sender_phone, sender_address, sender_city, "
-            "receiver_name, receiver_phone, receiver_address, receiver_city, "
-            "package_type, weight, delivery_type, payment_method, status) "
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            "(tracking_id, user_id, sender_name, sender_phone, sender_address, sender_city, sender_district, "
+            "receiver_name, receiver_phone, receiver_address, receiver_city, receiver_district, "
+            "package_type, weight, estimated_value, length_cm, width_cm, height_cm, instructions, "
+            "delivery_type, payment_method, status) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         )
         db.execute(query, (
             data["tracking_id"], data["user_id"],
-            data["sender_name"], data["sender_phone"], data["sender_address"], data["sender_city"],
-            data["receiver_name"], data["receiver_phone"], data["receiver_address"], data["receiver_city"],
-            data["package_type"], data["weight"], data["delivery_type"],
-            data["payment_method"], data["status"],
+            data["sender_name"], data["sender_phone"], data["sender_address"], data["sender_city"], data["sender_district"],
+            data["receiver_name"], data["receiver_phone"], data["receiver_address"], data["receiver_city"], data["receiver_district"],
+            data["package_type"], data["weight"], data["estimated_value"],
+            data["length_cm"], data["width_cm"], data["height_cm"], data["instructions"],
+            data["delivery_type"], data["payment_method"], data["status"],
+        ))
+        db.close()
+        db.execute(query, (
+            data["tracking_id"], data["user_id"],
+            data["sender_name"], data["sender_phone"], data["sender_address"], data["sender_city"], data["sender_district"],
+            data["receiver_name"], data["receiver_phone"], data["receiver_address"], data["receiver_city"], data["receiver_district"],
+            data["package_type"], data["weight"], data["estimated_value"],
+            data["length_cm"], data["width_cm"], data["height_cm"], data["instructions"],
+            data["delivery_type"], data["payment_method"], data["status"],
         ))
         db.close()
 
