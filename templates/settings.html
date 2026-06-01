@@ -24,11 +24,17 @@
   {% endwith %}
 
   <aside class="sidebar">
-    <div class="sidebar-brand">
-      <img src="{{ url_for('static', filename='logo.png') }}" alt="NepXpress" class="sidebar-logo" />
-      <span class="sidebar-tagline">Logistics Management</span>
+<div class="sidebar-brand">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">NepXpress</div>
+          <div class="brand-sub-text">Logistics & Delivery</div>
+        </div>
+      </div>
     </div>
-
     <nav class="sidebar-nav">
       <a href="/dashboard" class="nav-item">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
