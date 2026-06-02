@@ -1,5 +1,5 @@
 from flask import Blueprint
-from app.controllers.DashboardControllers import DashboardController
+from app.controllers.AdminDashboardController import DashboardController
 
 
 class Dashboardroutes:

@@ -99,3 +99,39 @@ INSERT IGNORE INTO system_alerts (type, title, message, reference_id, is_read, c
 ('error',   'Agent Offline',       'Deepak R. hasn''t checked in for 4 hours',           NULL,        0, DATE_SUB(NOW(), INTERVAL 4 HOUR)),
 ('success', 'Payment Confirmed',   'Order #NXP-2846 — NPR 1,200 received',               'NXP-2846', 1, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
 ('info',    'New User Registered', 'Nisha Karki joined as a customer',                   NULL,        1, DATE_SUB(NOW(), INTERVAL 1 DAY));
+
+
+
+DESCRIBE users;
+ALTER TABLE users ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'active';
+INSERT IGNORE INTO users (name, email, password, role) VALUES
+('John Doe',    'john@gmail.com',   SHA2('pass123',256), 'customer'),
+('Priya Sharma','priya@gmail.com',  SHA2('pass123',256), 'customer'),
+('Rajan Lama',  'rajan@gmail.com',  SHA2('pass123',256), 'customer'),
+('Sita Gurung', 'sita@gmail.com',   SHA2('pass123',256), 'customer'),
+('Hari Tamang', 'hari@gmail.com',   SHA2('pass123',256), 'customer'),
+('Nisha Karki', 'nisha@gmail.com',  SHA2('pass123',256), 'customer');
+SELECT id, name, role, status FROM users ORDER BY id;
+
+
+SET SQL_SAFE_UPDATES = 0;
+DELETE FROM shipments;
+SET SQL_SAFE_UPDATES = 1;
+INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, amount, created_at) VALUES
+('NXP-2849', 163, 1, 'Kathmandu',  'in_transit', 800.00,  '2026-05-18 08:00:00'),
+('NXP-2848', 164, 2, 'Pokhara',    'processing', 1500.00, '2026-05-18 07:00:00'),
+('NXP-2847', 165, 3, 'Lalitpur',   'delivered',  600.00,  '2026-05-17 09:00:00'),
+('NXP-2846', 166, 1, 'Bhaktapur',  'delivered',  1200.00, '2026-05-16 10:00:00'),
+('NXP-2845', 167, 4, 'Biratnagar', 'delayed',    950.00,  '2026-05-15 11:00:00'),
+('NXP-2844', 168, 2, 'Dharan',     'delivered',  700.00,  '2026-05-15 08:00:00');
+SELECT id, tracking_id, customer_id, status FROM shipments;
+
+
+UPDATE shipments SET created_at = NOW() WHERE tracking_id IN 
+('NXP-2849','NXP-2848','NXP-2847','NXP-2846','NXP-2845','NXP-2844');
+
+-- Add some last month shipments for comparison
+INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, amount, created_at) VALUES
+('NXP-2843', 163, 1, 'Kathmandu', 'delivered', 900.00, DATE_SUB(NOW(), INTERVAL 35 DAY)),
+('NXP-2842', 164, 2, 'Pokhara',   'delivered', 750.00, DATE_SUB(NOW(), INTERVAL 38 DAY));
+

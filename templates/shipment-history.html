@@ -6,7 +6,6 @@
   <title>Shipment History - NepXpress</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='admin-dashboard.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='shipment-history.css') }}" />
 </head>
 <body>
@@ -73,30 +72,29 @@
     <main class="content">
 
       <!-- PAGE HEADER -->
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Shipment History</h1>
-          <p class="page-sub">View and manage all your past deliveries</p>
-        </div>
-        <button class="btn-primary" onclick="window.location.href='/create-shipment'">+ Create New Shipment</button>
-      </div>
-
+<!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">All Shipments</h1>
+      <p class="page-sub">View and manage all your past deliveries</p>
+    </div>
+  </div>
       <!-- STATS -->
       <div class="stats-row">
         <div class="stat-card">
-          <div class="stat-number">48</div>
+          <div class="stat-number">{{ stats.total }}</div>
           <div class="stat-label">Total Shipments</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">41</div>
+          <div class="stat-number">{{ stats['Delivered'] }}</div>
           <div class="stat-label">Delivered</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">4</div>
+          <div class="stat-number">{{ stats['In Transit'] }}</div>
           <div class="stat-label">In Transit</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">3</div>
+          <div class="stat-number">{{ stats['Processing'] }}</div>
           <div class="stat-label">Processing</div>
         </div>
       </div>
@@ -142,27 +140,64 @@
           </thead>
           <tbody id="shipmentTableBody">
 
-            <tr data-status="transit">
-              <td class="tracking-id">NXP-2849</td>
-              <td>
-                <div class="recipient-name">Priya Sharma</div>
-                <div class="recipient-phone">+977 9801234567</div>
-              </td>
-              <td>Kathmandu</td>
-              <td>
-                <div>25 May 2026</div>
-                <div class="time-sub">2 hours ago</div>
-              </td>
-              <td>Parcel</td>
-              <td>NPR 350</td>
-              <td><span class="badge transit">In Transit</span></td>
-              <td>
-                <div class="actions">
-                  <button class="action-btn">Track</button>
-                  <button class="action-btn">Details</button>
-                </div>
-              </td>
-            </tr>
+            {% if shipments %}
+              {% for s in shipments %}
+                {# Normalise status to a CSS class name #}
+                {% set raw = s.status | lower %}
+                {% if raw == 'in_transit' %}
+                  {% set css_status = 'transit' %}
+                  {% set label      = 'In Transit' %}
+                {% elif raw == 'delivered' %}
+                  {% set css_status = 'delivered' %}
+                  {% set label      = 'Delivered' %}
+                {% elif raw in ['processing', 'pending'] %}
+                  {% set css_status = 'processing' %}
+                  {% set label      = raw | capitalize %}
+                {% elif raw == 'delayed' %}
+                  {% set css_status = 'transit' %}
+                  {% set label      = 'Delayed' %}
+                {% elif raw == 'cancelled' %}
+                  {% set css_status = 'cancelled' %}
+                  {% set label      = 'Cancelled' %}
+                {% else %}
+                  {% set css_status = '' %}
+                  {% set label      = raw | capitalize %}
+                {% endif %}
+
+                <tr data-status="{{ css_status }}">
+                  <td class="tracking-id">{{ s.tracking_id }}</td>
+                  <td>
+                    <div class="recipient-name">{{ s.receiver_name }}</div>
+                    {% if s.receiver_phone %}
+                      <div class="recipient-phone">{{ s.receiver_phone }}</div>
+                    {% endif %}
+                  </td>
+                  <td>{{ s.receiver_city or s.receiver_district or '—' }}</td>
+                  <td>
+                    <div>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</div>
+                    <div class="time-sub">{{ s.delivery_type or '' }}</div>
+                  </td>
+                  <td>{{ s.package_type or '—' }}</td>
+                  <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
+                  <td><span class="badge {{ css_status }}">{{ label }}</span></td>
+                  <td>
+                    <div class="actions">
+                      <a href="/track-shipment?id={{ s.tracking_id }}" class="action-btn">Track</a>
+                      <button class="action-btn"
+                              onclick="showDetails('{{ s.tracking_id }}','{{ s.receiver_name }}','{{ s.receiver_phone or '' }}','{{ s.receiver_city or s.receiver_district or '' }}','{{ label }}','{{ s.delivery_type or '' }}','{{ s.package_type or '' }}','{{ s.estimated_value or 0 }}')">
+                        Details
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr id="emptyRow">
+                <td colspan="8" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
+                  No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
+                </td>
+              </tr>
+            {% endif %}
 
           </tbody>
         </table>
@@ -170,17 +205,30 @@
 
       <!-- PAGINATION SECTION -->
       <div class="pagination">
-        <div class="page-info">Showing 1–8 of 48 shipments</div>
+        <div class="page-info">
+          {% if shipments %}
+            Showing {{ shipments | length }} shipment{{ 's' if shipments | length != 1 else '' }}
+          {% else %}
+            No shipments
+          {% endif %}
+        </div>
         <div class="page-controls">
           <button class="page-btn" disabled>← Prev</button>
           <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
           <button class="page-btn">Next →</button>
         </div>
       </div>
 
     </main>
+  </div>
+
+  <!-- DETAILS MODAL -->
+  <div id="detailsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:32px; width:420px; max-width:90vw; box-shadow:0 24px 64px rgba(0,0,0,0.18); position:relative;">
+      <button onclick="closeDetails()" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;">×</button>
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:20px;color:#0d0d0d;">Shipment Details</h2>
+      <div id="modalBody" style="display:flex;flex-direction:column;gap:12px;font-size:14px;color:#444;"></div>
+    </div>
   </div>
 
   <button class="help-btn">?</button>
@@ -189,34 +237,62 @@
     // ── FILTER TABS ──
     document.querySelectorAll('.filter-tab').forEach(function(tab) {
       tab.addEventListener('click', function() {
-        document.querySelectorAll('.filter-tab').forEach(function(t) {
-          t.classList.remove('active');
-        });
+        document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
         tab.classList.add('active');
-
         var filter = tab.getAttribute('data-filter');
-        document.querySelectorAll('#shipmentTableBody tr').forEach(function(row) {
-          if (filter === 'all' || row.getAttribute('data-status') === filter) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
+        var hasVisible = false;
+        document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
+          var show = filter === 'all' || row.getAttribute('data-status') === filter;
+          row.style.display = show ? '' : 'none';
+          if (show) hasVisible = true;
         });
+        // Show/hide empty state for filtered results
+        var empty = document.getElementById('noFilterResults');
+        if (!empty) {
+          empty = document.createElement('tr');
+          empty.id = 'noFilterResults';
+          empty.innerHTML = '<td colspan="8" style="text-align:center;padding:40px 0;color:#aaa;font-size:15px;">No shipments match this filter.</td>';
+          document.getElementById('shipmentTableBody').appendChild(empty);
+        }
+        empty.style.display = hasVisible ? 'none' : '';
       });
     });
 
     // ── SEARCH ──
     document.getElementById('searchInput').addEventListener('input', function() {
       var query = this.value.toLowerCase();
-      document.querySelectorAll('#shipmentTableBody tr').forEach(function(row) {
-        var text = row.textContent.toLowerCase();
-        row.style.display = text.includes(query) ? '' : 'none';
+      document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
+        row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
       });
     });
 
-    // ── CREATE NEW SHIPMENT ──
-    document.querySelector('.btn-primary').addEventListener('click', function() {
-      window.location.href = '/create-shipment';
+    // ── DETAILS MODAL ──
+    function showDetails(trackId, receiver, phone, dest, status, type, pkgType, value) {
+      var rows = [
+        ['Tracking ID',  trackId],
+        ['Recipient',    receiver],
+        ['Phone',        phone || '—'],
+        ['Destination',  dest  || '—'],
+        ['Status',       status],
+        ['Delivery Type',type  || '—'],
+        ['Package Type', pkgType || '—'],
+        ['Est. Value',   value ? 'NPR ' + parseFloat(value).toLocaleString() : '—'],
+      ];
+      document.getElementById('modalBody').innerHTML = rows.map(function(r) {
+        return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">'
+             + '<span style="font-weight:600;color:#0d0d0d;">' + r[0] + '</span>'
+             + '<span>' + r[1] + '</span></div>';
+      }).join('');
+      document.getElementById('detailsModal').style.display = 'flex';
+    }
+
+    function closeDetails() {
+      document.getElementById('detailsModal').style.display = 'none';
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('detailsModal').addEventListener('click', function(e) {
+      if (e.target === this) closeDetails();
     });
   </script>
 

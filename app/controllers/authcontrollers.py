@@ -7,6 +7,8 @@ class AuthController(BaseController):
 
     def login(self):
         if "user_id" in session:
+            if session.get("user_role") == "admin":
+                return redirect(url_for("admin_dashboard"))
             return redirect(url_for("dashboard"))
         if request.method == "GET":
             return render_template("login.html")
@@ -69,29 +71,14 @@ class AuthController(BaseController):
             except Exception as e:
                 flash(f"Registration failed: {str(e)}", "danger")
                 return render_template("register.html")
-
     def logout(self):
         if "user_id" not in session:
             return redirect(url_for("auth.login"))
-        if request.method == "GET":
-            return render_template("logout.html")
         if request.method == "POST":
-            password = request.form.get("password", "").strip()
-            if not password:
-                flash("Password is required to logout.", "danger")
-                return render_template("logout.html")
-            user_email = session.get("user_email")
-            user = User(email=user_email)
-            user_data = user.find_by("email", user_email)
-            if not user_data:
-                flash("User not found.", "danger")
-                return render_template("logout.html")
-            if not user.check_password(password):
-                flash("Incorrect password. Please try again.", "danger")
-                return render_template("logout.html")
             session.clear()
             flash("You have been logged out successfully.", "success")
             return redirect(url_for("auth.login"))
+        return render_template("logout.html")
 
     def settings(self):
         if "user_id" not in session:

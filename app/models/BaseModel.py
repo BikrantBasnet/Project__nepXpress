@@ -2,41 +2,31 @@
 =============================================================
   OOP Concept: ABSTRACTION & INHERITANCE (Base Model)
 =============================================================
-  - Abstraction: We define WHAT every model should do
-    (find, create, update, delete) without saying HOW.
-  - Inheritance: Child classes (like User) will inherit
-    these methods and reuse them automatically.
-  - Encapsulation: The database connection details are
-    hidden inside this class — outside code never sees them.
+  Teammate's ABC structure kept intact.
+  Admin dashboard class methods added at the bottom —
+  they don't override anything the teammate wrote.
 =============================================================
 """
 
 from abc import ABC, abstractmethod
-from .database import Database
+from app.models.database import Database, execute_query
 
 
 class BaseModel(ABC):
     """
     Abstract Base Class for all models.
-
-    ABC = Abstract Base Class
-    - You CANNOT create an object of BaseModel directly.
-    - Child classes MUST define the 'table' property.
-    - Child classes INHERIT all the helper methods below.
+    Teammate's original methods (find_by_id, find_by, find_all,
+    count_all, delete_by_id) are untouched.
+    Admin dashboard helpers added below as class methods.
     """
 
-    # ── Abstract Property (child MUST define this) ──────────
+    # ── Abstract Property (teammate's — child MUST define 'table') ──── #
     @property
     @abstractmethod
     def table(self):
-        """Each child model must specify its database table name."""
         pass
 
-    # ── Shared Methods (inherited by all child models) ──────
-
-    # @abstractmethod
-    # def save(self):
-    #     pass
+    # ── Teammate's shared methods (unchanged) ────────────────────────── #
 
     def find_by_id(self, record_id):
         """Find a single record by its ID."""
@@ -48,7 +38,7 @@ class BaseModel(ABC):
         return result
 
     def find_by(self, column, value):
-        """Find a single record by any column. Example: find_by('email', 'a@b.com')"""
+        """Find a single record by any column."""
         db = Database()
         result = db.fetch_one(
             f"SELECT * FROM {self.table} WHERE {column} = %s", (value,)
@@ -78,3 +68,56 @@ class BaseModel(ABC):
         db.execute(f"DELETE FROM {self.table} WHERE id = %s", (record_id,))
         db.close()
 
+    # ── Admin dashboard helpers (new — use execute_query shorthand) ───── #
+    # These are class methods so they can be called without an instance,
+    # e.g. User.count_where({"role": "customer", "status": "active"})
+
+    @classmethod
+    def _table_name(cls):
+        """Get table name — works whether subclass uses 'table' property or not."""
+        obj = cls.__new__(cls)
+        try:
+            return obj.table
+        except AttributeError:
+            return getattr(cls, 'table_name', None)
+
+    @classmethod
+    def count_where(cls, conditions: dict = None):
+        """Count rows matching optional equality conditions."""
+        tbl = cls._table_name()
+        if conditions:
+            where = " AND ".join([f"{k} = %s" for k in conditions])
+            sql = f"SELECT COUNT(*) as cnt FROM {tbl} WHERE {where}"
+            result = execute_query(sql, list(conditions.values()), fetchone=True)
+        else:
+            result = execute_query(f"SELECT COUNT(*) as cnt FROM {tbl}", fetchone=True)
+        return result['cnt'] if result else 0
+
+    @classmethod
+    def find_where(cls, conditions: dict, order_by="id DESC", limit=None):
+        """Fetch rows matching equality conditions."""
+        tbl = cls._table_name()
+        where = " AND ".join([f"{k} = %s" for k in conditions])
+        sql = f"SELECT * FROM {tbl} WHERE {where} ORDER BY {order_by}"
+        if limit:
+            sql += f" LIMIT {int(limit)}"
+        return execute_query(sql, list(conditions.values()), fetchall=True)
+
+    @classmethod
+    def insert(cls, data: dict, allowed_fields: list):
+        """Insert a row. Returns new row id."""
+        tbl = cls._table_name()
+        allowed = {k: v for k, v in data.items() if k in allowed_fields}
+        cols = ", ".join(allowed.keys())
+        placeholders = ", ".join(["%s"] * len(allowed))
+        sql = f"INSERT INTO {tbl} ({cols}) VALUES ({placeholders})"
+        return execute_query(sql, list(allowed.values()))
+
+    @classmethod
+    def update_by_id(cls, record_id, data: dict, allowed_fields: list):
+        """Update a row by id. Returns rowcount."""
+        tbl = cls._table_name()
+        allowed = {k: v for k, v in data.items() if k in allowed_fields}
+        set_clause = ", ".join([f"{k} = %s" for k in allowed])
+        sql = f"UPDATE {tbl} SET {set_clause} WHERE id = %s"
+        return execute_query(sql, list(allowed.values()) + [record_id])
