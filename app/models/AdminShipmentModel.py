@@ -12,6 +12,35 @@ class ShipmentModel:
     # ── Dashboard – Recent Shipments ─────────────────────────────────── #
 
     @classmethod
+    def admin_create(cls, data: dict):
+        import time, random
+        while True:
+            suffix = random.randint(100, 999)
+            tracking_id = f"NXP-{int(time.time()) % 100000}{suffix}"
+            existing = execute_query(
+            "SELECT id FROM shipments WHERE tracking_id = %s",
+            (tracking_id,), fetchone=True
+        )
+            if not existing:
+                break
+
+        new_id = execute_query(
+            "INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, amount, notes) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (
+            tracking_id,
+            data['customer_id'],
+            data.get('agent_id'),
+            data['destination'],
+            data.get('status', 'pending'),
+            data['amount'],
+            data.get('notes', '')
+        )
+    )
+        return new_id, tracking_id
+
+
+    @classmethod
     def get_recent_shipments(cls, limit=10):
         sql = """
             SELECT

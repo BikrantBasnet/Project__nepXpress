@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NepXpress — Users</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-dashboard.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-shipments.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-users.css') }}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🚚</div>
+      <div><div class="logo-text">nep<span>Xpress</span></div></div>
+    </div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <a class="nav-item" href="/admin-dashboard"><span class="nav-icon">⊞</span> Dashboard</a>
+    <div class="nav-section">Management</div>
+    <a class="nav-item" href="/admin-shipments"><span class="nav-icon">📦</span> Shipments</a>
+    <a class="nav-item active" href="/admin-users"><span class="nav-icon">👥</span> Users<span class="nav-badge" id="sb-total">—</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">🛵</span> Delivery Agents</a>
+    <div class="nav-section">Analytics</div>
+    <a class="nav-item" href="#"><span class="nav-icon">📊</span> Reports</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-card">
+      <div class="admin-avatar" id="sb-avatar">A</div>
+      <div class="admin-info">
+        <div class="admin-name" id="sb-name">Admin</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+      <div class="logout-btn" title="Logout" onclick="handleLogout()">⎋</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>User Management</h1>
+      <p>Manage customers and admin accounts</p>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-avatar" id="top-avatar">A</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="ship-stats">
+      <div class="ship-stat-card">
+        <div class="ship-stat-icon" style="background:rgba(59,130,246,0.12);color:#3b82f6">👥</div>
+        <div><div class="ship-stat-val" id="st-total">—</div><div class="ship-stat-label">Total Users</div></div>
+      </div>
+      <div class="ship-stat-card">
+        <div class="ship-stat-icon" style="background:rgba(34,197,94,0.12);color:#22c55e">✓</div>
+        <div><div class="ship-stat-val" id="st-active">—</div><div class="ship-stat-label">Active</div></div>
+      </div>
+      <div class="ship-stat-card">
+        <div class="ship-stat-icon" style="background:rgba(239,68,68,0.12);color:#ef4444">✕</div>
+        <div><div class="ship-stat-val" id="st-inactive">—</div><div class="ship-stat-label">Inactive</div></div>
+      </div>
+      <div class="ship-stat-card">
+        <div class="ship-stat-icon" style="background:rgba(249,115,22,0.12);color:#f97316">👤</div>
+        <div><div class="ship-stat-val" id="st-customers">—</div><div class="ship-stat-label">Customers</div></div>
+      </div>
+      <div class="ship-stat-card">
+        <div class="ship-stat-icon" style="background:rgba(168,85,247,0.12);color:#a855f7">🛡</div>
+        <div><div class="ship-stat-val" id="st-admins">—</div><div class="ship-stat-label">Admins</div></div>
+      </div>
+      <div class="ship-stat-card">
+        <div class="ship-stat-icon" style="background:rgba(234,179,8,0.12);color:#eab308">🆕</div>
+        <div><div class="ship-stat-val" id="st-new">—</div><div class="ship-stat-label">New This Month</div></div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input"
+               placeholder="Search by name or email…"
+               oninput="debounceSearch()"/>
+        <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
+      </div>
+      <div class="filter-row">
+        <div class="filter-tabs" id="role-tabs">
+          <button class="filter-tab active" data-role="">All Roles</button>
+          <button class="filter-tab" data-role="customer">Customers</button>
+          <button class="filter-tab" data-role="admin">Admins</button>
+        </div>
+        <div class="filter-tabs" id="status-tabs">
+          <button class="filter-tab active" data-status="">All Status</button>
+          <button class="filter-tab" data-status="active">Active</button>
+          <button class="filter-tab" data-status="inactive">Inactive</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="6"><div class="error-state"><span>⏳</span><p>Loading…</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination" style="display:none">
+        <button class="page-btn" id="prev-btn" onclick="changePage(-1)">← Prev</button>
+        <div class="page-info" id="page-info"></div>
+        <button class="page-btn" id="next-btn" onclick="changePage(1)">Next →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal" onclick="closeModal('detail-modal')">
+  <div class="modal modal-lg" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="user-modal-head" id="detail-head">
+        <div class="user-modal-avatar" id="detail-avatar">?</div>
+        <div>
+          <div class="modal-title" id="detail-name">User Details</div>
+          <div class="modal-sub" id="detail-email"></div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body">
+      <div class="error-state"><span>⏳</span><p>Loading…</p></div>
+    </div>
+    <div class="modal-footer" id="detail-footer">
+      <button class="btn-secondary" onclick="closeModal('detail-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROLE MODAL -->
+<div class="modal-overlay" id="role-modal" onclick="closeModal('role-modal')">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">Change Role</div>
+      <button class="modal-close" onclick="closeModal('role-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-label">User: <strong id="role-user-name"></strong></p>
+      <div class="form-group">
+        <label class="form-label">New Role</label>
+        <select class="form-select" id="role-select">
+          <option value="customer">Customer</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('role-modal')">Cancel</button>
+      <button class="btn-primary" onclick="submitRoleUpdate()">Update Role</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="modal-overlay" id="status-modal" onclick="closeModal('status-modal')">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="status-modal-title">Update Status</div>
+      <button class="modal-close" onclick="closeModal('status-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);font-size:14px;line-height:1.6" id="status-modal-msg"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('status-modal')">Cancel</button>
+      <button class="btn-primary" id="status-confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="delete-modal" onclick="closeModal('delete-modal')">
+  <div class="modal modal-sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" style="color:#ef4444">Delete User</div>
+      <button class="modal-close" onclick="closeModal('delete-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text2);font-size:14px;line-height:1.6">
+        Are you sure you want to permanently delete <strong id="delete-user-name"></strong>?
+        All their shipments will also be deleted. This cannot be undone.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn-danger" onclick="submitDelete()">Delete User</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+let currentPage   = 1;
+let currentRole   = '';
+let currentStatus = '';
+let currentSearch = '';
+let totalPages    = 1;
+let activeUserId  = null;
+let debounceTimer = null;
+
+const $ = id => document.getElementById(id);
+
+function showToast(msg, type='info') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = `toast toast-${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function initials(name) {
+  return (name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
+}
+
+const AVATAR_COLORS = [
+  ['#f97316','#fb923c'],['#3b82f6','#60a5fa'],
+  ['#a855f7','#c084fc'],['#22c55e','#4ade80'],
+  ['#ef4444','#f87171'],['#eab308','#facc15'],
+];
+
+function avatarStyle(id) {
+  const c = AVATAR_COLORS[id % AVATAR_COLORS.length];
+  return `background:linear-gradient(135deg,${c[0]},${c[1]});color:white`;
+}
+
+async function apiFetch(path, options={}) {
+  const res = await fetch(API + path, { credentials:'same-origin', ...options });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message || 'API error');
+  return json.data;
+}
+
+// ── INIT ──
+async function init() {
+  try {
+    const me = await apiFetch('/api/admin/me');
+    const av = initials(me.name);
+    $('sb-avatar').textContent = av;
+    $('top-avatar').textContent = av;
+    $('sb-name').textContent = me.name;
+  } catch(e) {
+    const name = "{{ user_name|default('Admin') }}";
+    $('sb-avatar').textContent = initials(name);
+    $('top-avatar').textContent = initials(name);
+    $('sb-name').textContent = name;
+  }
+  await loadStats();
+  await loadUsers();
+}
+
+// ── STATS ──
+async function loadStats() {
+  try {
+    const d = await apiFetch('/api/admin/users/stats');
+    $('st-total').textContent     = d.total;
+    $('st-active').textContent    = d.active;
+    $('st-inactive').textContent  = d.inactive;
+    $('st-customers').textContent = d.customers;
+    $('st-admins').textContent    = d.admins;
+    $('st-new').textContent       = d.new_this_month;
+    $('sb-total').textContent     = d.total;
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+// ── LOAD USERS ──
+async function loadUsers() {
+  $('users-tbody').innerHTML = `<tr><td colspan="6"><div class="error-state"><span>⏳</span><p>Loading…</p></div></td></tr>`;
+  try {
+    let url = `/api/admin/users?page=${currentPage}&limit=10`;
+    if (currentRole)   url += `&role=${currentRole}`;
+    if (currentStatus) url += `&status=${currentStatus}`;
+    if (currentSearch) url += `&search=${encodeURIComponent(currentSearch)}`;
+    const data = await apiFetch(url);
+    renderTable(data.users);
+    renderPagination(data.pagination);
+  } catch(e) {
+    $('users-tbody').innerHTML = `<tr><td colspan="6"><div class="error-state"><span>⚠</span><p>${e.message}</p></div></td></tr>`;
+  }
+}
+
+// ── RENDER TABLE ──
+function renderTable(list) {
+  if (!list?.length) {
+    $('users-tbody').innerHTML = `<tr><td colspan="6"><div class="error-state"><span>👤</span><p>No users found</p></div></td></tr>`;
+    return;
+  }
+  $('users-tbody').innerHTML = list.map(u => `
+    <tr>
+      <td>
+        <div class="user-cell">
+          <div class="user-cell-avatar" style="${avatarStyle(u.id)}">${initials(u.name)}</div>
+          <span class="user-cell-name">${u.name}</span>
+        </div>
+      </td>
+      <td style="color:var(--text2)">${u.email}</td>
+      <td><span class="role-badge role-${u.role}">${u.role}</span></td>
+      <td><span class="user-status-badge ${u.status}">${u.status}</span></td>
+      <td style="color:var(--text2)">${formatDate(u.created_at)}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn view-btn" title="View details"    onclick="openDetail(${u.id})">👁</button>
+          <button class="action-btn edit-btn" title="Change role"     onclick="openRoleModal(${u.id},'${u.name}','${u.role}')">🛡</button>
+          <button class="action-btn ${u.status==='active'?'warn-btn':'ok-btn'}"
+                  title="${u.status==='active'?'Deactivate':'Activate'}"
+                  onclick="openStatusModal(${u.id},'${u.name}','${u.status}')">
+            ${u.status==='active'?'⊘':'✓'}
+          </button>
+          <button class="action-btn del-btn" title="Delete user" onclick="openDeleteModal(${u.id},'${u.name}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ── PAGINATION ──
+function renderPagination(p) {
+  totalPages = p.total_pages;
+  if (p.total_pages <= 1) { $('pagination').style.display='none'; return; }
+  $('pagination').style.display = 'flex';
+  $('page-info').textContent = `Page ${p.page} of ${p.total_pages} (${p.total} users)`;
+  $('prev-btn').disabled = p.page <= 1;
+  $('next-btn').disabled = p.page >= p.total_pages;
+}
+
+function changePage(dir) {
+  currentPage = Math.max(1, Math.min(totalPages, currentPage + dir));
+  loadUsers();
+}
+
+// ── ROLE FILTER TABS ──
+$('role-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.filter-tab');
+  if (!tab) return;
+  $('role-tabs').querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentRole = tab.dataset.role;
+  currentPage = 1;
+  loadUsers();
+});
+
+// ── STATUS FILTER TABS ──
+$('status-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.filter-tab');
+  if (!tab) return;
+  $('status-tabs').querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  currentStatus = tab.dataset.status;
+  currentPage = 1;
+  loadUsers();
+});
+
+// ── SEARCH ──
+function debounceSearch() {
+  clearTimeout(debounceTimer);
+  const val = $('search-input').value.trim();
+  $('search-clear').style.display = val ? 'block' : 'none';
+  debounceTimer = setTimeout(() => {
+    currentSearch = val;
+    currentPage = 1;
+    loadUsers();
+  }, 400);
+}
+
+function clearSearch() {
+  $('search-input').value = '';
+  $('search-clear').style.display = 'none';
+  currentSearch = '';
+  currentPage = 1;
+  loadUsers();
+}
+
+// ── DETAIL MODAL ──
+async function openDetail(id) {
+  activeUserId = id;
+  $('detail-body').innerHTML = `<div class="error-state"><span>⏳</span><p>Loading…</p></div>`;
+  openModal('detail-modal');
+
+  try {
+    const { user, stats, shipments } = await apiFetch(`/api/admin/users/${id}`);
+
+    $('detail-avatar').textContent = initials(user.name);
+    $('detail-avatar').style = avatarStyle(user.id);
+    $('detail-name').textContent = user.name;
+    $('detail-email').innerHTML = `
+      <span style="color:var(--text3);font-size:12px">${user.email}</span>
+      <span class="role-badge role-${user.role}" style="margin-left:8px">${user.role}</span>
+      <span class="user-status-badge ${user.status}" style="margin-left:6px">${user.status}</span>`;
+
+    const STATUS_COLORS = {
+      delivered:'#22c55e', in_transit:'#3b82f6',
+      processing:'#a855f7', delayed:'#ef4444',
+      pending:'#eab308', cancelled:'#8b91a8'
+    };
+
+    $('detail-body').innerHTML = `
+      <div class="detail-grid">
+
+        <div class="detail-section">
+          <div class="detail-section-title">👤 Account Info</div>
+          <div class="detail-row"><span>Full Name</span><strong>${user.name}</strong></div>
+          <div class="detail-row"><span>Email</span><strong>${user.email}</strong></div>
+          <div class="detail-row"><span>Role</span><span class="role-badge role-${user.role}">${user.role}</span></div>
+          <div class="detail-row"><span>Status</span><span class="user-status-badge ${user.status}">${user.status}</span></div>
+          <div class="detail-row"><span>Joined</span><strong>${formatDate(user.created_at)}</strong></div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-section-title">📦 Shipment Summary</div>
+          <div class="detail-row"><span>Total Shipments</span><strong>${stats?.total||0}</strong></div>
+          <div class="detail-row"><span>Delivered</span><strong style="color:#22c55e">${stats?.delivered||0}</strong></div>
+          <div class="detail-row"><span>In Transit</span><strong style="color:#3b82f6">${stats?.in_transit||0}</strong></div>
+          <div class="detail-row"><span>Pending</span><strong style="color:#eab308">${stats?.pending||0}</strong></div>
+          <div class="detail-row"><span>Delayed</span><strong style="color:#ef4444">${stats?.delayed||0}</strong></div>
+          <div class="detail-row"><span>Total Spent</span><strong>NPR ${Number(stats?.total_spent||0).toLocaleString()}</strong></div>
+        </div>
+
+        ${shipments?.length ? `
+        <div class="detail-section detail-full">
+          <div class="detail-section-title">🕒 Recent Shipments</div>
+          ${shipments.map(s => `
+            <div class="detail-row">
+              <span style="font-family:'Syne',sans-serif;color:var(--accent);font-weight:600">${s.tracking_id}</span>
+              <span>${s.destination}</span>
+              <span class="status-badge badge-${s.status}">${s.status.replace('_',' ')}</span>
+              <strong>NPR ${Number(s.amount).toLocaleString()}</strong>
+            </div>`).join('')}
+        </div>` : ''}
+
+      </div>`;
+
+    // Footer action buttons
+    const isActive = user.status === 'active';
+    $('detail-footer').innerHTML = `
+      <button class="btn-secondary" onclick="closeModal('detail-modal')">Close</button>
+      <button class="btn-primary" onclick="closeModal('detail-modal');openRoleModal(${user.id},'${user.name}','${user.role}')">Change Role</button>
+      <button class="btn-${isActive?'warn':'primary'}"
+              onclick="closeModal('detail-modal');openStatusModal(${user.id},'${user.name}','${user.status}')">
+        ${isActive ? 'Deactivate' : 'Activate'}
+      </button>
+      <button class="btn-danger" onclick="closeModal('detail-modal');openDeleteModal(${user.id},'${user.name}')">Delete</button>`;
+
+  } catch(e) {
+    $('detail-body').innerHTML = `<div class="error-state"><span>⚠</span><p>${e.message}</p></div>`;
+  }
+}
+
+// ── ROLE MODAL ──
+function openRoleModal(id, name, currentRole) {
+  activeUserId = id;
+  $('role-user-name').textContent = name;
+  $('role-select').value = currentRole;
+  openModal('role-modal');
+}
+
+async function submitRoleUpdate() {
+  try {
+    await apiFetch(`/api/admin/users/${activeUserId}/role`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: $('role-select').value })
+    });
+    showToast('Role updated successfully', 'success');
+    closeModal('role-modal');
+    loadUsers();
+    loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── STATUS MODAL ──
+function openStatusModal(id, name, currentStatus) {
+  activeUserId = id;
+  const isActive = currentStatus === 'active';
+  $('status-modal-title').textContent = isActive ? 'Deactivate User' : 'Activate User';
+  $('status-modal-msg').innerHTML = isActive
+    ? `Are you sure you want to deactivate <strong>${name}</strong>? They won't be able to log in.`
+    : `Are you sure you want to activate <strong>${name}</strong>? They will be able to log in again.`;
+  $('status-confirm-btn').textContent = isActive ? 'Deactivate' : 'Activate';
+  $('status-confirm-btn').className = isActive ? 'btn-warn' : 'btn-primary';
+  $('status-confirm-btn').onclick = () => submitStatusUpdate(isActive ? 'inactive' : 'active');
+  openModal('status-modal');
+}
+
+async function submitStatusUpdate(newStatus) {
+  try {
+    await apiFetch(`/api/admin/users/${activeUserId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    showToast(`User ${newStatus === 'active' ? 'activated' : 'deactivated'}`, 'success');
+    closeModal('status-modal');
+    loadUsers();
+    loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── DELETE MODAL ──
+function openDeleteModal(id, name) {
+  activeUserId = id;
+  $('delete-user-name').textContent = name;
+  openModal('delete-modal');
+}
+
+async function submitDelete() {
+  try {
+    await apiFetch(`/api/admin/users/${activeUserId}`, { method: 'DELETE' });
+    showToast('User deleted', 'success');
+    closeModal('delete-modal');
+    loadUsers();
+    loadStats();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── MODAL HELPERS ──
+function openModal(id)  { $(id).classList.add('open');    document.body.style.overflow='hidden'; }
+function closeModal(id) { $(id).classList.remove('open'); document.body.style.overflow=''; }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape')
+    ['detail-modal','role-modal','status-modal','delete-modal'].forEach(closeModal);
+});
+
+// ── LOGOUT ──
+async function handleLogout() {
+  await fetch('/api/admin/logout', { method:'POST', credentials:'same-origin' });
+  window.location.href = '/';
+}
+
+init();
+</script>
+</body>
+</html>
