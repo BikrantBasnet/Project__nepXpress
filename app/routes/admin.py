@@ -2,6 +2,7 @@ from flask import Blueprint
 from app.controllers.AdminAuthController import AdminAuthController
 from app.controllers.AdminDashboardController import AdminDashboardController
 from app.controllers.shipmentcontrollers import ShipmentController
+from app.controllers.AdminUserController import AdminUserController
 
 admin_bp = Blueprint('admin_api', __name__, url_prefix='/api/admin')
 
@@ -25,3 +26,14 @@ admin_bp.add_url_rule('/shipments',                         'ship_create', Shipm
 admin_bp.add_url_rule('/shipments/<int:shipment_id>',       'ship_one',    ShipmentController.get_one,       methods=['GET'])
 admin_bp.add_url_rule('/shipments/<int:shipment_id>/status','ship_status', ShipmentController.update_status, methods=['PATCH'])
 admin_bp.add_url_rule('/shipments/<int:shipment_id>',       'ship_delete', ShipmentController.delete,        methods=['DELETE'])
+admin_bp.add_url_rule('/customers', 'customers_list', ShipmentController.get_customers, methods=['GET'])
+admin_bp.add_url_rule('/agents',    'agents_list',    ShipmentController.get_agents,    methods=['GET'])
+
+
+#-- User management ────────────────────────────────────────────────────────────── #
+admin_bp.add_url_rule('/users',                    'users_list',          AdminUserController.get_all,       methods=['GET'])
+admin_bp.add_url_rule('/users/stats',              'users_stats',         AdminUserController.get_stats,     methods=['GET'])
+admin_bp.add_url_rule('/users/<int:user_id>',      'users_one',           AdminUserController.get_one,       methods=['GET'])
+admin_bp.add_url_rule('/users/<int:user_id>/status','users_status',       AdminUserController.update_status, methods=['PATCH'])
+admin_bp.add_url_rule('/users/<int:user_id>/role', 'users_role',          AdminUserController.update_role,   methods=['PATCH'])
+admin_bp.add_url_rule('/users/<int:user_id>',      'users_delete',        AdminUserController.delete,        methods=['DELETE'])

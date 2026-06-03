@@ -126,29 +126,36 @@ def create_app():
                 flash("Please select a valid delivery type.", "danger")
                 return redirect(url_for("create_shipment"))
 
-            # Server-side price lookup based on delivery type
-            delivery_prices = {"Standard": 150, "Express": 350, "Same-day": 500}
-            delivery_cost = delivery_prices.get(delivery_type, 0)
-
             shipment = Shipment()
             tracking_id = Shipment.generate_tracking_id()
-            
-            # Build destination from receiver city/district
-            receiver_city = request.form.get("receiver_city", "").strip()
-            receiver_district = request.form.get("receiver_district", "").strip()
-            destination = f"{receiver_city}, {receiver_district}".strip(", ") or "Unknown"
-            
-            # Combine shipment details into notes for reference
-            notes = f"From: {sender_name} ({request.form.get('sender_phone', '').strip()}), To: {receiver_name} ({request.form.get('receiver_phone', '').strip()}), Type: {request.form.get('package_type', '').strip()}, Delivery: {delivery_type}"
-            
+
             shipment.create({
-                "tracking_id": tracking_id,
-                "customer_id": session.get("user_id"),
-                "destination": destination,
-                "amount": delivery_cost,
-                "status": "pending",
-                "notes": notes,
+                "tracking_id":       tracking_id,
+                "user_id":           session.get("user_id"),
+                "sender_name":       sender_name,
+                "sender_phone":      request.form.get("sender_phone", "").strip(),
+                "sender_address":    request.form.get("sender_address", "").strip(),
+                "sender_city":       request.form.get("sender_city", "").strip(),
+                "sender_district":   request.form.get("sender_district", "").strip(),
+                "receiver_name":     receiver_name,
+                "receiver_phone":    request.form.get("receiver_phone", "").strip(),
+                "receiver_address":  request.form.get("receiver_address", "").strip(),
+                "receiver_city":     request.form.get("receiver_city", "").strip(),
+                "receiver_district": request.form.get("receiver_district", "").strip(),
+                "package_type":      request.form.get("package_type", "").strip(),
+                "weight":            request.form.get("weight", "").strip(),
+                "estimated_value":   request.form.get("value", "").strip(),
+                "length_cm":         request.form.get("length", "").strip(),
+                "width_cm":          request.form.get("width", "").strip(),
+                "height_cm":         request.form.get("height", "").strip(),
+                "delivery_type":     delivery_type,
+                "payment_method":    payment_method,
+                "status":            "Pending",
+                "instructions":      request.form.get("instructions", "").strip(),
             })
+
+            delivery_prices = {"Standard": 150, "Express": 350, "Same-day": 500}
+            delivery_cost = delivery_prices.get(delivery_type, 0)
             flash(f"Shipment created! Tracking ID: {tracking_id} — Total: NPR {delivery_cost}", "success")
             return redirect(url_for("shipment_history"))
 
@@ -158,7 +165,6 @@ def create_app():
             user_name=session.get("user_name"),
             user_role=session.get("user_role")
         )
-
     @app.route("/shipment-history")
     @login_required
     @no_cache
@@ -248,6 +254,18 @@ def create_app():
         user_name=session.get("user_name") or session.get("admin_name"),
         user_role=session.get("user_role") or session.get("admin_role")
     )
+
+    @app.route("/admin-users")
+    @no_cache
+    def admin_users():
+        if not session.get("user_id") and not session.get("admin_logged_in"):
+          return redirect(url_for("auth.login"))
+        get_flashed_messages()
+        return render_template(
+        "admin-users.html",
+        user_name=session.get("user_name") or session.get("admin_name"),
+        user_role=session.get("user_role") or session.get("admin_role")
+    )
     
     @app.route("/logout", methods=["GET", "POST"])
     @login_required
@@ -304,5 +322,7 @@ def create_app():
       from flask import current_app
       rules = {str(r): r.endpoint for r in current_app.url_map.iter_rules()}
       return {"session": dict(session), "routes": rules}
+    
+
 
     return app

@@ -1,74 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Shipment - NepXpress</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='create-shipment.css') }}" />
-</head>
-<body>
+{% extends "base_app.html" %}
+{% set active = "create" %}
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-          <span>{{ message }}</span>
-          <button onclick="this.parentElement.style.display='none';">×</button>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+{% block title %}Create Shipment - NepXpress{% endblock %}
 
-  <!-- ── SIDEBAR: left navigation panel ── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand">
-        <div class="brand-icon">
-          <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
-        </div>
-        <div class="brand-text">
-          <div class="brand-name">NepXpress</div>
-          <div class="brand-sub-text">Logistics & Delivery</div>
-        </div>
-      </div>
-    </div>
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='create-shipment.css') }}"/>
+{% endblock %}
 
-    <nav class="sidebar-nav">
-      <a href="/dashboard" class="nav-item">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </a>
-      <a href="/create-shipment" class="nav-item active">
-        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        Create Delivery
-      </a>
-      <a href="/track-shipment" class="nav-item">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Track Shipment
-      </a>
-      <a href="/shipment-history" class="nav-item">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        History
-      </a>
-      <a href="/settings" class="nav-item">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
-        Settings
-      </a>
-    </nav>
-
-    <!-- Logged-in user shown at the bottom of the sidebar -->
-    <div class="sidebar-user">
-      <div class="user-avatar">{{ (user_name[0] if user_name else 'U') | upper }}</div>
-      <div class="user-info">
-        <span class="user-name">{{ user_name if user_name else 'User' }}</span>
-        <span class="user-role">{{ user_role | capitalize if user_role else 'Customer' }}</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- ── MAIN WRAPPER: topbar + content ── -->
+{% block body %}
   <div class="main-wrapper">
     <header class="topbar">
       <div class="topbar-title">
@@ -83,10 +22,9 @@
 
     <main class="content">
       <form method="POST" action="{{ url_for('create_shipment') }}">
-      <!-- form-grid: 2-column layout; full-width cards span both columns -->
       <div class="form-grid">
 
-        <!-- CARD 1: Who is sending the package -->
+        <!-- CARD 1: Sender -->
         <section class="card">
           <h2 class="card-title">Sender Information</h2>
           <div class="form-group">
@@ -101,7 +39,6 @@
             <label>Pickup Address</label>
             <input type="text" name="sender_address" placeholder="Street address, area" />
           </div>
-          <!-- City and District side by side -->
           <div class="form-row">
             <div class="form-group">
               <label>City</label>
@@ -114,7 +51,7 @@
           </div>
         </section>
 
-        <!-- CARD 2: Who is receiving the package -->
+        <!-- CARD 2: Receiver -->
         <section class="card">
           <h2 class="card-title">Receiver Information</h2>
           <div class="form-group">
@@ -129,7 +66,6 @@
             <label>Delivery Address</label>
             <input type="text" name="receiver_address" placeholder="Street address, area" />
           </div>
-          <!-- City and District side by side -->
           <div class="form-row">
             <div class="form-group">
               <label>City</label>
@@ -142,11 +78,9 @@
           </div>
         </section>
 
-        <!-- CARD 3: What is being sent (full width) -->
+        <!-- CARD 3: Package Details -->
         <section class="card full-width">
           <h2 class="card-title">Package Details</h2>
-
-          <!-- Row 1: type, weight, value -->
           <div class="form-row three-col">
             <div class="form-group">
               <label>Package Type</label>
@@ -170,7 +104,6 @@
             </div>
           </div>
 
-          <!-- Row 2: dimensions -->
           <div class="form-row three-col">
             <div class="form-group">
               <label>Length (cm)</label>
@@ -186,14 +119,13 @@
             </div>
           </div>
 
-          <!-- Free text for any special handling notes -->
           <div class="form-group">
             <label>Special Instructions</label>
             <textarea name="instructions" placeholder="Handle with care, keep upright, etc."></textarea>
           </div>
         </section>
 
-        <!-- CARD 4: Speed of delivery (full width) -->
+        <!-- CARD 4: Delivery Options -->
         <section class="card full-width">
           <h2 class="card-title">Delivery Options</h2>
           <div class="delivery-options">
@@ -224,7 +156,7 @@
           </div>
         </section>
 
-        <!-- CARD 5: How the customer pays (full width) -->
+        <!-- CARD 5: Payment -->
         <section class="card full-width">
           <h2 class="card-title">Payment Method</h2>
           <div class="payment-options">
@@ -253,7 +185,6 @@
 
       </div>
 
-      <!-- ── SUMMARY BAR: total + action button ── -->
       <div class="summary-bar">
         <div class="summary-info">
           <div class="summary-label">Estimated Total</div>
@@ -266,19 +197,15 @@
       </form>
     </main>
   </div>
+{% endblock %}
 
-  <!-- Floating help button, bottom-right corner -->
-  <button class="help-btn">?</button>
-
-  <!-- Update the Estimated Total when the delivery option changes -->
-  <script>
-    var prices = { Standard: 150, Express: 350, "Same-day": 500 };
-    document.querySelectorAll('input[name="delivery_type"]').forEach(function(r) {
-      r.addEventListener('change', function() {
-        document.getElementById('totalAmount').textContent = 'NPR ' + prices[r.value];
-      });
+{% block scripts %}
+<script>
+  var prices = { Standard: 150, Express: 350, "Same-day": 500 };
+  document.querySelectorAll('input[name="delivery_type"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      document.getElementById('totalAmount').textContent = 'NPR ' + prices[r.value];
     });
-  </script>
-
-</body>
-</html>
+  });
+</script>
+{% endblock %}

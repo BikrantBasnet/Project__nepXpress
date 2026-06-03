@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}NepXpress{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <aside class="left-panel">
+
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">NepXpress</div>
+        <div class="brand-sub-text">Logistics & Delivery</div>
+      </div>
+    </div>
+
+    <div class="project-description">
+      <div class="project-description-title">About NepXpress</div>
+      <div class="project-description-text">
+        NepXpress is Nepal's leading logistics and delivery management platform built to simplify how packages move across the country. We connect customers, delivery agents, and businesses through a single powerful dashboard. Whether you're shipping a document across Kathmandu or sending a parcel to a remote district, NepXpress ensures your delivery arrives safely, on time, and at a transparent price. Our platform offers real-time shipment management, role-based access for agents and admins, and a seamless experience from booking to delivery confirmation.
+      </div>
+    </div>
+
+    <div class="features">
+
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <div class="feature-content">
+          <div class="feature-title">Fast Delivery</div>
+          <div class="feature-desc">Nationwide logistics network with same-day options</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="feature-content">
+          <div class="feature-title">Secure Handling</div>
+          <div class="feature-desc">Professional agents with verified delivery records</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <div class="feature-content">
+          <div class="feature-title">Easy Management</div>
+          <div class="feature-desc">Full dashboard to track and manage all shipments</div>
+        </div>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="feature-content">
+          <div class="feature-title">Transparent Pricing</div>
+          <div class="feature-desc">Clear rates with no hidden fees or surprises</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="copyright">© 2026 nepXpress. All rights reserved.</div>
+  </aside>
+
+  <main class="right-panel">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.style.display='none';">×</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <button class="help-btn">?</button>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

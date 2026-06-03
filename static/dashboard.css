@@ -400,7 +400,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Flash Alerts ── */
+/* ── Flash Alerts (not in common.css — keep here) ── */
 .alert {
   position: fixed;
   top: 40px;

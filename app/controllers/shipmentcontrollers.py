@@ -57,7 +57,7 @@ class ShipmentController(BaseController):
                 if field not in data:
                     return ShipmentController.error(f"Missing required field: {field}", 400)
 
-            new_id, tracking_id = ShipmentModel.create(data)
+            new_id, tracking_id = ShipmentModel.admin_create(data)
             return ShipmentController.success(
                 data={"id": new_id, "tracking_id": tracking_id},
                 message="Shipment created",
@@ -95,4 +95,31 @@ class ShipmentController(BaseController):
             return ShipmentController.success(message="Shipment deleted")
         except Exception as e:
             return ShipmentController.error(str(e), 500)
+        
+    @staticmethod
+    @admin_required
+    def get_customers():
+        """GET /api/admin/customers — for dropdowns"""
+        try:
+            from app.models.database import execute_query
+            customers = execute_query(
+            "SELECT id, name, email FROM users WHERE role='customer' AND status='active' ORDER BY name",
+            fetchall=True
+        )
+            return ShipmentController.success(data=customers)
+        except Exception as e:
+            return ShipmentController.error(str(e), 500)
 
+    @staticmethod
+    @admin_required
+    def get_agents():
+        try:
+            from app.models.database import execute_query
+            agents = execute_query(
+            "SELECT id, name, phone FROM delivery_agents WHERE status='active' ORDER BY name",
+            fetchall=True
+        )
+            return ShipmentController.success(data=agents)
+        except Exception as e:
+            return ShipmentController.error(str(e), 500)
+        
