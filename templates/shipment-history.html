@@ -1,62 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Shipment History - NepXpress</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='shipment-history.css') }}" />
-</head>
-<body>
+{% extends "base_app.html" %}
+{% set active = "history" %}
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-<div class="sidebar-brand">
-      <div class="brand">
-        <div class="brand-icon">
-          <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
-        </div>
-        <div class="brand-text">
-          <div class="brand-name">NepXpress</div>
-          <div class="brand-sub-text">Logistics & Delivery</div>
-        </div>
-      </div>
-    </div>
+{% block title %}Shipment History - NepXpress{% endblock %}
 
-    <nav class="sidebar-nav">
-      <a href="/dashboard" class="nav-item">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </a>
-      <a href="/create-shipment" class="nav-item">
-        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        Create Delivery
-      </a>
-      <a href="/track-shipment" class="nav-item">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Track Shipment
-      </a>
-      <a href="/shipment-history" class="nav-item active">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        History
-      </a>
-      <a href="/settings" class="nav-item">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
-        Settings
-      </a>
-    </nav>
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='shipment-history.css') }}"/>
+{% endblock %}
 
-<div class="sidebar-user">
-      <div class="user-avatar">{{ (user_name[0] if user_name else 'U') | upper }}</div>
-      <div class="user-info">
-        <span class="user-name">{{ user_name if user_name else 'User' }}</span>
-        <span class="user-role">{{ user_role | capitalize if user_role else 'Customer' }}</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
+{% block body %}
   <div class="main-wrapper">
     <header class="topbar">
       <div class="topbar-title">
@@ -71,14 +22,13 @@
 
     <main class="content">
 
-      <!-- PAGE HEADER -->
-<!-- PAGE HEADER -->
-  <div class="page-header">
-    <div>
-      <h1 class="page-title">All Shipments</h1>
-      <p class="page-sub">View and manage all your past deliveries</p>
-    </div>
-  </div>
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">All Shipments</h1>
+          <p class="page-sub">View and manage all your past deliveries</p>
+        </div>
+      </div>
+
       <!-- STATS -->
       <div class="stats-row">
         <div class="stat-card">
@@ -142,7 +92,6 @@
 
             {% if shipments %}
               {% for s in shipments %}
-                {# Normalise status to a CSS class name #}
                 {% set raw = s.status | lower %}
                 {% if raw == 'in_transit' %}
                   {% set css_status = 'transit' %}
@@ -203,7 +152,7 @@
         </table>
       </div>
 
-      <!-- PAGINATION SECTION -->
+      <!-- PAGINATION -->
       <div class="pagination">
         <div class="page-info">
           {% if shipments %}
@@ -230,71 +179,67 @@
       <div id="modalBody" style="display:flex;flex-direction:column;gap:12px;font-size:14px;color:#444;"></div>
     </div>
   </div>
+{% endblock %}
 
-  <button class="help-btn">?</button>
-
-  <script>
-    // ── FILTER TABS ──
-    document.querySelectorAll('.filter-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        var filter = tab.getAttribute('data-filter');
-        var hasVisible = false;
-        document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
-          var show = filter === 'all' || row.getAttribute('data-status') === filter;
-          row.style.display = show ? '' : 'none';
-          if (show) hasVisible = true;
-        });
-        // Show/hide empty state for filtered results
-        var empty = document.getElementById('noFilterResults');
-        if (!empty) {
-          empty = document.createElement('tr');
-          empty.id = 'noFilterResults';
-          empty.innerHTML = '<td colspan="8" style="text-align:center;padding:40px 0;color:#aaa;font-size:15px;">No shipments match this filter.</td>';
-          document.getElementById('shipmentTableBody').appendChild(empty);
-        }
-        empty.style.display = hasVisible ? 'none' : '';
-      });
-    });
-
-    // ── SEARCH ──
-    document.getElementById('searchInput').addEventListener('input', function() {
-      var query = this.value.toLowerCase();
+{% block scripts %}
+<script>
+  // ── FILTER TABS ──
+  document.querySelectorAll('.filter-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var filter = tab.getAttribute('data-filter');
+      var hasVisible = false;
       document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
-        row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+        var show = filter === 'all' || row.getAttribute('data-status') === filter;
+        row.style.display = show ? '' : 'none';
+        if (show) hasVisible = true;
       });
+      var empty = document.getElementById('noFilterResults');
+      if (!empty) {
+        empty = document.createElement('tr');
+        empty.id = 'noFilterResults';
+        empty.innerHTML = '<td colspan="8" style="text-align:center;padding:40px 0;color:#aaa;font-size:15px;">No shipments match this filter.</td>';
+        document.getElementById('shipmentTableBody').appendChild(empty);
+      }
+      empty.style.display = hasVisible ? 'none' : '';
     });
+  });
 
-    // ── DETAILS MODAL ──
-    function showDetails(trackId, receiver, phone, dest, status, type, pkgType, value) {
-      var rows = [
-        ['Tracking ID',  trackId],
-        ['Recipient',    receiver],
-        ['Phone',        phone || '—'],
-        ['Destination',  dest  || '—'],
-        ['Status',       status],
-        ['Delivery Type',type  || '—'],
-        ['Package Type', pkgType || '—'],
-        ['Est. Value',   value ? 'NPR ' + parseFloat(value).toLocaleString() : '—'],
-      ];
-      document.getElementById('modalBody').innerHTML = rows.map(function(r) {
-        return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">'
-             + '<span style="font-weight:600;color:#0d0d0d;">' + r[0] + '</span>'
-             + '<span>' + r[1] + '</span></div>';
-      }).join('');
-      document.getElementById('detailsModal').style.display = 'flex';
-    }
-
-    function closeDetails() {
-      document.getElementById('detailsModal').style.display = 'none';
-    }
-
-    // Close modal on backdrop click
-    document.getElementById('detailsModal').addEventListener('click', function(e) {
-      if (e.target === this) closeDetails();
+  // ── SEARCH ──
+  document.getElementById('searchInput').addEventListener('input', function() {
+    var query = this.value.toLowerCase();
+    document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
+      row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
     });
-  </script>
+  });
 
-</body>
-</html>
+  // ── DETAILS MODAL ──
+  function showDetails(trackId, receiver, phone, dest, status, type, pkgType, value) {
+    var rows = [
+      ['Tracking ID',  trackId],
+      ['Recipient',    receiver],
+      ['Phone',        phone || '—'],
+      ['Destination',  dest  || '—'],
+      ['Status',       status],
+      ['Delivery Type',type  || '—'],
+      ['Package Type', pkgType || '—'],
+      ['Est. Value',   value ? 'NPR ' + parseFloat(value).toLocaleString() : '—'],
+    ];
+    document.getElementById('modalBody').innerHTML = rows.map(function(r) {
+      return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">'
+           + '<span style="font-weight:600;color:#0d0d0d;">' + r[0] + '</span>'
+           + '<span>' + r[1] + '</span></div>';
+    }).join('');
+    document.getElementById('detailsModal').style.display = 'flex';
+  }
+
+  function closeDetails() {
+    document.getElementById('detailsModal').style.display = 'none';
+  }
+
+  document.getElementById('detailsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDetails();
+  });
+</script>
+{% endblock %}
