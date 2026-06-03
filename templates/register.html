@@ -1,208 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NepXpress – Register</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
+{% extends "base_auth.html" %}
+
+{% block title %}NepXpress – Register{% endblock %}
+
+{% block extra_css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}"/>
-</head>
-<body>
+{% endblock %}
 
-  <aside class="left-panel">
+{% block content %}
+<div class="register-card">
+  <h1 class="register-heading">Create Account</h1>
+  <p class="register-sub">Register to access your account</p>
 
-    <div class="brand">
-      <div class="brand-icon">
-        <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+  <div class="tab-bar">
+    <a href="{{ url_for('auth.login') }}" class="tab">Login</a>
+    <span class="tab active">Register</span>
+  </div>
+
+  <form method="POST" action="{{ url_for('auth.register') }}">
+
+    <div class="section-heading">Personal Information</div>
+
+    <div class="field-grid">
+      <div class="field">
+        <label class="field-label" for="fullName">Full Name</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="fullName" name="fullName" placeholder="John Doe" required autocomplete="name"/>
+        </div>
       </div>
-      <div class="brand-text">
-        <div class="brand-name">NepXpress</div>
-        <div class="brand-sub-text">Logistics & Delivery</div>
+      <div class="field">
+        <label class="field-label" for="phone">Phone (Optional)</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.27 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.1 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <input type="tel" id="phone" name="phone" placeholder="+977 9812345678" autocomplete="tel"/>
+        </div>
       </div>
     </div>
 
-    <div class="project-description">
-      <div class="project-description-title">About NepXpress</div>
-      <div class="project-description-text">
-        NepXpress is Nepal's leading logistics and delivery management platform built to simplify how packages move across the country. We connect customers, delivery agents, and businesses through a single powerful dashboard. Whether you're shipping a document across Kathmandu or sending a parcel to a remote district, NepXpress ensures your delivery arrives safely, on time, and at a transparent price. Our platform offers real-time shipment management, role-based access for agents and admins, and a seamless experience from booking to delivery confirmation.
+    <div class="field-grid-full">
+      <div class="field">
+        <label class="field-label" for="email">Email Address *</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <input type="email" id="email" name="email" placeholder="john.doe@example.com" required autocomplete="email"/>
+        </div>
+      </div>
+    </div>
+    <div class="field-grid-full">
+      <div class="field">
+        <label class="field-label" for="security_answer">What is your pet's name? *</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <input type="text" id="security_answer" name="security_answer" placeholder="Used to recover your account" required autocomplete="off"/>
+        </div>
       </div>
     </div>
 
-    <div class="features">
+    <div class="section-heading">Select Your Role</div>
 
-      <div class="feature">
-        <div class="feature-icon">
+    <div class="role-grid">
+      <label class="role-card active" onclick="selectRole(event, 'customer')">
+        <input type="radio" name="role" value="customer" checked style="display:none;"/>
+        <div class="role-card-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="role-card-text">
+          <div class="role-card-name">Customer</div>
+          <div class="role-card-desc">Send packages</div>
+        </div>
+      </label>
+      <label class="role-card" onclick="selectRole(event, 'agent')">
+        <input type="radio" name="role" value="agent" style="display:none;"/>
+        <div class="role-card-icon">
           <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         </div>
-        <div class="feature-content">
-          <div class="feature-title">Fast Delivery</div>
-          <div class="feature-desc">Nationwide logistics network with same-day options</div>
+        <div class="role-card-text">
+          <div class="role-card-name">Delivery Agent</div>
+          <div class="role-card-desc">Deliver packages</div>
         </div>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        </div>
-        <div class="feature-content">
-          <div class="feature-title">Secure Handling</div>
-          <div class="feature-desc">Professional agents with verified delivery records</div>
-        </div>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        </div>
-        <div class="feature-content">
-          <div class="feature-title">Easy Management</div>
-          <div class="feature-desc">Full dashboard to track and manage all shipments</div>
-        </div>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </div>
-        <div class="feature-content">
-          <div class="feature-title">Transparent Pricing</div>
-          <div class="feature-desc">Clear rates with no hidden fees or surprises</div>
-        </div>
-      </div>
-
+      </label>
     </div>
 
-    <div class="copyright">© 2026 nepXpress. All rights reserved.</div>
-  </aside>
+    <div class="section-heading">Security</div>
 
-  <main class="right-panel">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            <span>{{ message }}</span>
-            <button onclick="this.parentElement.style.display='none';">×</button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    <div class="register-card">
-      <h1 class="register-heading">Create Account</h1>
-      <p class="register-sub">Register to access your account</p>
-
-      <div class="tab-bar">
-        <a href="{{ url_for('auth.login') }}" class="tab">Login</a>
-        <span class="tab active">Register</span>
+    <div class="field-grid">
+      <div class="field">
+        <label class="field-label" for="password">Password *</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password"/>
+        </div>
       </div>
-
-      <form method="POST" action="{{ url_for('auth.register') }}">
-
-        <div class="section-heading">Personal Information</div>
-
-        <div class="field-grid">
-          <div class="field">
-            <label class="field-label" for="fullName">Full Name</label>
-            <div class="input-wrap">
-              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <input type="text" id="fullName" name="fullName" placeholder="John Doe" required autocomplete="name"/>
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="phone">Phone (Optional)</label>
-            <div class="input-wrap">
-              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.27 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.1 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <input type="tel" id="phone" name="phone" placeholder="+977 9812345678" autocomplete="tel"/>
-            </div>
-          </div>
+      <div class="field">
+        <label class="field-label" for="confirmPassword">Confirm *</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required autocomplete="new-password"/>
         </div>
-
-        <div class="field-grid-full">
-          <div class="field">
-            <label class="field-label" for="email">Email Address *</label>
-            <div class="input-wrap">
-              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <input type="email" id="email" name="email" placeholder="john.doe@example.com" required autocomplete="email"/>
-            </div>
-          </div>
-        </div>
-        <div class="field-grid-full">
-          <div class="field">
-            <label class="field-label" for="security_answer">What is your pet's name? *</label>
-            <div class="input-wrap">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <input type="text" id="security_answer" name="security_answer" placeholder="Used to recover your account" required autocomplete="off"/>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-heading">Select Your Role</div>
-
-        <div class="role-grid">
-          <label class="role-card active" onclick="selectRole(event, 'customer')">
-            <input type="radio" name="role" value="customer" checked style="display:none;"/>
-            <div class="role-card-icon">
-              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="role-card-text">
-              <div class="role-card-name">Customer</div>
-              <div class="role-card-desc">Send packages</div>
-            </div>
-          </label>
-          <label class="role-card" onclick="selectRole(event, 'agent')">
-            <input type="radio" name="role" value="agent" style="display:none;"/>
-            <div class="role-card-icon">
-              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div class="role-card-text">
-              <div class="role-card-name">Delivery Agent</div>
-              <div class="role-card-desc">Deliver packages</div>
-            </div>
-          </label>
-        </div>
-
-        <div class="section-heading">Security</div>
-
-        <div class="field-grid">
-          <div class="field">
-            <label class="field-label" for="password">Password *</label>
-            <div class="input-wrap">
-              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input type="password" id="password" name="password" placeholder="Min 6 characters" required autocomplete="new-password"/>
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label" for="confirmPassword">Confirm *</label>
-            <div class="input-wrap">
-              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required autocomplete="new-password"/>
-            </div>
-          </div>
-        </div>
-
-        <div class="terms-row">
-          <input type="checkbox" id="terms" required/>
-          <label for="terms">
-            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-          </label>
-        </div>
-
-        <button type="submit" class="btn-primary">Create Account</button>
-        <p class="login-link">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
-
-      </form>
+      </div>
     </div>
-  </main>
 
-  <button class="help-btn">?</button>
+    <div class="terms-row">
+      <input type="checkbox" id="terms" required/>
+      <label for="terms">
+        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+      </label>
+    </div>
 
-  <script>
-    function selectRole(event, role) {
-      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      document.querySelector(`input[name="role"][value="${role}"]`).checked = true;
-    }
-  </script>
-</body>
-</html>
+    <button type="submit" class="btn-primary">Create Account</button>
+    <p class="login-link">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function selectRole(event, role) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.querySelector(`input[name="role"][value="${role}"]`).checked = true;
+  }
+</script>
+{% endblock %}
