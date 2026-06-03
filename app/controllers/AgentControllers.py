@@ -1,0 +1,15 @@
+from flask import render_template, session, redirect, url_for
+from app.controllers.BaseController import BaseController
+
+class AgentController(BaseController):
+
+    def dashboard(self):
+        # Enforce that only logged-in users with the 'agent' role can see this page
+        if "user_id" not in session or session.get("user_role") != "agent":
+            return redirect(url_for("auth.login"))
+            
+        return render_template(
+            "agent-dashboard.html",
+            user_name=session.get("user_name"),
+            user_role=session.get("user_role")
+        )

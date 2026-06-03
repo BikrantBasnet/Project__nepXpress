@@ -9,6 +9,8 @@ class AuthController(BaseController):
         if "user_id" in session:
             if session.get("user_role") == "admin":
                 return redirect(url_for("admin_dashboard"))
+            if session.get("user_role") == "agent":
+                return redirect(url_for("agent.dashboard"))
             return redirect(url_for("dashboard"))
         if request.method == "GET":
             return render_template("login.html")
@@ -34,6 +36,8 @@ class AuthController(BaseController):
             flash(f"Welcome, {user_data['name']}!", "success")
             if user_data["role"] == "admin":
                 return redirect(url_for("admin_dashboard"))
+            if user_data["role"] == "agent":
+                return redirect(url_for("agent.dashboard"))
             return redirect(url_for("dashboard"))
 
     def register(self):
