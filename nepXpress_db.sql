@@ -135,3 +135,5 @@ INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, 
 ('NXP-2843', 163, 1, 'Kathmandu', 'delivered', 900.00, DATE_SUB(NOW(), INTERVAL 35 DAY)),
 ('NXP-2842', 164, 2, 'Pokhara',   'delivered', 750.00, DATE_SUB(NOW(), INTERVAL 38 DAY));
 
+
+
