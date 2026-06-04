@@ -13,3 +13,9 @@ class AgentController(BaseController):
             user_name=session.get("user_name"),
             user_role=session.get("user_role")
         )
+    
+    def delivery_history(self):
+        if "user_id" not in session or session.get("user_role") != "agent":
+            return redirect(url_for("auth.login"))
+            
+        return render_template("agent-history.html")

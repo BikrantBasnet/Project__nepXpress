@@ -13,4 +13,11 @@ class AgentRoutes:
             view_func=self.controller.dashboard,
             methods=["GET"]
         )
+    
+        self.bp.add_url_rule(
+            "/agent-history",
+            endpoint="delivery_history",
+            view_func=self.controller.delivery_history,
+            methods=["GET"]
+        )
         return self.bp

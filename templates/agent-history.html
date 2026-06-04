@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NepXpress – Delivery History</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agent-history.css') }}"/>
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.style.display='none';">×</button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">NepXpress</div>
+          <div class="brand-sub-text">Agent Portal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- On / Off Duty toggle -->
+    <div class="duty-toggle-wrap">
+      <div class="duty-row">
+        <span class="duty-label">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="dutyLabelText">Off Duty</span>
+        </span>
+        <label class="duty-pill">
+          <input type="checkbox" id="dutyToggle" onchange="toggleDuty(this)"/>
+          <span class="duty-pill-track"></span>
+        </label>
+      </div>
+      <div class="duty-status-text" id="dutyStatusText">Not accepting deliveries</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="/agent-dashboard" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/agent-deliveries" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Available Deliveries
+      </a>
+      <a href="/agent-routes" class="nav-item">
+        <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Active Routes
+      </a>
+      <a href="{{ url_for('agent.delivery_history') }}" class="nav-item active">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Delivery History
+      </a>
+      <a href="/settings" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ (user_name[0] if user_name else 'A') | upper }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ user_name if user_name else 'Agent' }}</span>
+        <span class="user-role">Delivery Agent</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ MAIN ═════════════════════════════════════════ -->
+  <div class="main-wrapper">
+
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1>Delivery History</h1>
+        <p>Your complete shipment record</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-export" onclick="handleExport()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <button class="notif-btn">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ── SUMMARY STATS ──────────────────────────────── -->
+      <div class="agent-stats">
+
+        <div class="agent-stat-card">
+          <div class="stat-left">
+            <div class="stat-lbl">Total Deliveries</div>
+            <div class="stat-val">{{ total_deliveries if total_deliveries else '348' }}</div>
+            <div class="stat-sub up">All time</div>
+          </div>
+          <div class="stat-icon-wrap blue">
+            <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+        </div>
+
+        <div class="agent-stat-card">
+          <div class="stat-left">
+            <div class="stat-lbl">Total Earnings</div>
+            <div class="stat-val" style="font-size:22px;">NPR {{ total_earnings if total_earnings else '84,200' }}</div>
+            <div class="stat-sub up">Lifetime total</div>
+          </div>
+          <div class="stat-icon-wrap green">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+
+        <div class="agent-stat-card">
+          <div class="stat-left">
+            <div class="stat-lbl">Avg. Rating</div>
+            <div class="stat-val">{{ avg_rating if avg_rating else '4.8' }}</div>
+            <div class="stat-sub muted">Based on {{ review_count if review_count else '245' }} reviews</div>
+          </div>
+          <div class="stat-icon-wrap orange">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+        </div>
+
+        <div class="agent-stat-card">
+          <div class="stat-left">
+            <div class="stat-lbl">Success Rate</div>
+            <div class="stat-val">{{ success_rate if success_rate else '98%' }}</div>
+            <div class="stat-sub up">Excellent performance</div>
+          </div>
+          <div class="stat-icon-wrap purple">
+            <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── FILTERS + TABLE ───────────────────────────── -->
+      <div class="history-section">
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div class="filter-left">
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="searchInput" placeholder="Search by ID, location…" oninput="applyFilters()"/>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Status</label>
+              <select id="filterStatus" class="filter-select" onchange="applyFilters()">
+                <option value="">All</option>
+                <option value="delivered">Delivered</option>
+                <option value="failed">Failed</option>
+                <option value="returned">Returned</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Period</label>
+              <select id="filterPeriod" class="filter-select" onchange="applyFilters()">
+                <option value="">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label class="filter-label">Type</label>
+              <select id="filterType" class="filter-select" onchange="applyFilters()">
+                <option value="">All Types</option>
+                <option value="Parcel">Parcel</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Fragile">Fragile</option>
+                <option value="Documents">Documents</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-right">
+            <span class="result-count" id="resultCount">Showing 8 deliveries</span>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="history-table-wrap">
+          <table class="history-table" id="historyTable">
+            <thead>
+              <tr>
+                <th class="th-sortable" data-col="id" onclick="sortTable('id')">
+                  Shipment ID <span class="sort-icon">↕</span>
+                </th>
+                <th>Type</th>
+                <th class="th-sortable" data-col="from" onclick="sortTable('from')">
+                  Pickup <span class="sort-icon">↕</span>
+                </th>
+                <th class="th-sortable" data-col="to" onclick="sortTable('to')">
+                  Destination <span class="sort-icon">↕</span>
+                </th>
+                <th class="th-sortable" data-col="date" onclick="sortTable('date')">
+                  Date <span class="sort-icon">↕</span>
+                </th>
+                <th>Weight</th>
+                <th class="th-sortable" data-col="earnings" onclick="sortTable('earnings')">
+                  Earnings <span class="sort-icon">↕</span>
+                </th>
+                <th>Status</th>
+                <th>Rating</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+
+          <!-- Empty state -->
+          <div class="empty-history" id="emptyState" style="display:none;">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p>No deliveries match your filters.</p>
+            <small>Try adjusting the search or filters above.</small>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+          <button class="page-btn" id="prevBtn" onclick="changePage(-1)" disabled>
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+            Prev
+          </button>
+          <div class="page-numbers" id="pageNumbers"></div>
+          <button class="page-btn" id="nextBtn" onclick="changePage(1)">
+            Next
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ══ RIGHT PANEL ═══════════════════════════════════ -->
+  <aside class="right-panel">
+
+    <!-- Monthly Earnings Chart -->
+    <section class="panel-section">
+      <div class="panel-header">
+        <h3>Monthly Earnings</h3>
+        <a href="#">Details</a>
+      </div>
+      <div class="earnings-chart">
+        <div class="chart-bars" id="chartBars"></div>
+        <div class="chart-months" id="chartMonths"></div>
+      </div>
+    </section>
+
+    <!-- Performance -->
+    <section class="panel-section">
+      <div class="panel-header">
+        <h3>Performance</h3>
+      </div>
+      <div class="perf-list">
+        <div class="perf-item">
+          <div class="perf-label">
+            <span>On-time Rate</span>
+            <span class="perf-val green">94%</span>
+          </div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar" style="width:94%; background:#22c55e;"></div>
+          </div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">
+            <span>Customer Satisfaction</span>
+            <span class="perf-val blue">96%</span>
+          </div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar" style="width:96%; background:#3b82f6;"></div>
+          </div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">
+            <span>Package Safety</span>
+            <span class="perf-val purple">99%</span>
+          </div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar" style="width:99%; background:#8b5cf6;"></div>
+          </div>
+        </div>
+        <div class="perf-item">
+          <div class="perf-label">
+            <span>Acceptance Rate</span>
+            <span class="perf-val orange">87%</span>
+          </div>
+          <div class="perf-bar-wrap">
+            <div class="perf-bar" style="width:87%; background:#f97316;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Routes -->
+    <section class="panel-section">
+      <div class="panel-header">
+        <h3>Top Routes</h3>
+      </div>
+      <div class="route-list">
+        <div class="route-item">
+          <div class="route-path">
+            <span class="route-city">Kathmandu</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="route-city">Lalitpur</span>
+          </div>
+          <span class="route-count">42 trips</span>
+        </div>
+        <div class="route-item">
+          <div class="route-path">
+            <span class="route-city">Patan</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="route-city">Bhaktapur</span>
+          </div>
+          <span class="route-count">31 trips</span>
+        </div>
+        <div class="route-item">
+          <div class="route-path">
+            <span class="route-city">Kathmandu</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="route-city">Bhaktapur</span>
+          </div>
+          <span class="route-count">28 trips</span>
+        </div>
+        <div class="route-item">
+          <div class="route-path">
+            <span class="route-city">Lalitpur</span>
+            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="route-city">Patan</span>
+          </div>
+          <span class="route-count">19 trips</span>
+        </div>
+      </div>
+    </section>
+
+  </aside>
+
+  <!-- ══ SHIPMENT DETAIL MODAL ════════════════════════ -->
+  <div id="detailModal" class="modal-overlay" onclick="closeDetailModal(event)">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="m-id">—</div>
+          <div class="modal-sub">Shipment Details</div>
+        </div>
+        <button class="modal-close" onclick="closeDetailModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section-label">Route</div>
+        <div class="modal-row"><span>Pickup</span><strong id="m-from">—</strong></div>
+        <div class="modal-row"><span>Destination</span><strong id="m-to">—</strong></div>
+        <div class="modal-section-label" style="margin-top:14px;">Package</div>
+        <div class="modal-row"><span>Type</span><strong id="m-type">—</strong></div>
+        <div class="modal-row"><span>Weight</span><strong id="m-weight">—</strong></div>
+        <div class="modal-row"><span>Date</span><strong id="m-date">—</strong></div>
+        <div class="modal-section-label" style="margin-top:14px;">Financials</div>
+        <div class="modal-row"><span>Earnings</span><strong id="m-earn" style="color:#22c55e;">—</strong></div>
+        <div class="modal-row"><span>Status</span><strong id="m-status">—</strong></div>
+        <div class="modal-row" id="m-rating-row"><span>Customer Rating</span><strong id="m-rating">—</strong></div>
+        <div class="modal-row" id="m-note-row" style="display:none;"><span>Note</span><strong id="m-note" style="color:#f97316;">—</strong></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn-close" onclick="closeDetailModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="help-btn">?</button>
+
+  <script>
+    // ── Sample data ─────────────────────────────────────
+    const allDeliveries = [
+      { id:'NXP-2850', type:'Parcel',      from:'Kathmandu', to:'Lalitpur',  date:'2025-06-03', dateLabel:'Jun 3, 2025', weight:'1.4 kg', earnings:180, status:'delivered', rating:5, period:'today'  },
+      { id:'NXP-2849', type:'Electronics', from:'Patan',     to:'Bhaktapur', date:'2025-06-03', dateLabel:'Jun 3, 2025', weight:'0.8 kg', earnings:220, status:'delivered', rating:5, period:'today'  },
+      { id:'NXP-2847', type:'Fragile',     from:'Bhaktapur', to:'Kathmandu', date:'2025-06-02', dateLabel:'Jun 2, 2025', weight:'2.0 kg', earnings:300, status:'delivered', rating:4, period:'week'   },
+      { id:'NXP-2841', type:'Documents',   from:'Lalitpur',  to:'Patan',     date:'2025-06-02', dateLabel:'Jun 2, 2025', weight:'0.3 kg', earnings:120, status:'delivered', rating:5, period:'week'   },
+      { id:'NXP-2835', type:'Parcel',      from:'Kathmandu', to:'Bhaktapur', date:'2025-06-01', dateLabel:'Jun 1, 2025', weight:'3.2 kg', earnings:350, status:'delivered', rating:4, period:'week'   },
+      { id:'NXP-2829', type:'Electronics', from:'Patan',     to:'Kathmandu', date:'2025-05-31', dateLabel:'May 31, 2025', weight:'1.1 kg', earnings:200, status:'failed',    rating:null, note:'Customer unreachable', period:'week' },
+      { id:'NXP-2820', type:'Parcel',      from:'Bhaktapur', to:'Lalitpur',  date:'2025-05-30', dateLabel:'May 30, 2025', weight:'0.9 kg', earnings:160, status:'returned',  rating:null, note:'Wrong address',  period:'month' },
+      { id:'NXP-2815', type:'Fragile',     from:'Kathmandu', to:'Patan',     date:'2025-05-28', dateLabel:'May 28, 2025', weight:'1.6 kg', earnings:240, status:'delivered', rating:5, period:'month' },
+      { id:'NXP-2800', type:'Documents',   from:'Lalitpur',  to:'Bhaktapur', date:'2025-05-25', dateLabel:'May 25, 2025', weight:'0.2 kg', earnings:100, status:'delivered', rating:5, period:'month' },
+      { id:'NXP-2790', type:'Parcel',      from:'Patan',     to:'Kathmandu', date:'2025-05-20', dateLabel:'May 20, 2025', weight:'2.5 kg', earnings:280, status:'delivered', rating:4, period:'month' },
+      { id:'NXP-2780', type:'Electronics', from:'Kathmandu', to:'Lalitpur',  date:'2025-05-15', dateLabel:'May 15, 2025', weight:'0.7 kg', earnings:190, status:'delivered', rating:5, period:'month' },
+      { id:'NXP-2765', type:'Fragile',     from:'Bhaktapur', to:'Patan',     date:'2025-05-10', dateLabel:'May 10, 2025', weight:'1.8 kg', earnings:260, status:'delivered', rating:3, period:'month' },
+    ];
+
+    const PAGE_SIZE = 8;
+    let currentPage = 1;
+    let sortCol = 'date';
+    let sortDir = -1; // -1 = desc
+    let filtered = [...allDeliveries];
+
+    // ── Render helpers ──────────────────────────────────
+    function statusBadge(status) {
+      const map = { delivered:'delivered', failed:'failed', returned:'returned' };
+      const labels = { delivered:'Delivered', failed:'Failed', returned:'Returned' };
+      return `<span class="hist-badge ${map[status]}">${labels[status]}</span>`;
+    }
+
+    function starRating(n) {
+      if (n === null) return '<span style="color:#c8cdd8;font-size:12px;">—</span>';
+      let s = '';
+      for (let i = 1; i <= 5; i++) s += `<span class="star ${i<=n?'filled':''}">★</span>`;
+      return `<div class="stars">${s}</div>`;
+    }
+
+    function renderTable() {
+      const body = document.getElementById('historyBody');
+      const empty = document.getElementById('emptyState');
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const page  = filtered.slice(start, start + PAGE_SIZE);
+
+      if (filtered.length === 0) {
+        body.innerHTML = '';
+        empty.style.display = 'flex';
+      } else {
+        empty.style.display = 'none';
+        body.innerHTML = page.map((d, i) => `
+          <tr class="hist-row" style="animation-delay:${i*0.04}s" onclick="openDetail('${d.id}')">
+            <td><span class="shipment-id">${d.id}</span></td>
+            <td><span class="type-chip">${d.type}</span></td>
+            <td><span class="loc">${d.from}</span></td>
+            <td><span class="loc">${d.to}</span></td>
+            <td class="date-cell">${d.dateLabel}</td>
+            <td>${d.weight}</td>
+            <td class="earn-cell">NPR ${d.earnings.toLocaleString()}</td>
+            <td>${statusBadge(d.status)}</td>
+            <td>${starRating(d.rating)}</td>
+            <td><button class="btn-view-row" onclick="event.stopPropagation();openDetail('${d.id}')">View</button></td>
+          </tr>
+        `).join('');
+      }
+
+      document.getElementById('resultCount').textContent = `Showing ${filtered.length} deliver${filtered.length!==1?'ies':'y'}`;
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const total = Math.ceil(filtered.length / PAGE_SIZE);
+      const pn = document.getElementById('pageNumbers');
+      pn.innerHTML = '';
+      for (let i = 1; i <= total; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'page-num' + (i === currentPage ? ' active' : '');
+        btn.textContent = i;
+        btn.onclick = () => { currentPage = i; renderTable(); };
+        pn.appendChild(btn);
+      }
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= total;
+      document.getElementById('pagination').style.display = total <= 1 ? 'none' : 'flex';
+    }
+
+    function changePage(delta) {
+      const total = Math.ceil(filtered.length / PAGE_SIZE);
+      currentPage = Math.max(1, Math.min(total, currentPage + delta));
+      renderTable();
+    }
+
+    // ── Filters ─────────────────────────────────────────
+    function applyFilters() {
+      const q      = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('filterStatus').value;
+      const period = document.getElementById('filterPeriod').value;
+      const type   = document.getElementById('filterType').value;
+
+      filtered = allDeliveries.filter(d => {
+        const matchQ = !q || d.id.toLowerCase().includes(q) || d.from.toLowerCase().includes(q) || d.to.toLowerCase().includes(q);
+        const matchS = !status || d.status === status;
+        const matchP = !period || d.period === period;
+        const matchT = !type   || d.type   === type;
+        return matchQ && matchS && matchP && matchT;
+      });
+
+      sortData();
+      currentPage = 1;
+      renderTable();
+    }
+
+    // ── Sort ────────────────────────────────────────────
+    function sortTable(col) {
+      if (sortCol === col) sortDir *= -1;
+      else { sortCol = col; sortDir = -1; }
+      document.querySelectorAll('.th-sortable').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+      const th = document.querySelector(`[data-col="${col}"]`);
+      if (th) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+      sortData();
+      renderTable();
+    }
+
+    function sortData() {
+      filtered.sort((a, b) => {
+        let av = a[sortCol], bv = b[sortCol];
+        if (sortCol === 'earnings') return (av - bv) * sortDir;
+        return String(av).localeCompare(String(bv)) * sortDir;
+      });
+    }
+
+    // ── Modal ───────────────────────────────────────────
+    function openDetail(id) {
+      const d = allDeliveries.find(x => x.id === id);
+      if (!d) return;
+      document.getElementById('m-id').textContent     = d.id;
+      document.getElementById('m-from').textContent   = d.from;
+      document.getElementById('m-to').textContent     = d.to;
+      document.getElementById('m-type').textContent   = d.type;
+      document.getElementById('m-weight').textContent = d.weight;
+      document.getElementById('m-date').textContent   = d.dateLabel;
+      document.getElementById('m-earn').textContent   = 'NPR ' + d.earnings.toLocaleString();
+      document.getElementById('m-status').innerHTML   = statusBadge(d.status);
+      document.getElementById('m-rating').innerHTML   = starRating(d.rating);
+      const noteRow = document.getElementById('m-note-row');
+      if (d.note) { noteRow.style.display='flex'; document.getElementById('m-note').textContent = d.note; }
+      else noteRow.style.display = 'none';
+      document.getElementById('detailModal').classList.add('open');
+    }
+
+    function closeDetailModal(e) {
+      if (!e || e.target.id === 'detailModal' || e.currentTarget === document.querySelector('.modal-close')) {
+        document.getElementById('detailModal').classList.remove('open');
+      }
+    }
+
+    // ── Monthly chart ───────────────────────────────────
+    function buildChart() {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun'];
+      const vals   = [6200, 7400, 5900, 8100, 9300, 7200];
+      const max    = Math.max(...vals);
+      const bars   = document.getElementById('chartBars');
+      const labels = document.getElementById('chartMonths');
+      bars.innerHTML = vals.map((v,i) => `
+        <div class="chart-bar-col">
+          <div class="chart-bar-inner" style="height:${(v/max)*100}%;animation-delay:${i*0.07}s">
+            <div class="chart-tooltip">NPR ${v.toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+      labels.innerHTML = months.map(m => `<span>${m}</span>`).join('');
+    }
+
+    // ── Duty toggle ─────────────────────────────────────
+    function toggleDuty(cb) {
+      const label  = document.getElementById('dutyLabelText');
+      const status = document.getElementById('dutyStatusText');
+      if (cb.checked) {
+        label.textContent  = 'On Duty';
+        status.textContent = 'Accepting new deliveries';
+        status.className   = 'duty-status-text on-duty';
+      } else {
+        label.textContent  = 'Off Duty';
+        status.textContent = 'Not accepting deliveries';
+        status.className   = 'duty-status-text';
+      }
+    }
+
+    function handleExport() {
+      const rows = [['ID','Type','Pickup','Destination','Date','Weight','Earnings','Status','Rating']];
+      filtered.forEach(d => rows.push([d.id,d.type,d.from,d.to,d.dateLabel,d.weight,'NPR '+d.earnings,d.status,d.rating??'—']));
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv,' + encodeURIComponent(csv);
+      a.download = 'delivery-history.csv';
+      a.click();
+    }
+
+    // ── Init ────────────────────────────────────────────
+    sortData();
+    renderTable();
+    buildChart();
+  </script>
+
+</body>
+</html>
