@@ -4,10 +4,6 @@ import random
 
 
 class Shipment(BaseModel):
-    """
-    Teammate's Shipment class — kept exactly as-is.
-    Used by the customer-facing create-shipment page.
-    """
     table = "shipments"
 
     def __init__(self):
@@ -15,7 +11,6 @@ class Shipment(BaseModel):
 
     @staticmethod
     def generate_tracking_id():
-        """Generate a unique tracking ID in format NXP-NNNN-NNNN."""
         db = Database()
         while True:
             tid = f"NXP-{random.randint(1000, 9999)}-{random.randint(1000, 9999)}"
@@ -27,7 +22,6 @@ class Shipment(BaseModel):
                 return tid
 
     def create(self, data):
-        """Insert a new shipment. `data` is a dict of column->value."""
         db = Database()
         query = (
             "INSERT INTO shipments "
@@ -39,13 +33,32 @@ class Shipment(BaseModel):
             "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         )
         db.execute(query, (
-            data["tracking_id"], data["customer_id"],
-            data["destination"], data.get("status", "pending"), data.get("amount", 0.00), data.get("notes", ""),
+            data["tracking_id"],
+            data["user_id"],
+            data.get("sender_name", ""),
+            data.get("sender_phone", ""),
+            data.get("sender_address", ""),
+            data.get("sender_city", ""),
+            data.get("sender_district", ""),
+            data.get("receiver_name", ""),
+            data.get("receiver_phone", ""),
+            data.get("receiver_address", ""),
+            data.get("receiver_city", ""),
+            data.get("receiver_district", ""),
+            data.get("package_type", ""),
+            data.get("weight") or None,
+            data.get("estimated_value") or 0,
+            data.get("length_cm") or None,
+            data.get("width_cm") or None,
+            data.get("height_cm") or None,
+            data.get("delivery_type", "Standard"),
+            data.get("payment_method", "cod"),
+            data.get("status", "Pending"),
+            data.get("instructions", ""),
         ))
         db.close()
 
     def find_by_user(self, user_id):
-        """Get all shipments for a user, newest first."""
         db = Database()
         results = db.fetch_all(
             "SELECT * FROM shipments WHERE user_id=%s ORDER BY created_at DESC",
@@ -55,27 +68,26 @@ class Shipment(BaseModel):
         return results
 
     def get_stats_for_user(self, user_id):
-        """Return counts per status for the stats cards on the history page."""
         db = Database()
         rows = db.fetch_all(
             "SELECT status, COUNT(*) AS cnt "
-            "FROM shipments WHERE customer_id=%s GROUP BY status",
+            "FROM shipments WHERE user_id=%s GROUP BY status",
             (user_id,)
         )
         db.close()
         stats = {"total": 0, "Delivered": 0, "In Transit": 0, "Processing": 0}
-        # Map DB enum values → display labels
         label_map = {
-            "delivered":   "Delivered",
-            "in_transit":  "In Transit",
-            "processing":  "Processing",
-            "pending":     "Processing",   # treat pending as processing for display
-            "delayed":     "In Transit",   # delayed still counts as in-transit for display
-            "cancelled":   "Cancelled",
+            "delivered":  "Delivered",
+            "in_transit": "In Transit",
+            "in transit": "In Transit",
+            "processing": "Processing",
+            "pending":    "Processing",
+            "delayed":    "In Transit",
+            "cancelled":  "Cancelled",
         }
         for row in rows:
             stats["total"] += row["cnt"]
-            label = label_map.get(row["status"].lower(), "")
+            label = label_map.get((row["status"] or "").lower(), "")
             if label and label in stats:
                 stats[label] += row["cnt"]
         return stats
