@@ -68,14 +68,7 @@ button:hover, .hover-lift:hover {
   border-radius: 14px;
   box-shadow: 0 28px 70px rgba(0,0,0,0.18);
   backdrop-filter: blur(18px);
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-}
-
-.sidebar .brand:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 34px 85px rgba(0,0,0,0.22);
-  background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.12));
+  cursor: default;
 }
 
 .sidebar .brand-icon {
@@ -90,13 +83,6 @@ button:hover, .hover-lift:hover {
   flex-shrink: 0;
   overflow: hidden;
   padding: 6px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-}
-
-.sidebar .brand-icon:hover {
-  transform: translateY(-3px) scale(1.08);
-  box-shadow: 0 34px 95px rgba(0,0,0,0.26);
-  background: #f4f7ff;
 }
 
 .sidebar .brand-logo {
@@ -105,11 +91,6 @@ button:hover, .hover-lift:hover {
   object-fit: contain;
   filter: none;
   mix-blend-mode: normal;
-  transition: transform 0.25s ease;
-}
-
-.sidebar .brand-icon:hover .brand-logo {
-  transform: scale(1.1);
 }
 
 .sidebar .brand-text {
@@ -332,3 +313,28 @@ svg {
 }
 
 .help-btn:hover { background: #2a2f3e; }
+
+/* ── Sidebar Contact Us block ── */
+.sidebar .sidebar-contact {
+  margin: 0 12px 8px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+}
+
+.sidebar .sidebar-contact-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e8a020;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
+}
+
+.sidebar .sidebar-contact-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.9;
+  word-break: break-word;
+}

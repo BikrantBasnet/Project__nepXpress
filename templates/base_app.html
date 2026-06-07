@@ -58,6 +58,15 @@
       </a>
     </nav>
 
+    <div class="sidebar-contact">
+      <div class="sidebar-contact-title">Contact Us</div>
+      <div class="sidebar-contact-text">
+        📧 nepXpress@gmail.com<br>
+        ☎️ 01-4567890<br>
+        📱 +977-9812345678
+      </div>
+    </div>
+
     <div class="sidebar-user">
       <div class="user-avatar">{{ (user_name[0] if user_name else 'U') | upper }}</div>
       <div class="user-info">
@@ -69,7 +78,6 @@
 
   {% block body %}{% endblock %}
 
-  <button class="help-btn">?</button>
   {% block scripts %}{% endblock %}
 </body>
 </html>
