@@ -33,8 +33,9 @@ body {
 
 /* ── Left Panel (REDUCED SIZE) ─────────────────────────────── */
 .left-panel {
-  width: 24%;
-  min-width: 260px;
+  width: 23%;
+  min-width: 250px;
+  max-width: 320px;
   background: var(--dark);
   display: flex;
   flex-direction: column;
@@ -84,14 +85,7 @@ body {
   box-shadow: 0 28px 70px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(18px);
   margin-bottom: 24px;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-}
-
-.brand:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 34px 85px rgba(0, 0, 0, 0.22);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.12));
+  cursor: default;
 }
 
 .brand-icon {
@@ -103,16 +97,9 @@ body {
   place-items: center;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
   flex-shrink: 0;
   overflow: hidden;
   padding: 6px;
-}
-
-.brand-icon:hover {
-  transform: translateY(-3px) scale(1.08);
-  box-shadow: 0 34px 95px rgba(0, 0, 0, 0.26);
-  background: #f4f7ff;
 }
 
 .brand-logo {
@@ -122,19 +109,6 @@ body {
   margin: 0;
   filter: none;
   mix-blend-mode: normal;
-  transition: transform 0.25s ease;
-}
-
-.brand-icon:hover .brand-logo {
-  transform: scale(1.1);
-}
-
-.brand:hover .brand-name {
-  text-shadow: 0 6px 28px rgba(0, 0, 0, 0.35);
-}
-
-.brand:hover .brand-sub-text {
-  color: #ffffff;
 }
 
 .brand-text {
