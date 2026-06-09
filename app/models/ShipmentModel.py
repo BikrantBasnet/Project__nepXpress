@@ -91,4 +91,17 @@ class Shipment(BaseModel):
             if label and label in stats:
                 stats[label] += row["cnt"]
         return stats
-    
+
+    @classmethod
+    def get_history_for_agent(cls, agent_id):
+        """
+        Fetches the complete delivery history for a logged-in agent.
+        """
+        sql = """
+            SELECT s.*, u.name AS customer_name 
+            FROM shipments s
+            JOIN users u ON s.user_id = u.id
+            WHERE s.agent_id = %s
+            ORDER BY s.updated_at DESC
+        """
+        return execute_query(sql, (agent_id,), fetchall=True)

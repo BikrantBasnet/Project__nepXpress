@@ -92,16 +92,10 @@
         <h1>Delivery History</h1>
         <p>Your complete shipment record</p>
       </div>
-      <div class="topbar-actions">
-        <button class="btn-export" onclick="handleExport()">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export CSV
-        </button>
-        <button class="notif-btn">
-          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-dot"></span>
-        </button>
-      </div>
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
     </header>
 
     <main class="content">
@@ -198,9 +192,7 @@
             </div>
           </div>
 
-          <div class="filter-right">
-            <span class="result-count" id="resultCount">Showing 8 deliveries</span>
-          </div>
+          <span class="result-count" id="resultCount">Showing 8 deliveries</span>
         </div>
 
         <!-- Table -->
@@ -208,34 +200,21 @@
           <table class="history-table" id="historyTable">
             <thead>
               <tr>
-                <th class="th-sortable" data-col="id" onclick="sortTable('id')">
-                  Shipment ID <span class="sort-icon">↕</span>
-                </th>
+                <th class="th-sortable" data-col="id" onclick="sortTable('id')">Shipment ID <span class="sort-icon">↕</span></th>
                 <th>Type</th>
-                <th class="th-sortable" data-col="from" onclick="sortTable('from')">
-                  Pickup <span class="sort-icon">↕</span>
-                </th>
-                <th class="th-sortable" data-col="to" onclick="sortTable('to')">
-                  Destination <span class="sort-icon">↕</span>
-                </th>
-                <th class="th-sortable" data-col="date" onclick="sortTable('date')">
-                  Date <span class="sort-icon">↕</span>
-                </th>
+                <th class="th-sortable" data-col="from" onclick="sortTable('from')">Pickup <span class="sort-icon">↕</span></th>
+                <th class="th-sortable" data-col="to" onclick="sortTable('to')">Destination <span class="sort-icon">↕</span></th>
+                <th class="th-sortable" data-col="date" onclick="sortTable('date')">Date <span class="sort-icon">↕</span></th>
                 <th>Weight</th>
-                <th class="th-sortable" data-col="earnings" onclick="sortTable('earnings')">
-                  Earnings <span class="sort-icon">↕</span>
-                </th>
+                <th class="th-sortable" data-col="earnings" onclick="sortTable('earnings')">Earnings <span class="sort-icon">↕</span></th>
                 <th>Status</th>
                 <th>Rating</th>
                 <th></th>
               </tr>
             </thead>
-            <tbody id="historyBody">
-              <!-- Rows injected by JS -->
-            </tbody>
+            <tbody id="historyBody"></tbody>
           </table>
 
-          <!-- Empty state -->
           <div class="empty-history" id="emptyState" style="display:none;">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <p>No deliveries match your filters.</p>
@@ -260,109 +239,6 @@
     </main>
   </div>
 
-  <!-- ══ RIGHT PANEL ═══════════════════════════════════ -->
-  <aside class="right-panel">
-
-    <!-- Monthly Earnings Chart -->
-    <section class="panel-section">
-      <div class="panel-header">
-        <h3>Monthly Earnings</h3>
-        <a href="#">Details</a>
-      </div>
-      <div class="earnings-chart">
-        <div class="chart-bars" id="chartBars"></div>
-        <div class="chart-months" id="chartMonths"></div>
-      </div>
-    </section>
-
-    <!-- Performance -->
-    <section class="panel-section">
-      <div class="panel-header">
-        <h3>Performance</h3>
-      </div>
-      <div class="perf-list">
-        <div class="perf-item">
-          <div class="perf-label">
-            <span>On-time Rate</span>
-            <span class="perf-val green">94%</span>
-          </div>
-          <div class="perf-bar-wrap">
-            <div class="perf-bar" style="width:94%; background:#22c55e;"></div>
-          </div>
-        </div>
-        <div class="perf-item">
-          <div class="perf-label">
-            <span>Customer Satisfaction</span>
-            <span class="perf-val blue">96%</span>
-          </div>
-          <div class="perf-bar-wrap">
-            <div class="perf-bar" style="width:96%; background:#3b82f6;"></div>
-          </div>
-        </div>
-        <div class="perf-item">
-          <div class="perf-label">
-            <span>Package Safety</span>
-            <span class="perf-val purple">99%</span>
-          </div>
-          <div class="perf-bar-wrap">
-            <div class="perf-bar" style="width:99%; background:#8b5cf6;"></div>
-          </div>
-        </div>
-        <div class="perf-item">
-          <div class="perf-label">
-            <span>Acceptance Rate</span>
-            <span class="perf-val orange">87%</span>
-          </div>
-          <div class="perf-bar-wrap">
-            <div class="perf-bar" style="width:87%; background:#f97316;"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Top Routes -->
-    <section class="panel-section">
-      <div class="panel-header">
-        <h3>Top Routes</h3>
-      </div>
-      <div class="route-list">
-        <div class="route-item">
-          <div class="route-path">
-            <span class="route-city">Kathmandu</span>
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="route-city">Lalitpur</span>
-          </div>
-          <span class="route-count">42 trips</span>
-        </div>
-        <div class="route-item">
-          <div class="route-path">
-            <span class="route-city">Patan</span>
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="route-city">Bhaktapur</span>
-          </div>
-          <span class="route-count">31 trips</span>
-        </div>
-        <div class="route-item">
-          <div class="route-path">
-            <span class="route-city">Kathmandu</span>
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="route-city">Bhaktapur</span>
-          </div>
-          <span class="route-count">28 trips</span>
-        </div>
-        <div class="route-item">
-          <div class="route-path">
-            <span class="route-city">Lalitpur</span>
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="route-city">Patan</span>
-          </div>
-          <span class="route-count">19 trips</span>
-        </div>
-      </div>
-    </section>
-
-  </aside>
-
   <!-- ══ SHIPMENT DETAIL MODAL ════════════════════════ -->
   <div id="detailModal" class="modal-overlay" onclick="closeDetailModal(event)">
     <div class="modal-card">
@@ -384,7 +260,7 @@
         <div class="modal-section-label" style="margin-top:14px;">Financials</div>
         <div class="modal-row"><span>Earnings</span><strong id="m-earn" style="color:#22c55e;">—</strong></div>
         <div class="modal-row"><span>Status</span><strong id="m-status">—</strong></div>
-        <div class="modal-row" id="m-rating-row"><span>Customer Rating</span><strong id="m-rating">—</strong></div>
+        <div class="modal-row"><span>Customer Rating</span><strong id="m-rating">—</strong></div>
         <div class="modal-row" id="m-note-row" style="display:none;"><span>Note</span><strong id="m-note" style="color:#f97316;">—</strong></div>
       </div>
       <div class="modal-footer">
@@ -393,36 +269,38 @@
     </div>
   </div>
 
-  <button class="help-btn">?</button>
-
   <script>
-    // ── Sample data ─────────────────────────────────────
     const allDeliveries = [
-      { id:'NXP-2850', type:'Parcel',      from:'Kathmandu', to:'Lalitpur',  date:'2025-06-03', dateLabel:'Jun 3, 2025', weight:'1.4 kg', earnings:180, status:'delivered', rating:5, period:'today'  },
-      { id:'NXP-2849', type:'Electronics', from:'Patan',     to:'Bhaktapur', date:'2025-06-03', dateLabel:'Jun 3, 2025', weight:'0.8 kg', earnings:220, status:'delivered', rating:5, period:'today'  },
-      { id:'NXP-2847', type:'Fragile',     from:'Bhaktapur', to:'Kathmandu', date:'2025-06-02', dateLabel:'Jun 2, 2025', weight:'2.0 kg', earnings:300, status:'delivered', rating:4, period:'week'   },
-      { id:'NXP-2841', type:'Documents',   from:'Lalitpur',  to:'Patan',     date:'2025-06-02', dateLabel:'Jun 2, 2025', weight:'0.3 kg', earnings:120, status:'delivered', rating:5, period:'week'   },
-      { id:'NXP-2835', type:'Parcel',      from:'Kathmandu', to:'Bhaktapur', date:'2025-06-01', dateLabel:'Jun 1, 2025', weight:'3.2 kg', earnings:350, status:'delivered', rating:4, period:'week'   },
-      { id:'NXP-2829', type:'Electronics', from:'Patan',     to:'Kathmandu', date:'2025-05-31', dateLabel:'May 31, 2025', weight:'1.1 kg', earnings:200, status:'failed',    rating:null, note:'Customer unreachable', period:'week' },
-      { id:'NXP-2820', type:'Parcel',      from:'Bhaktapur', to:'Lalitpur',  date:'2025-05-30', dateLabel:'May 30, 2025', weight:'0.9 kg', earnings:160, status:'returned',  rating:null, note:'Wrong address',  period:'month' },
-      { id:'NXP-2815', type:'Fragile',     from:'Kathmandu', to:'Patan',     date:'2025-05-28', dateLabel:'May 28, 2025', weight:'1.6 kg', earnings:240, status:'delivered', rating:5, period:'month' },
-      { id:'NXP-2800', type:'Documents',   from:'Lalitpur',  to:'Bhaktapur', date:'2025-05-25', dateLabel:'May 25, 2025', weight:'0.2 kg', earnings:100, status:'delivered', rating:5, period:'month' },
-      { id:'NXP-2790', type:'Parcel',      from:'Patan',     to:'Kathmandu', date:'2025-05-20', dateLabel:'May 20, 2025', weight:'2.5 kg', earnings:280, status:'delivered', rating:4, period:'month' },
-      { id:'NXP-2780', type:'Electronics', from:'Kathmandu', to:'Lalitpur',  date:'2025-05-15', dateLabel:'May 15, 2025', weight:'0.7 kg', earnings:190, status:'delivered', rating:5, period:'month' },
-      { id:'NXP-2765', type:'Fragile',     from:'Bhaktapur', to:'Patan',     date:'2025-05-10', dateLabel:'May 10, 2025', weight:'1.8 kg', earnings:260, status:'delivered', rating:3, period:'month' },
+      {% if history_records %}
+        {% for record in history_records %}
+        { 
+          id: '{{ record.tracking_id }}', 
+          type: '{{ record.package_type if record.package_type else "Parcel" }}', 
+          from: '{{ record.sender_city if record.sender_city else "N/A" }}', 
+          to: '{{ record.receiver_city if record.receiver_city else (record.destination if record.destination else "N/A") }}', 
+          date: '{{ record.created_at.strftime("%Y-%m-%d") if record.created_at and record.created_at.strftime is defined else record.created_at }}',
+          dateLabel: '{{ record.created_at.strftime("%b %d, %Y") if record.created_at and record.created_at.strftime is defined else record.created_at }}',
+          weight: '{{ record.weight if record.weight else "0" }} kg', 
+          // Assuming amount exists in shipments schema for earnings, default to 0 if NULL
+          earnings: {{ record.amount if record.amount else 0 }}, 
+          // Match database enums ('pending', 'delivered', etc.) to the template lower-case style
+          status: '{{ record.status.lower() if record.status else "delivered" }}', 
+          rating: 5, 
+          period: 'month'  
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+      {% endif %}
     ];
 
     const PAGE_SIZE = 8;
     let currentPage = 1;
     let sortCol = 'date';
-    let sortDir = -1; // -1 = desc
+    let sortDir = -1;
     let filtered = [...allDeliveries];
 
-    // ── Render helpers ──────────────────────────────────
     function statusBadge(status) {
-      const map = { delivered:'delivered', failed:'failed', returned:'returned' };
       const labels = { delivered:'Delivered', failed:'Failed', returned:'Returned' };
-      return `<span class="hist-badge ${map[status]}">${labels[status]}</span>`;
+      return `<span class="hist-badge ${status}">${labels[status]}</span>`;
     }
 
     function starRating(n) {
@@ -433,7 +311,7 @@
     }
 
     function renderTable() {
-      const body = document.getElementById('historyBody');
+      const body  = document.getElementById('historyBody');
       const empty = document.getElementById('emptyState');
       const start = (currentPage - 1) * PAGE_SIZE;
       const page  = filtered.slice(start, start + PAGE_SIZE);
@@ -485,7 +363,6 @@
       renderTable();
     }
 
-    // ── Filters ─────────────────────────────────────────
     function applyFilters() {
       const q      = document.getElementById('searchInput').value.toLowerCase();
       const status = document.getElementById('filterStatus').value;
@@ -493,7 +370,7 @@
       const type   = document.getElementById('filterType').value;
 
       filtered = allDeliveries.filter(d => {
-        const matchQ = !q || d.id.toLowerCase().includes(q) || d.from.toLowerCase().includes(q) || d.to.toLowerCase().includes(q);
+        const matchQ = !q      || d.id.toLowerCase().includes(q) || d.from.toLowerCase().includes(q) || d.to.toLowerCase().includes(q);
         const matchS = !status || d.status === status;
         const matchP = !period || d.period === period;
         const matchT = !type   || d.type   === type;
@@ -505,7 +382,6 @@
       renderTable();
     }
 
-    // ── Sort ────────────────────────────────────────────
     function sortTable(col) {
       if (sortCol === col) sortDir *= -1;
       else { sortCol = col; sortDir = -1; }
@@ -524,7 +400,6 @@
       });
     }
 
-    // ── Modal ───────────────────────────────────────────
     function openDetail(id) {
       const d = allDeliveries.find(x => x.id === id);
       if (!d) return;
@@ -549,24 +424,6 @@
       }
     }
 
-    // ── Monthly chart ───────────────────────────────────
-    function buildChart() {
-      const months = ['Jan','Feb','Mar','Apr','May','Jun'];
-      const vals   = [6200, 7400, 5900, 8100, 9300, 7200];
-      const max    = Math.max(...vals);
-      const bars   = document.getElementById('chartBars');
-      const labels = document.getElementById('chartMonths');
-      bars.innerHTML = vals.map((v,i) => `
-        <div class="chart-bar-col">
-          <div class="chart-bar-inner" style="height:${(v/max)*100}%;animation-delay:${i*0.07}s">
-            <div class="chart-tooltip">NPR ${v.toLocaleString()}</div>
-          </div>
-        </div>
-      `).join('');
-      labels.innerHTML = months.map(m => `<span>${m}</span>`).join('');
-    }
-
-    // ── Duty toggle ─────────────────────────────────────
     function toggleDuty(cb) {
       const label  = document.getElementById('dutyLabelText');
       const status = document.getElementById('dutyStatusText');
@@ -581,20 +438,8 @@
       }
     }
 
-    function handleExport() {
-      const rows = [['ID','Type','Pickup','Destination','Date','Weight','Earnings','Status','Rating']];
-      filtered.forEach(d => rows.push([d.id,d.type,d.from,d.to,d.dateLabel,d.weight,'NPR '+d.earnings,d.status,d.rating??'—']));
-      const csv = rows.map(r => r.join(',')).join('\n');
-      const a = document.createElement('a');
-      a.href = 'data:text/csv,' + encodeURIComponent(csv);
-      a.download = 'delivery-history.csv';
-      a.click();
-    }
-
-    // ── Init ────────────────────────────────────────────
     sortData();
     renderTable();
-    buildChart();
   </script>
 
 </body>

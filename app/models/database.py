@@ -96,7 +96,7 @@ class Database:
             "created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             "updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
             "FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,"
-            "FOREIGN KEY (agent_id) REFERENCES delivery_agents(id) ON DELETE SET NULL"
+            "FOREIGN KEY (agent_id) REFERENCES users(id) ON DELETE SET NULL"
             ")"
         )
 
