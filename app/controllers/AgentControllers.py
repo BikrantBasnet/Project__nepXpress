@@ -18,4 +18,15 @@ class AgentController(BaseController):
         if "user_id" not in session or session.get("user_role") != "agent":
             return redirect(url_for("auth.login"))
             
-        return render_template("agent-history.html")
+        from app.models.ShipmentModel import Shipment
+        agent_id = session.get("user_id")
+        
+        # Pull history rows from your live MySQL tables
+        shipment_records = Shipment.get_history_for_agent(agent_id)
+        
+        return render_template(
+            "agent-history.html", 
+            history_records=shipment_records,
+            user_name=session.get("user_name"),
+            user_role=session.get("user_role")
+        )
