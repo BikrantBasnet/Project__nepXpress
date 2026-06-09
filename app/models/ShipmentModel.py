@@ -91,3 +91,4 @@ class Shipment(BaseModel):
             if label and label in stats:
                 stats[label] += row["cnt"]
         return stats
+    
