@@ -278,6 +278,19 @@ def create_app():
         user_role=session.get("user_role") or session.get("admin_role")
     )
     
+    @app.route("/admin-reports")
+    @no_cache
+    def admin_reports():
+        if not session.get("user_id") and not session.get("admin_logged_in"):
+            return redirect(url_for("auth.login"))
+        get_flashed_messages()
+        return render_template(
+        "admin-reports.html",
+        user_name=session.get("user_name") or session.get("admin_name"),
+        user_role=session.get("user_role") or session.get("admin_role")
+    )
+
+    
     @app.route("/logout", methods=["GET", "POST"])
     @login_required
     def logout():

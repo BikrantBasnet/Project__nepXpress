@@ -1,9 +1,12 @@
 from flask import Blueprint
+
 from app.controllers.AdminAuthController import AdminAuthController
 from app.controllers.AdminDashboardController import AdminDashboardController
 from app.controllers.shipmentcontrollers import ShipmentController
 from app.controllers.AdminUserController import AdminUserController
 from app.controllers.AdminAgentController import AdminAgentController
+from app.controllers.AdminReportsController import AdminReportsController
+
 
 admin_bp = Blueprint('admin_api', __name__, url_prefix='/api/admin')
 
@@ -48,3 +51,13 @@ admin_bp.add_url_rule('/delivery-agents/<int:agent_id>',        'da_one',    Adm
 admin_bp.add_url_rule('/delivery-agents/<int:agent_id>',        'da_update', AdminAgentController.update,        methods=['PUT'])
 admin_bp.add_url_rule('/delivery-agents/<int:agent_id>/status', 'da_status', AdminAgentController.update_status, methods=['PATCH'])
 admin_bp.add_url_rule('/delivery-agents/<int:agent_id>',        'da_delete', AdminAgentController.delete,        methods=['DELETE'])
+
+
+
+
+#── Reports ─────────────────────────────────────────────────────────────── #
+admin_bp.add_url_rule('/reports/summary',           'reports_summary',   AdminReportsController.get_summary,          methods=['GET'])
+admin_bp.add_url_rule('/reports/revenue-monthly',   'reports_revenue',   AdminReportsController.get_revenue_monthly,  methods=['GET'])
+admin_bp.add_url_rule('/reports/shipments-monthly', 'reports_shipments', AdminReportsController.get_shipments_monthly,methods=['GET'])
+admin_bp.add_url_rule('/reports/agent-performance', 'reports_agents',    AdminReportsController.get_agent_performance,methods=['GET'])
+admin_bp.add_url_rule('/reports/customer-activity', 'reports_customers', AdminReportsController.get_customer_activity,methods=['GET'])
