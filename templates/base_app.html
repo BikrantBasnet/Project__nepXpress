@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{% block title %}NepXpress{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}"/>
   {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -21,62 +21,64 @@
     {% endif %}
   {% endwith %}
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
+  <div class="shell">
+
+    <!-- SIDEBAR (delete this whole <aside> to remove the sidebar) -->
+    <aside class="sidebar">
       <div class="brand">
         <div class="brand-icon">
           <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
         </div>
         <div class="brand-text">
           <div class="brand-name">NepXpress</div>
-          <div class="brand-sub-text">Logistics & Delivery</div>
+          <div class="brand-sub">Logistics & Delivery</div>
         </div>
       </div>
-    </div>
 
-    <nav class="sidebar-nav">
-      <a href="/dashboard" class="nav-item {% if active == 'dashboard' %}active{% endif %}">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
-      </a>
-      <a href="/create-shipment" class="nav-item {% if active == 'create' %}active{% endif %}">
-        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        Create Delivery
-      </a>
-      <a href="/track-shipment" class="nav-item {% if active == 'track' %}active{% endif %}">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Track Shipment
-      </a>
-      <a href="/shipment-history" class="nav-item {% if active == 'history' %}active{% endif %}">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        History
-      </a>
-      <a href="/settings" class="nav-item {% if active == 'settings' %}active{% endif %}">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
-        Settings
-      </a>
-    </nav>
+      <nav class="nav">
+        <a href="/dashboard" class="nav-item {% if active == 'dashboard' %}active{% endif %}">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="/create-shipment" class="nav-item {% if active == 'create' %}active{% endif %}">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Create Delivery
+        </a>
+        <a href="/track-shipment" class="nav-item {% if active == 'track' %}active{% endif %}">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Track Shipment
+        </a>
+        <a href="/shipment-history" class="nav-item {% if active == 'history' %}active{% endif %}">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          History
+        </a>
+        <a href="/settings" class="nav-item {% if active == 'settings' %}active{% endif %}">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+          Settings
+        </a>
+      </nav>
 
-    <div class="sidebar-contact">
-      <div class="sidebar-contact-title">Contact Us</div>
-      <div class="sidebar-contact-text">
-        📧 nepXpress@gmail.com<br>
-        ☎️ 01-4567890<br>
-        📱 +977-9812345678
+      <div class="contact">
+        <div class="contact-title">Contact Us</div>
+        <div class="contact-text">
+          📧 nepXpress@gmail.com<br>
+          ☎️ 01-4567890<br>
+          📱 +977-9812345678
+        </div>
       </div>
-    </div>
 
-    <div class="sidebar-user">
-      <div class="user-avatar">{{ (user_name[0] if user_name else 'U') | upper }}</div>
-      <div class="user-info">
-        <span class="user-name">{{ user_name if user_name else 'User' }}</span>
-        <span class="user-role">{{ user_role | capitalize if user_role else 'Customer' }}</span>
+      <div class="user">
+        <div class="user-avatar">{{ (user_name[0] if user_name else 'U') | upper }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ user_name if user_name else 'User' }}</span>
+          <span class="user-role">{{ user_role | capitalize if user_role else 'Customer' }}</span>
+        </div>
       </div>
-    </div>
-  </aside>
+    </aside>
 
-  {% block body %}{% endblock %}
+    {% block body %}{% endblock %}
+
+  </div>
 
   {% block scripts %}{% endblock %}
 </body>

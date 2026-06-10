@@ -5,19 +5,16 @@
 
 {% block extra_css %}
   <link rel="stylesheet" href="{{ url_for('static', filename='shipment-history.css') }}"/>
+  <style> tr.hide { display: none !important; } </style>
 {% endblock %}
 
 {% block body %}
-  <div class="main-wrapper">
+  <div class="main">
     <header class="topbar">
       <div class="topbar-title">
         <h1>Shipment History</h1>
         <p>View and manage all your past deliveries</p>
       </div>
-      <button class="notif-btn">
-        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-dot"></span>
-      </button>
     </header>
 
     <main class="content">
@@ -31,123 +28,68 @@
 
       <!-- STATS -->
       <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-number">{{ stats.total }}</div>
-          <div class="stat-label">Total Shipments</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ stats['Delivered'] }}</div>
-          <div class="stat-label">Delivered</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ stats['In Transit'] }}</div>
-          <div class="stat-label">In Transit</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ stats['Processing'] }}</div>
-          <div class="stat-label">Processing</div>
-        </div>
+        <div class="stat-card"><div class="stat-number">{{ stats.total }}</div><div class="stat-label">Total Shipments</div></div>
+        <div class="stat-card"><div class="stat-number">{{ stats['Delivered'] }}</div><div class="stat-label">Delivered</div></div>
+        <div class="stat-card"><div class="stat-number">{{ stats['In Transit'] }}</div><div class="stat-label">In Transit</div></div>
+        <div class="stat-card"><div class="stat-number">{{ stats['Processing'] }}</div><div class="stat-label">Processing</div></div>
       </div>
 
-      <!-- FILTERS -->
+      <!-- FILTERS (tabs are links; backend filters via ?status=) -->
       <div class="filters-bar">
         <div class="filter-tabs">
-          <button class="filter-tab active" data-filter="all">All</button>
-          <button class="filter-tab" data-filter="delivered">Delivered</button>
-          <button class="filter-tab" data-filter="transit">In Transit</button>
-          <button class="filter-tab" data-filter="processing">Processing</button>
-          <button class="filter-tab" data-filter="cancelled">Cancelled</button>
+          <a class="filter-tab {{ 'active' if current_filter == 'all' }}"        href="{{ url_for('shipment_history') }}">All</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'delivered' }}"  href="{{ url_for('shipment_history', status='delivered') }}">Delivered</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}" href="{{ url_for('shipment_history', status='in_transit') }}">In Transit</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'pending' }}"    href="{{ url_for('shipment_history', status='pending') }}">Processing</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'cancelled' }}"  href="{{ url_for('shipment_history', status='cancelled') }}">Cancelled</a>
         </div>
         <div class="filter-right">
           <div class="search-box">
             <span class="search-icon">◎</span>
-            <input type="text" id="searchInput" placeholder="Search by tracking ID or address..." />
+            <input type="text" id="search" placeholder="Search by tracking ID or destination..." />
           </div>
-          <select class="filter-select" id="dateFilter">
-            <option>All Time</option>
-            <option>Last 7 days</option>
-            <option>Last 30 days</option>
-            <option>Last 3 months</option>
-            <option>This year</option>
-          </select>
         </div>
       </div>
 
-      <!-- Shipment records table -->
+      <!-- TABLE -->
       <div class="table-card">
         <table class="shipment-table">
           <thead>
             <tr>
               <th>Tracking ID</th>
-              <th>Recipient</th>
               <th>Destination</th>
               <th>Date</th>
-              <th>Type</th>
               <th>Amount</th>
               <th>Status</th>
-              <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="shipmentTableBody">
-
-            {% if shipments %}
-              {% for s in shipments %}
-                {% set raw = s.status | lower %}
-                {% if raw == 'in_transit' %}
-                  {% set css_status = 'transit' %}
-                  {% set label      = 'In Transit' %}
-                {% elif raw == 'delivered' %}
-                  {% set css_status = 'delivered' %}
-                  {% set label      = 'Delivered' %}
-                {% elif raw in ['processing', 'pending'] %}
-                  {% set css_status = 'processing' %}
-                  {% set label      = raw | capitalize %}
-                {% elif raw == 'delayed' %}
-                  {% set css_status = 'transit' %}
-                  {% set label      = 'Delayed' %}
-                {% elif raw == 'cancelled' %}
-                  {% set css_status = 'cancelled' %}
-                  {% set label      = 'Cancelled' %}
-                {% else %}
-                  {% set css_status = '' %}
-                  {% set label      = raw | capitalize %}
-                {% endif %}
-
-                <tr data-status="{{ css_status }}">
-                  <td class="tracking-id">{{ s.tracking_id }}</td>
-                  <td>
-                    <div class="recipient-name">{{ s.receiver_name }}</div>
-                    {% if s.receiver_phone %}
-                      <div class="recipient-phone">{{ s.receiver_phone }}</div>
-                    {% endif %}
-                  </td>
-                  <td>{{ s.receiver_city or s.receiver_district or '—' }}</td>
-                  <td>
-                    <div>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</div>
-                    <div class="time-sub">{{ s.delivery_type or '' }}</div>
-                  </td>
-                  <td>{{ s.package_type or '—' }}</td>
-                  <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
-                  <td><span class="badge {{ css_status }}">{{ label }}</span></td>
-                  <td>
-                    <div class="actions">
-                      <a href="/track-shipment?id={{ s.tracking_id }}" class="action-btn">Track</a>
-                      <button class="action-btn"
-                              onclick="showDetails('{{ s.tracking_id }}','{{ s.receiver_name }}','{{ s.receiver_phone or '' }}','{{ s.receiver_city or s.receiver_district or '' }}','{{ label }}','{{ s.delivery_type or '' }}','{{ s.package_type or '' }}','{{ s.estimated_value or 0 }}')">
-                        Details
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              {% endfor %}
+          <tbody id="rows">
+            {% for s in shipments %}
+              {% set raw = s.status | lower %}
+              {% if raw == 'in_transit' %}{% set cls = 'transit' %}{% set label = 'In Transit' %}
+              {% elif raw == 'delivered' %}{% set cls = 'delivered' %}{% set label = 'Delivered' %}
+              {% elif raw in ['processing','pending'] %}{% set cls = 'processing' %}{% set label = raw | capitalize %}
+              {% elif raw == 'delayed' %}{% set cls = 'transit' %}{% set label = 'Delayed' %}
+              {% elif raw == 'cancelled' %}{% set cls = 'cancelled' %}{% set label = 'Cancelled' %}
+              {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
+              <tr>
+                <td class="tracking-id">{{ s.tracking_id }}</td>
+                <td>{{ s.destination or '—' }}</td>
+                <td>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
+                <td>NPR {{ '{:,.0f}'.format(s.amount | float) if s.amount else '—' }}</td>
+                <td><span class="badge {{ cls }}">{{ label }}</span></td>
+              </tr>
             {% else %}
-              <tr id="emptyRow">
-                <td colspan="8" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
-                  No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
+              <tr>
+                <td colspan="5" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
+                  {% if current_filter == 'all' %}
+                    No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
+                  {% else %}
+                    No shipments match this filter. <a href="{{ url_for('shipment_history') }}" style="color:#0d0d0d;font-weight:600;">View all →</a>
+                  {% endif %}
                 </td>
               </tr>
-            {% endif %}
-
+            {% endfor %}
           </tbody>
         </table>
       </div>
@@ -155,11 +97,7 @@
       <!-- PAGINATION -->
       <div class="pagination">
         <div class="page-info">
-          {% if shipments %}
-            Showing {{ shipments | length }} shipment{{ 's' if shipments | length != 1 else '' }}
-          {% else %}
-            No shipments
-          {% endif %}
+          {% if shipments %}Showing {{ shipments | length }} shipment{{ 's' if shipments | length != 1 else '' }}{% else %}No shipments{% endif %}
         </div>
         <div class="page-controls">
           <button class="page-btn" disabled>← Prev</button>
@@ -170,76 +108,17 @@
 
     </main>
   </div>
-
-  <!-- DETAILS MODAL -->
-  <div id="detailsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1000; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:32px; width:420px; max-width:90vw; box-shadow:0 24px 64px rgba(0,0,0,0.18); position:relative;">
-      <button onclick="closeDetails()" style="position:absolute;top:16px;right:18px;background:none;border:none;font-size:22px;cursor:pointer;color:#888;">×</button>
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:20px;color:#0d0d0d;">Shipment Details</h2>
-      <div id="modalBody" style="display:flex;flex-direction:column;gap:12px;font-size:14px;color:#444;"></div>
-    </div>
-  </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // ── FILTER TABS ──
-  document.querySelectorAll('.filter-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
-      tab.classList.add('active');
-      var filter = tab.getAttribute('data-filter');
-      var hasVisible = false;
-      document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
-        var show = filter === 'all' || row.getAttribute('data-status') === filter;
-        row.style.display = show ? '' : 'none';
-        if (show) hasVisible = true;
-      });
-      var empty = document.getElementById('noFilterResults');
-      if (!empty) {
-        empty = document.createElement('tr');
-        empty.id = 'noFilterResults';
-        empty.innerHTML = '<td colspan="8" style="text-align:center;padding:40px 0;color:#aaa;font-size:15px;">No shipments match this filter.</td>';
-        document.getElementById('shipmentTableBody').appendChild(empty);
-      }
-      empty.style.display = hasVisible ? 'none' : '';
+  // Only JS on the page: live text search across rows.
+  document.getElementById('search').addEventListener('input', function () {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('#rows tr').forEach(function (row) {
+      if (!row.querySelector('.tracking-id')) return;
+      row.classList.toggle('hide', !row.textContent.toLowerCase().includes(q));
     });
-  });
-
-  // ── SEARCH ──
-  document.getElementById('searchInput').addEventListener('input', function() {
-    var query = this.value.toLowerCase();
-    document.querySelectorAll('#shipmentTableBody tr[data-status]').forEach(function(row) {
-      row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
-    });
-  });
-
-  // ── DETAILS MODAL ──
-  function showDetails(trackId, receiver, phone, dest, status, type, pkgType, value) {
-    var rows = [
-      ['Tracking ID',  trackId],
-      ['Recipient',    receiver],
-      ['Phone',        phone || '—'],
-      ['Destination',  dest  || '—'],
-      ['Status',       status],
-      ['Delivery Type',type  || '—'],
-      ['Package Type', pkgType || '—'],
-      ['Est. Value',   value ? 'NPR ' + parseFloat(value).toLocaleString() : '—'],
-    ];
-    document.getElementById('modalBody').innerHTML = rows.map(function(r) {
-      return '<div style="display:flex;justify-content:space-between;border-bottom:1px solid #f0f0f0;padding-bottom:8px;">'
-           + '<span style="font-weight:600;color:#0d0d0d;">' + r[0] + '</span>'
-           + '<span>' + r[1] + '</span></div>';
-    }).join('');
-    document.getElementById('detailsModal').style.display = 'flex';
-  }
-
-  function closeDetails() {
-    document.getElementById('detailsModal').style.display = 'none';
-  }
-
-  document.getElementById('detailsModal').addEventListener('click', function(e) {
-    if (e.target === this) closeDetails();
   });
 </script>
 {% endblock %}

@@ -169,18 +169,25 @@ def create_app():
     def shipment_history():
         get_flashed_messages()
         user_id = session.get("user_id")
-        shipment = Shipment()
-        shipments = shipment.find_by_user(user_id)
+
+        # validate ?status= against a whitelist (tab value -> DB enum value)
+        allowed = {"delivered": "delivered", "in_transit": "in_transit",
+                   "pending": "pending", "cancelled": "cancelled"}
+        raw = request.args.get("status", "all")
+        db_status = allowed.get(raw)            # None for "all" or anything invalid
+
+        shipment  = Shipment()
+        shipments = shipment.find_by_user(user_id, status=db_status)
         stats     = shipment.get_stats_for_user(user_id)
+
         return render_template(
             "shipment-history.html",
             user_name=session.get("user_name"),
             user_role=session.get("user_role"),
             shipments=shipments,
             stats=stats,
+            current_filter=raw if db_status else "all",
         )
-    
-
     @app.route("/admin-agents")
     @no_cache
     def admin_agents():

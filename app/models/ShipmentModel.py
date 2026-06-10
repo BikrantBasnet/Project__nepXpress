@@ -58,12 +58,18 @@ class Shipment(BaseModel):
         ))
         db.close()
 
-    def find_by_user(self, user_id):
+    def find_by_user(self, user_id, status=None):
         db = Database()
-        results = db.fetch_all(
-            "SELECT * FROM shipments WHERE user_id=%s ORDER BY created_at DESC",
-            (user_id,)
-        )
+        if status:
+            results = db.fetch_all(
+                "SELECT * FROM shipments WHERE user_id=%s AND status=%s ORDER BY created_at DESC",
+                (user_id, status)
+            )
+        else:
+            results = db.fetch_all(
+                "SELECT * FROM shipments WHERE user_id=%s ORDER BY created_at DESC",
+                (user_id,)
+            )
         db.close()
         return results
 
