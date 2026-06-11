@@ -6,6 +6,7 @@ from app.controllers.shipmentcontrollers import ShipmentController
 from app.controllers.AdminUserController import AdminUserController
 from app.controllers.AdminAgentController import AdminAgentController
 from app.controllers.AdminReportsController import AdminReportsController
+from app.controllers.AdminSettingsController import AdminSettingsController
 
 
 admin_bp = Blueprint('admin_api', __name__, url_prefix='/api/admin')
@@ -61,3 +62,14 @@ admin_bp.add_url_rule('/reports/revenue-monthly',   'reports_revenue',   AdminRe
 admin_bp.add_url_rule('/reports/shipments-monthly', 'reports_shipments', AdminReportsController.get_shipments_monthly,methods=['GET'])
 admin_bp.add_url_rule('/reports/agent-performance', 'reports_agents',    AdminReportsController.get_agent_performance,methods=['GET'])
 admin_bp.add_url_rule('/reports/customer-activity', 'reports_customers', AdminReportsController.get_customer_activity,methods=['GET'])
+
+
+
+#── Settings ───────────────────────────────────────────────────────────── #
+admin_bp.add_url_rule('/settings/profile',       'settings_profile',      AdminSettingsController.get_profile,         methods=['GET'])
+admin_bp.add_url_rule('/settings/profile',       'settings_profile_save', AdminSettingsController.update_profile,      methods=['PATCH'])
+admin_bp.add_url_rule('/settings/password',      'settings_password',     AdminSettingsController.update_password,     methods=['PATCH'])
+admin_bp.add_url_rule('/settings/system',        'settings_system',       AdminSettingsController.get_system,          methods=['GET'])
+admin_bp.add_url_rule('/settings/system',        'settings_system_save',  AdminSettingsController.update_system,       methods=['PATCH'])
+admin_bp.add_url_rule('/settings/notifications', 'settings_notif',        AdminSettingsController.get_notifications,   methods=['GET'])
+admin_bp.add_url_rule('/settings/notifications', 'settings_notif_save',   AdminSettingsController.update_notifications,methods=['PATCH'])

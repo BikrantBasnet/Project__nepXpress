@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NepXpress — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-dashboard.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-shipments.css') }}"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin-settings.css') }}"/>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">🚚</div>
+      <div><div class="logo-text">nep<span>Xpress</span></div></div>
+    </div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Overview</div>
+    <a class="nav-item" href="/admin-dashboard"><span class="nav-icon">⊞</span> Dashboard</a>
+    <div class="nav-section">Management</div>
+    <a class="nav-item" href="/admin-shipments"><span class="nav-icon">📦</span> Shipments</a>
+    <a class="nav-item" href="/admin-users"><span class="nav-icon">👥</span> Users</a>
+    <a class="nav-item" href="/admin-agents"><span class="nav-icon">🛵</span> Delivery Agents</a>
+    <div class="nav-section">Analytics</div>
+    <a class="nav-item" href="/admin-reports"><span class="nav-icon">📊</span> Reports</a>
+    <a class="nav-item active" href="/admin-settings"><span class="nav-icon">⚙️</span> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="admin-card">
+      <div class="admin-avatar" id="sb-avatar">A</div>
+      <div class="admin-info">
+        <div class="admin-name" id="sb-name">Admin</div>
+        <div class="admin-role">Administrator</div>
+      </div>
+      <div class="logout-btn" title="Logout" onclick="handleLogout()">⎋</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Settings</h1>
+      <p>Manage your account and system preferences</p>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-avatar" id="top-avatar">A</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="settings-layout">
+
+      <!-- LEFT NAV -->
+      <div class="settings-nav">
+        <button class="settings-nav-item active" onclick="showTab('profile')">
+          <span>👤</span> Profile
+        </button>
+        <button class="settings-nav-item" onclick="showTab('password')">
+          <span>🔒</span> Password
+        </button>
+        <button class="settings-nav-item" onclick="showTab('system')">
+          <span>🖥</span> System
+        </button>
+        <button class="settings-nav-item" onclick="showTab('notifications')">
+          <span>🔔</span> Notifications
+        </button>
+      </div>
+
+      <!-- RIGHT PANELS -->
+      <div class="settings-panels">
+
+        <!-- PROFILE -->
+        <div class="settings-panel active" id="tab-profile">
+          <div class="settings-section-title">
+            <div class="settings-section-icon">👤</div>
+            <div>
+              <div class="settings-title">Profile Settings</div>
+              <div class="settings-sub">Update your admin name and email</div>
+            </div>
+          </div>
+
+          <div class="settings-avatar-row">
+            <div class="settings-avatar" id="profile-avatar">A</div>
+            <div>
+              <div class="settings-avatar-name" id="profile-name-display">Admin</div>
+              <div class="settings-avatar-role">Administrator</div>
+            </div>
+          </div>
+
+          <div class="form-grid settings-form">
+            <div class="form-group form-full">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="profile-name" placeholder="Your name"/>
+            </div>
+            <div class="form-group form-full">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="profile-email" placeholder="your@email.com"/>
+            </div>
+          </div>
+          <div class="settings-footer">
+            <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+          </div>
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="settings-panel" id="tab-password">
+          <div class="settings-section-title">
+            <div class="settings-section-icon">🔒</div>
+            <div>
+              <div class="settings-title">Change Password</div>
+              <div class="settings-sub">Keep your account secure</div>
+            </div>
+          </div>
+
+          <div class="form-grid settings-form">
+            <div class="form-group form-full">
+              <label class="form-label">Current Password</label>
+              <div class="input-wrap">
+                <input type="password" class="form-input" id="current-pw" placeholder="Enter current password"/>
+                <button class="pw-toggle" onclick="togglePw('current-pw')">👁</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <div class="input-wrap">
+                <input type="password" class="form-input" id="new-pw" placeholder="Min 6 characters"/>
+                <button class="pw-toggle" onclick="togglePw('new-pw')">👁</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <div class="input-wrap">
+                <input type="password" class="form-input" id="confirm-pw" placeholder="Repeat new password"/>
+                <button class="pw-toggle" onclick="togglePw('confirm-pw')">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pw-strength" id="pw-strength" style="display:none">
+            <div class="pw-strength-bar" id="pw-strength-bar"></div>
+            <span id="pw-strength-label"></span>
+          </div>
+
+          <div class="settings-footer">
+            <button class="btn-primary" onclick="savePassword()">Update Password</button>
+          </div>
+        </div>
+
+        <!-- SYSTEM -->
+        <div class="settings-panel" id="tab-system">
+          <div class="settings-section-title">
+            <div class="settings-section-icon">🖥</div>
+            <div>
+              <div class="settings-title">System Settings</div>
+              <div class="settings-sub">General application configuration</div>
+            </div>
+          </div>
+
+          <div class="form-grid settings-form">
+            <div class="form-group form-full">
+              <label class="form-label">Site Name</label>
+              <input type="text" class="form-input" id="sys-name" placeholder="NepXpress"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Email</label>
+              <input type="email" class="form-input" id="sys-email" placeholder="admin@nepxpress.com"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Support Phone</label>
+              <input type="text" class="form-input" id="sys-phone" placeholder="e.g. 01-4XXXXXX"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currency</label>
+              <select class="form-select" id="sys-currency">
+                <option value="NPR">NPR — Nepalese Rupee</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="INR">INR — Indian Rupee</option>
+              </select>
+            </div>
+            <div class="form-group form-full">
+              <label class="form-label">Office Address</label>
+              <textarea class="form-input form-textarea" id="sys-address" placeholder="Kathmandu, Nepal"></textarea>
+            </div>
+          </div>
+          <div class="settings-footer">
+            <button class="btn-primary" onclick="saveSystem()">Save System Settings</button>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="settings-panel" id="tab-notifications">
+          <div class="settings-section-title">
+            <div class="settings-section-icon">🔔</div>
+            <div>
+              <div class="settings-title">Notification Settings</div>
+              <div class="settings-sub">Control which alerts appear in your dashboard</div>
+            </div>
+          </div>
+
+          <div class="notif-list">
+            <div class="notif-row">
+              <div class="notif-info">
+                <div class="notif-title">Delivery Delayed</div>
+                <div class="notif-desc">Alert when a shipment is marked as delayed</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-delay" checked/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="notif-row">
+              <div class="notif-info">
+                <div class="notif-title">New User Registered</div>
+                <div class="notif-desc">Alert when a new customer signs up</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-new-user" checked/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="notif-row">
+              <div class="notif-info">
+                <div class="notif-title">Payment Confirmed</div>
+                <div class="notif-desc">Alert when a payment is received</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-payment" checked/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="notif-row">
+              <div class="notif-info">
+                <div class="notif-title">Agent Offline</div>
+                <div class="notif-desc">Alert when a delivery agent goes offline</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-agent-offline" checked/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="notif-row">
+              <div class="notif-info">
+                <div class="notif-title">New Shipment Created</div>
+                <div class="notif-desc">Alert every time a new shipment is placed</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-new-shipment"/>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="settings-footer">
+            <button class="btn-primary" onclick="saveNotifications()">Save Notifications</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+const $ = id => document.getElementById(id);
+
+function showToast(msg, type='info') {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = `toast toast-${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function initials(name) {
+  return (name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
+async function apiFetch(path, options={}) {
+  const res = await fetch(API + path, { credentials:'same-origin', ...options });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message || 'API error');
+  return json.data;
+}
+
+// ── TABS ──
+function showTab(name) {
+  document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
+  $('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── INIT ──
+async function init() {
+  try {
+    const me = await apiFetch('/api/admin/me');
+    const av = initials(me.name);
+    $('sb-avatar').textContent  = av;
+    $('top-avatar').textContent = av;
+    $('sb-name').textContent    = me.name;
+  } catch(e) {
+    const name = "{{ user_name|default('Admin') }}";
+    $('sb-avatar').textContent  = initials(name);
+    $('top-avatar').textContent = initials(name);
+    $('sb-name').textContent    = name;
+  }
+  await loadProfile();
+  await loadSystem();
+  await loadNotifications();
+}
+
+// ── PROFILE ──
+async function loadProfile() {
+  try {
+    const d = await apiFetch('/api/admin/settings/profile');
+    $('profile-name').value        = d.name  || '';
+    $('profile-email').value       = d.email || '';
+    $('profile-name-display').textContent = d.name || 'Admin';
+    $('profile-avatar').textContent = initials(d.name);
+  } catch(e) { console.error('Profile load error:', e); }
+}
+
+async function saveProfile() {
+  const name  = $('profile-name').value.trim();
+  const email = $('profile-email').value.trim();
+  if (!name || !email) { showToast('Name and email are required', 'error'); return; }
+  try {
+    await apiFetch('/api/admin/settings/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email })
+    });
+    $('profile-name-display').textContent = name;
+    $('profile-avatar').textContent = initials(name);
+    $('sb-avatar').textContent  = initials(name);
+    $('top-avatar').textContent = initials(name);
+    $('sb-name').textContent    = name;
+    showToast('Profile updated successfully!', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── PASSWORD ──
+function togglePw(id) {
+  const el = $(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+$('new-pw').addEventListener('input', function() {
+  const val = this.value;
+  if (!val) { $('pw-strength').style.display = 'none'; return; }
+  $('pw-strength').style.display = 'flex';
+  let strength = 0;
+  if (val.length >= 6)  strength++;
+  if (val.length >= 10) strength++;
+  if (/[A-Z]/.test(val)) strength++;
+  if (/[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+  const colors = ['', '#ef4444', '#eab308', '#f97316', '#22c55e', '#22c55e'];
+  $('pw-strength-bar').style.width = (strength / 5 * 100) + '%';
+  $('pw-strength-bar').style.background = colors[strength];
+  $('pw-strength-label').textContent = labels[strength];
+  $('pw-strength-label').style.color = colors[strength];
+});
+
+async function savePassword() {
+  const current = $('current-pw').value.trim();
+  const newPw   = $('new-pw').value.trim();
+  const confirm = $('confirm-pw').value.trim();
+  if (!current || !newPw || !confirm) { showToast('All fields are required', 'error'); return; }
+  if (newPw !== confirm) { showToast('Passwords do not match', 'error'); return; }
+  if (newPw.length < 6)  { showToast('Password must be at least 6 characters', 'error'); return; }
+  try {
+    await apiFetch('/api/admin/settings/password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: current, new_password: newPw, confirm_password: confirm })
+    });
+    $('current-pw').value = '';
+    $('new-pw').value     = '';
+    $('confirm-pw').value = '';
+    $('pw-strength').style.display = 'none';
+    showToast('Password updated successfully!', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── SYSTEM ──
+async function loadSystem() {
+  try {
+    const d = await apiFetch('/api/admin/settings/system');
+    $('sys-name').value     = d.site_name     || 'NepXpress';
+    $('sys-email').value    = d.contact_email || '';
+    $('sys-phone').value    = d.support_phone || '';
+    $('sys-currency').value = d.currency      || 'NPR';
+    $('sys-address').value  = d.address       || '';
+  } catch(e) { console.error('System load error:', e); }
+}
+
+async function saveSystem() {
+  try {
+    await apiFetch('/api/admin/settings/system', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        site_name:     $('sys-name').value.trim(),
+        contact_email: $('sys-email').value.trim(),
+        support_phone: $('sys-phone').value.trim(),
+        currency:      $('sys-currency').value,
+        address:       $('sys-address').value.trim()
+      })
+    });
+    showToast('System settings saved!', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ── NOTIFICATIONS ──
+async function loadNotifications() {
+  try {
+    const d = await apiFetch('/api/admin/settings/notifications');
+    $('notif-delay').checked        = d.notif_delay        === '1';
+    $('notif-new-user').checked     = d.notif_new_user     === '1';
+    $('notif-payment').checked      = d.notif_payment      === '1';
+    $('notif-agent-offline').checked= d.notif_agent_offline=== '1';
+    $('notif-new-shipment').checked = d.notif_new_shipment === '1';
+  } catch(e) { console.error('Notifications load error:', e); }
+}
+
+async function saveNotifications() {
+  try {
+    await apiFetch('/api/admin/settings/notifications', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        notif_delay:         $('notif-delay').checked         ? '1' : '0',
+        notif_new_user:      $('notif-new-user').checked      ? '1' : '0',
+        notif_payment:       $('notif-payment').checked       ? '1' : '0',
+        notif_agent_offline: $('notif-agent-offline').checked ? '1' : '0',
+        notif_new_shipment:  $('notif-new-shipment').checked  ? '1' : '0',
+      })
+    });
+    showToast('Notification settings saved!', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function handleLogout() {
+  await fetch('/api/admin/logout', { method:'POST', credentials:'same-origin' });
+  window.location.href = '/';
+}
+
+init();
+</script>
+</body>
+</html>
