@@ -1,0 +1,81 @@
+/* ============================================================
+   summary.css — page-specific styles for the Summary page.
+   ============================================================ */
+
+.content { display: flex; flex-direction: column; gap: 20px; padding: 24px 36px; }
+
+/* ── BIG STAT BLOCKS ── */
+.sum-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.sum-stat {
+  background: #fff; border: 1px solid #e2e5eb; border-radius: 18px; padding: 30px 28px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.sum-stat:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(15,23,42,0.1); }
+.sum-stat-label { font-size: 14px; color: #8a93a8; font-weight: 600; margin-bottom: 14px; }
+.sum-stat-value { font-size: 32px; font-weight: 800; color: #1a1f2e; letter-spacing: -0.5px; }
+
+/* ── TWO-COLUMN GRID (status + spending) ── */
+.sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ── CARD ── */
+.sum-card { background: #fff; border: 1px solid #e2e5eb; border-radius: 18px; padding: 28px; }
+.sum-card-title { font-size: 16px; font-weight: 700; color: #1a1f2e; margin-bottom: 22px; }
+
+/* ── DELIVERY STATUS: conic-gradient ring (zero JS) ── */
+.status-wrap { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+.status-ring {
+  width: 160px; height: 160px; border-radius: 50%; flex-shrink: 0;
+  background: conic-gradient(
+    #22c55e 0% var(--d),
+    #f97316 var(--d) var(--t),
+    #ef4444 var(--t) 100%
+  );
+  display: grid; place-items: center;
+}
+.status-hole {
+  width: 110px; height: 110px; border-radius: 50%; background: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.status-total { font-size: 30px; font-weight: 800; color: #1a1f2e; }
+.status-total-label { font-size: 12px; color: #8a93a8; }
+
+.status-legend { display: flex; flex-direction: column; gap: 14px; }
+.legend-item { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #5f6f8d; }
+.legend-item b { color: #1a1f2e; margin-left: 4px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.dot.green { background: #22c55e; }
+.dot.orange { background: #f97316; }
+.dot.red { background: #ef4444; }
+
+/* ── SPENDING OVERVIEW ── */
+.spend-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #5f6f8d;
+}
+.spend-row:last-child { border-bottom: none; }
+.spend-row b { color: #1a1f2e; font-size: 15px; }
+
+/* ── SHIPMENT LIST ── */
+.shipment-list { display: flex; flex-direction: column; gap: 14px; }
+.shipment-item { display: flex; align-items: center; gap: 12px; }
+.shipment-icon { width: 36px; height: 36px; background: #f4f5f7; border-radius: 8px; display: grid; place-items: center; flex-shrink: 0; }
+.shipment-icon svg { width: 16px; height: 16px; stroke: #8a93a8; fill: none; }
+.shipment-body { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.shipment-body strong { font-size: 13.5px; font-weight: 600; color: #1a1f2e; }
+.shipment-body span { font-size: 12px; color: #8a93a8; }
+.shipment-body time { font-size: 11px; color: #b0b8c8; }
+
+.badge { font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.badge.transit    { background: #eff6ff; color: #3b82f6; }
+.badge.processing { background: #fff7ed; color: #f97316; }
+.badge.delivered  { background: #f0fdf4; color: #22c55e; }
+.badge.cancelled  { background: #fce4ec; color: #b71c1c; }
+
+.empty-recent { font-size: 14px; color: #8a93a8; padding: 20px 0; }
+.empty-recent a { color: #1a1f2e; font-weight: 600; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .sum-stats { grid-template-columns: 1fr 1fr; }
+  .sum-grid { grid-template-columns: 1fr; }
+}

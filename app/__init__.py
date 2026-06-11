@@ -102,11 +102,16 @@ def create_app():
     @login_required
     @no_cache
     def dashboard():
+        user_id = session.get("user_id")
+        shipment = Shipment()
+        recent = shipment.find_recent_for_user(user_id, limit=5)
         return render_template(
             "dashboard.html",
             user_name=session.get("user_name"),
-            user_role=session.get("user_role")
+            user_role=session.get("user_role"),
+            recent=recent,
         )
+        
     @app.route("/create-shipment", methods=["GET", "POST"])
     @login_required
     @no_cache
@@ -136,22 +141,31 @@ def create_app():
 
             shipment = Shipment()
             tracking_id = Shipment.generate_tracking_id()
-            
-            # Build destination from receiver city/district
-            receiver_city = request.form.get("receiver_city", "").strip()
-            receiver_district = request.form.get("receiver_district", "").strip()
-            destination = f"{receiver_city}, {receiver_district}".strip(", ") or "Unknown"
-            
-            # Combine shipment details into notes for reference
-            notes = f"From: {sender_name} ({request.form.get('sender_phone', '').strip()}), To: {receiver_name} ({request.form.get('receiver_phone', '').strip()}), Type: {request.form.get('package_type', '').strip()}, Delivery: {delivery_type}"
-            
+
             shipment.create({
                 "tracking_id": tracking_id,
-                "customer_id": session.get("user_id"),
-                "destination": destination,
-                "amount": delivery_cost,
+                "user_id": session.get("user_id"),
+                "sender_name": sender_name,
+                "sender_phone": request.form.get("sender_phone", "").strip(),
+                "sender_address": request.form.get("sender_address", "").strip(),
+                "sender_city": request.form.get("sender_city", "").strip(),
+                "sender_district": request.form.get("sender_district", "").strip(),
+                "receiver_name": receiver_name,
+                "receiver_phone": request.form.get("receiver_phone", "").strip(),
+                "receiver_address": request.form.get("receiver_address", "").strip(),
+                "receiver_city": request.form.get("receiver_city", "").strip(),
+                "receiver_district": request.form.get("receiver_district", "").strip(),
+                "package_type": request.form.get("package_type", "").strip(),
+                "weight": request.form.get("weight") or None,
+                "estimated_value": request.form.get("value") or 0,
+                "delivery_cost": delivery_cost,
+                "length_cm": request.form.get("length") or None,
+                "width_cm": request.form.get("width") or None,
+                "height_cm": request.form.get("height") or None,
+                "delivery_type": delivery_type,
+                "payment_method": payment_method,
                 "status": "pending",
-                "notes": notes,
+                "instructions": request.form.get("instructions", "").strip(),
             })
             flash(f"Shipment created! Tracking ID: {tracking_id} — Total: NPR {delivery_cost}", "success")
             return redirect(url_for("shipment_history"))
@@ -347,6 +361,22 @@ def create_app():
     @app.errorhandler(404)
     def error(e):
         return render_template("error.html"), 404
+    
+    @app.route("/summary")
+    @login_required
+    @no_cache
+    def summary():
+        user_id = session.get("user_id")
+        shipment = Shipment()
+        summary = shipment.get_summary_for_user(user_id)
+        recent = shipment.find_recent_for_user(user_id, limit=5)
+        return render_template(
+            "summary.html",
+            user_name=session.get("user_name"),
+            user_role=session.get("user_role"),
+            summary=summary,
+            recent=recent,
+        )
     
     @app.route("/debug-session")
     def debug_session():

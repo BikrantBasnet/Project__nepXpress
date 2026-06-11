@@ -1,0 +1,111 @@
+{% extends "base_app.html" %}
+{% set active = "summary" %}
+
+{% block title %}Summary - NepXpress{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='summary.css') }}"/>
+{% endblock %}
+
+{% block body %}
+  <div class="main">
+
+<header class="topbar">
+      <div class="topbar-title">
+        <h1>Delivery Summary</h1>
+        <p>An overview of your delivery performance</p>
+      </div>
+      <a href="/dashboard" class="back-btn">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </a>
+    </header>
+
+    <main class="content">
+
+      <!-- BIG STAT BLOCKS -->
+    <section class="sum-stats">
+        <div class="sum-stat">
+          <div class="sum-stat-label">Total Deliveries</div>
+          <div class="sum-stat-value">{{ summary.total }}</div>
+        </div>
+        <div class="sum-stat">
+          <div class="sum-stat-label">Total Delivery Cost</div>
+          <div class="sum-stat-value">NPR {{ '{:,.0f}'.format(summary.ship_spent) }}</div>
+        </div>
+        <div class="sum-stat">
+          <div class="sum-stat-label">Avg. Delivery Cost</div>
+          <div class="sum-stat-value">NPR {{ '{:,.0f}'.format(summary.avg_ship) }}</div>
+        </div>
+        <div class="sum-stat">
+          <div class="sum-stat-label">Success Rate</div>
+          <div class="sum-stat-value">{{ '{:.1f}'.format(summary.success_rate) }}%</div>
+        </div>
+      </section>
+
+      <div class="sum-grid">
+
+        <!-- DELIVERY STATUS (conic-gradient ring, zero JS) -->
+        <section class="sum-card">
+          <h3 class="sum-card-title">Delivery Status</h3>
+          <div class="status-wrap">
+            <div class="status-ring"
+                 style="--d: {{ summary.pct_delivered }}%; --t: {{ summary.pct_delivered + summary.pct_transit }}%;">
+              <div class="status-hole">
+                <span class="status-total">{{ summary.total }}</span>
+                <span class="status-total-label">Total</span>
+              </div>
+            </div>
+            <div class="status-legend">
+              <div class="legend-item"><span class="dot green"></span> Delivered <b>{{ summary.delivered }}</b></div>
+              <div class="legend-item"><span class="dot orange"></span> In Transit <b>{{ summary.in_transit }}</b></div>
+              <div class="legend-item"><span class="dot red"></span> Failed <b>{{ summary.failed }}</b></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SPENDING OVERVIEW -->
+    <section class="sum-card">
+          <h3 class="sum-card-title">Spending Overview</h3>
+          <div class="spend-row"><span>Total Package Value</span><b>NPR {{ '{:,.0f}'.format(summary.value_spent) }}</b></div>
+          <div class="spend-row"><span>Avg. Package Value</span><b>NPR {{ '{:,.0f}'.format(summary.avg_value) }}</b></div>
+          <div class="spend-row"><span>Total Delivery Cost</span><b>NPR {{ '{:,.0f}'.format(summary.ship_spent) }}</b></div>
+          <div class="spend-row"><span>Avg. Delivery Cost</span><b>NPR {{ '{:,.0f}'.format(summary.avg_ship) }}</b></div>
+          <div class="spend-row"><span>Value This Month</span><b>NPR {{ '{:,.0f}'.format(summary.value_this_month) }}</b></div>
+          <div class="spend-row"><span>Value Last Month</span><b>NPR {{ '{:,.0f}'.format(summary.value_last_month) }}</b></div>
+        </section>
+
+      </div>
+
+      <!-- TOP 5 RECENT SHIPMENTS -->
+      <section class="sum-card">
+        <h3 class="sum-card-title">Recent Shipments</h3>
+        <div class="shipment-list">
+          {% for s in recent %}
+            {% set raw = s.status | lower %}
+            {% if raw == 'in_transit' %}{% set cls = 'transit' %}{% set label = 'In Transit' %}
+            {% elif raw == 'delivered' %}{% set cls = 'delivered' %}{% set label = 'Delivered' %}
+            {% elif raw in ['processing','pending'] %}{% set cls = 'processing' %}{% set label = raw | capitalize %}
+            {% elif raw == 'delayed' %}{% set cls = 'transit' %}{% set label = 'Delayed' %}
+            {% elif raw == 'cancelled' %}{% set cls = 'cancelled' %}{% set label = 'Cancelled' %}
+            {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
+            <div class="shipment-item">
+              <div class="shipment-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              </div>
+              <div class="shipment-body">
+                <strong>{{ s.tracking_id }}</strong>
+                <span>{{ s.receiver_city or '—' }}</span>
+                <time>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '' }}</time>
+              </div>
+              <span class="badge {{ cls }}">{{ label }}</span>
+            </div>
+          {% else %}
+            <div class="empty-recent">No shipments yet. <a href="/create-shipment">Create your first one →</a></div>
+          {% endfor %}
+        </div>
+      </section>
+
+    </main>
+  </div>
+{% endblock %}

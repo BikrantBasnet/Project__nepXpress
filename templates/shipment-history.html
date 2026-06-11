@@ -10,13 +10,16 @@
 
 {% block body %}
   <div class="main">
-    <header class="topbar">
+<header class="topbar">
       <div class="topbar-title">
         <h1>Shipment History</h1>
         <p>View and manage all your past deliveries</p>
       </div>
+      <a href="/dashboard" class="back-btn">
+        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back
+      </a>
     </header>
-
     <main class="content">
 
       <div class="page-header">
@@ -74,9 +77,9 @@
               {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
               <tr>
                 <td class="tracking-id">{{ s.tracking_id }}</td>
-                <td>{{ s.destination or '—' }}</td>
+                <td>{{ s.receiver_city or '—' }}</td>
                 <td>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
-                <td>NPR {{ '{:,.0f}'.format(s.amount | float) if s.amount else '—' }}</td>
+                <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
                 <td><span class="badge {{ cls }}">{{ label }}</span></td>
               </tr>
             {% else %}

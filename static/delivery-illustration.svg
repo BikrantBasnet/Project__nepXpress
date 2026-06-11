@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" fill="none">
+  <!-- soft rounded background -->
+  <rect x="0" y="0" width="320" height="220" rx="20" fill="#f3f0ff"/>
+  <!-- subtle ground line -->
+  <line x1="24" y1="178" x2="296" y2="178" stroke="#d9d2f5" stroke-width="2" stroke-dasharray="6 8" stroke-linecap="round"/>
+
+  <!-- back buildings (skyline, very light) -->
+  <rect x="40" y="96" width="34" height="82" rx="4" fill="#e4ddf8"/>
+  <rect x="80" y="72" width="40" height="106" rx="4" fill="#ded5f6"/>
+  <rect x="208" y="84" width="36" height="94" rx="4" fill="#e4ddf8"/>
+  <rect x="250" y="104" width="30" height="74" rx="4" fill="#ded5f6"/>
+  <!-- little windows -->
+  <g fill="#ccbff0">
+    <rect x="88" y="84" width="8" height="8" rx="1"/><rect x="104" y="84" width="8" height="8" rx="1"/>
+    <rect x="88" y="104" width="8" height="8" rx="1"/><rect x="104" y="104" width="8" height="8" rx="1"/>
+    <rect x="216" y="98" width="8" height="8" rx="1"/><rect x="216" y="118" width="8" height="8" rx="1"/>
+  </g>
+
+  <!-- delivery van -->
+  <g>
+    <!-- cargo body -->
+    <rect x="118" y="112" width="80" height="50" rx="8" fill="#6b5ce0"/>
+    <!-- cab -->
+    <path d="M198 124 h26 l16 18 v20 a4 4 0 0 1 -4 4 h-38 z" fill="#8b7ff0"/>
+    <!-- window -->
+    <path d="M202 128 h18 l11 13 h-29 z" fill="#d7d0fb"/>
+    <!-- side panel line -->
+    <rect x="128" y="126" width="56" height="22" rx="4" fill="#7e70ec"/>
+    <!-- wheels -->
+    <circle cx="146" cy="166" r="13" fill="#2b2550"/>
+    <circle cx="146" cy="166" r="5" fill="#9c91f2"/>
+    <circle cx="224" cy="166" r="13" fill="#2b2550"/>
+    <circle cx="224" cy="166" r="5" fill="#9c91f2"/>
+  </g>
+
+  <!-- floating package -->
+  <g>
+    <rect x="60" y="118" width="40" height="40" rx="6" fill="#efb94e"/>
+    <path d="M60 134 h40" stroke="#d89e2e" stroke-width="3"/>
+    <path d="M80 118 v40" stroke="#d89e2e" stroke-width="3"/>
+  </g>
+
+  <!-- location pin -->
+  <g>
+    <path d="M256 64 c0 14 -14 22 -14 22 s-14 -8 -14 -22 a14 14 0 0 1 28 0 z" fill="#6b5ce0"/>
+    <circle cx="242" cy="64" r="6" fill="#f3f0ff"/>
+  </g>
+
+  <!-- motion lines -->
+  <g stroke="#b9aef2" stroke-width="3" stroke-linecap="round">
+    <line x1="40" y1="132" x2="54" y2="132"/>
+    <line x1="34" y1="146" x2="52" y2="146"/>
+  </g>
+</svg>
