@@ -42,7 +42,7 @@ class AgentController(BaseController):
         shipment_records = Shipment.get_history_for_agent(agent_id)
         
         return render_template(
-            "agent-shipment.html", 
+            "agent-deliveries.html", 
             history_records=shipment_records,
             user_name=session.get("user_name"),
             user_role=session.get("user_role")

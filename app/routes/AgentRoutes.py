@@ -22,7 +22,7 @@ class AgentRoutes:
         )
         
         self.bp.add_url_rule(
-            "/agent-shipment",
+            "/agent-deliveries",
             endpoint="delivery_shipment",
             view_func=self.controller.delivery_shipment,
             methods=["GET"]

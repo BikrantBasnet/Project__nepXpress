@@ -6,7 +6,7 @@
   <title>NepXpress – Available Deliveries</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='agent-delivery.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agent-deliveries.css') }}"/>
 </head>
 <body>
 
@@ -23,18 +23,19 @@
       </div>
     </div>
 
+    <!-- On / Off Duty toggle -->
     <div class="duty-toggle-wrap">
       <div class="duty-row">
         <span class="duty-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span id="dutyLabelText">On Duty</span>
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="dutyLabelText">Off Duty</span>
         </span>
         <label class="duty-pill">
-          <input type="checkbox" id="dutyToggle" checked onchange="toggleDuty(this)"/>
+          <input type="checkbox" id="dutyToggle" onchange="toggleDuty(this)"/>
           <span class="duty-pill-track"></span>
         </label>
       </div>
-      <div class="duty-status-text on-duty" id="dutyStatusText">Accepting new deliveries</div>
+      <div class="duty-status-text" id="dutyStatusText">Not accepting deliveries</div>
     </div>
 
     <nav class="sidebar-nav">
@@ -42,7 +43,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Dashboard
       </a>
-      <a href="/agent-deliveries" class="nav-item">
+      <a href="/agent-deliveries" class="nav-item active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         Available Deliveries
       </a>
@@ -53,6 +54,10 @@
       <a href="/agent-history" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Delivery History
+      </a>
+      <a href="/settings" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+        Settings
       </a>
     </nav>
 
@@ -109,6 +114,7 @@
             <button class="btn-primary" onclick="handleAccept('NXP-9031')">Accept Request</button>
             <button class="btn-pass" onclick="handlePass('NXP-9031')">Decline</button>
           </div>
+        </div>
 
         <div class="delivery-card" id="card-NXP-4412">
           <div class="card-header">
@@ -138,7 +144,7 @@
           <div class="card-actions">
             <button class="btn-secondary" onclick="openDetails('NXP-4412')">Details</button>
             <button class="btn-primary" onclick="handleAccept('NXP-4412')">Accept Request</button>
-            <button class="btn-pass" onclick="handlePass('NXP-4412')">Pass Request</button>
+            <button class="btn-pass" onclick="handlePass('NXP-4412')">Decline</button>
           </div>
         </div>
       </div>
@@ -228,7 +234,7 @@
 
       <div class="modal-actions-footer">
         <button class="btn-modal-secondary" onclick="closeModal()">Close Panel</button>
-        <button class="btn-modal-pass" id="modalBtnPass">Decline Request</button>
+        <button class="btn-modal-pass" id="modalBtnPass">Pass Request</button>
         <button class="btn-modal-primary" id="modalBtnAccept">Accept Delivery</button>
       </div>
     </div>
