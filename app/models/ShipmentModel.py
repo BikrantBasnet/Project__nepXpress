@@ -176,7 +176,7 @@ class Shipment(BaseModel):
     def get_available_deliveries(cls):
         """Fetch all shipments that have not been assigned to any driver yet."""
         sql = """
-            SELECT id, tracking_id, sender_city, receiver_city, package_type, 
+            SELECT id, tracking_id, sender_city, destination, package_type, 
                    weight, estimated_value, delivery_cost, status 
             FROM shipments 
             WHERE agent_id IS NULL AND status = 'pending'
