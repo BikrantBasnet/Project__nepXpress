@@ -6,10 +6,22 @@
   <title>NepXpress – Available Deliveries</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='agent-deliveries.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agent-delivery.css') }}"/>
 </head>
 <body>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.style.display='none';">×</button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="brand">
@@ -23,7 +35,6 @@
       </div>
     </div>
 
-    <!-- On / Off Duty toggle -->
     <div class="duty-toggle-wrap">
       <div class="duty-row">
         <span class="duty-label">
@@ -40,19 +51,19 @@
 
     <nav class="sidebar-nav">
       <a href="/agent-dashboard" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         Dashboard
       </a>
       <a href="/agent-deliveries" class="nav-item active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         Available Deliveries
       </a>
       <a href="/agent-routes" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
         Active Routes
       </a>
-      <a href="/agent-history" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <a href="{{ url_for('agent.delivery_history') }}" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Delivery History
       </a>
       <a href="/settings" class="nav-item">
@@ -70,316 +81,370 @@
     </div>
   </aside>
 
+  <!-- MAIN -->
   <div class="main-wrapper">
+
     <header class="topbar">
       <div class="topbar-title">
-        <h1>Available Shipments</h1>
-        <p>Claim pool for requests dispatched by local customers</p>
+        <h1>Available Deliveries</h1>
+        <p>Customer requests waiting to be picked up</p>
       </div>
-      <div class="pool-badge">
-        <span class="live-dot"></span>
-        <span id="pool-count">3 Request(s) Near You</span>
-      </div>
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
     </header>
 
     <main class="content">
-      <div class="delivery-grid" id="deliveryGrid">
-        <div class="delivery-card" id="card-NXP-9031">
-          <div class="card-header">
-            <span class="tag-type">Parcel</span>
-            <span class="price-tag">NPR 450</span>
-          </div>
-          <div class="route-preview">
-            <div class="route-node">
-              <div class="node-dot source"></div>
-              <div>
-                <small>Pickup From</small>
-                <p>Kathmandu (New Road)</p>
-              </div>
-            </div>
-            <div class="route-node">
-              <div class="node-dot dest"></div>
-              <div>
-                <small>Drop Location</small>
-                <p>Lalitpur (Jhamsikhel)</p>
-              </div>
-            </div>
-          </div>
-          <div class="card-meta">
-            <span><strong>Weight:</strong> 2.5 kg</span>
-            <span><strong>Type:</strong> Express</span>
-          </div>
-          <div class="card-actions">
-            <button class="btn-secondary" onclick="openDetails('NXP-9031')">Details</button>
-            <button class="btn-primary" onclick="handleAccept('NXP-9031')">Accept Request</button>
-            <button class="btn-pass" onclick="handlePass('NXP-9031')">Decline</button>
-          </div>
-        </div>
 
-        <div class="delivery-card" id="card-NXP-4412">
-          <div class="card-header">
-            <span class="tag-type unique">Electronics</span>
-            <span class="price-tag">NPR 1,200</span>
+      <!-- FILTER BAR -->
+      <div class="delivery-filter-bar">
+        <div class="filter-left">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Search by ID, city, district…" oninput="applyFilters()"/>
           </div>
-          <div class="route-preview">
-            <div class="route-node">
-              <div class="node-dot source"></div>
-              <div>
-                <small>Pickup From</small>
-                <p>Bhaktapur (Suryabinayak)</p>
-              </div>
-            </div>
-            <div class="route-node">
-              <div class="node-dot dest"></div>
-              <div>
-                <small>Drop Location</small>
-                <p>Kathmandu (Chabahil)</p>
-              </div>
-            </div>
+          <div class="filter-group">
+            <label class="filter-label">Package Type</label>
+            <select id="filterType" class="filter-select" onchange="applyFilters()">
+              <option value="">All Types</option>
+              <option value="Parcel">Parcel</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fragile">Fragile</option>
+              <option value="Documents">Documents</option>
+            </select>
           </div>
-          <div class="card-meta">
-            <span><strong>Weight:</strong> 0.8 kg</span>
-            <span><strong>Type:</strong> Standard</span>
+          <div class="filter-group">
+            <label class="filter-label">Delivery Type</label>
+            <select id="filterDelivery" class="filter-select" onchange="applyFilters()">
+              <option value="">All</option>
+              <option value="Standard">Standard</option>
+              <option value="Express">Express</option>
+              <option value="Same-Day">Same-Day</option>
+            </select>
           </div>
-          <div class="card-actions">
-            <button class="btn-secondary" onclick="openDetails('NXP-4412')">Details</button>
-            <button class="btn-primary" onclick="handleAccept('NXP-4412')">Accept Request</button>
-            <button class="btn-pass" onclick="handlePass('NXP-4412')">Decline</button>
+          <div class="filter-group">
+            <label class="filter-label">Payment</label>
+            <select id="filterPayment" class="filter-select" onchange="applyFilters()">
+              <option value="">All</option>
+              <option value="Cash on Delivery">Cash on Delivery</option>
+              <option value="Online">Online</option>
+            </select>
           </div>
         </div>
+        <span class="result-count" id="resultCount">8 requests available</span>
       </div>
+
+      <!-- REQUEST GRID -->
+      <div class="request-grid" id="requestGrid"></div>
+
+      <!-- Empty state -->
+      <div class="empty-requests" id="emptyState" style="display:none;">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <p>No delivery requests match your filters.</p>
+        <small>Try adjusting the filters or check back soon.</small>
+      </div>
+
     </main>
   </div>
 
-  <div id="detailModal" class="modal-overlay">
-    <div class="modal-container">
-      <div class="modal-header">
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-card">
+      <div class="modal-head">
         <div>
-          <h2 id="modal-tracking-id">NXP-XXXX-XXXX</h2>
-          <p>Customer ID Reference: <span id="modal-user-id">#0000</span></p>
+          <div class="modal-tracking" id="m-tracking">—</div>
+          <div class="modal-sub">Delivery Request Details</div>
         </div>
-        <button class="close-modal-btn" onclick="closeModal()">✕</button>
-      </div>
-      
-      <div class="modal-body-content">
-        <div class="detail-section grid-2">
-          <div class="info-block block-source">
-            <h3>Sender Details</h3>
-            <p><label>Name:</label> <span id="modal-sender-name">—</span></p>
-            <p><label>Phone:</label> <span id="modal-sender-phone">—</span></p>
-            <p><label>Address:</label> <span id="modal-sender-address">—</span></p>
-            <p><label>City/District:</label> <span id="modal-sender-location">—</span></p>
-          </div>
-          <div class="info-block block-dest">
-            <h3>Receiver Details</h3>
-            <p><label>Name:</label> <span id="modal-receiver-name">—</span></p>
-            <p><label>Phone:</label> <span id="modal-receiver-phone">—</span></p>
-            <p><label>Address:</label> <span id="modal-receiver-address">—</span></p>
-            <p><label>City/District:</label> <span id="modal-receiver-location">—</span></p>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3>Package Specifications</h3>
-          <div class="metrics-grid">
-            <div class="metric-item">
-              <small>Package Type</small>
-              <strong id="modal-package-type">—</strong>
-            </div>
-            <div class="metric-item">
-              <small>Weight</small>
-              <strong id="modal-weight">—</strong>
-            </div>
-            <div class="metric-item">
-              <small>Dimensions (L × W × H)</small>
-              <strong id="modal-dimensions">—</strong>
-            </div>
-            <div class="metric-item">
-              <small>Delivery Type</small>
-              <strong id="modal-delivery-type">—</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="detail-section grid-3">
-          <div class="metric-card">
-            <small>Estimated Value</small>
-            <p id="modal-value">—</p>
-          </div>
-          <div class="metric-card highlight">
-            <small>Delivery Cost (Earnings)</small>
-            <p id="modal-cost">—</p>
-          </div>
-          <div class="metric-card">
-            <small>Payment Method</small>
-            <p id="modal-payment">—</p>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3>Current Dispatch Status</h3>
-          <div class="status-banner">
-            <span class="status-indicator-dot"></span>
-            <span id="modal-status" style="text-transform: uppercase; font-weight: 700;">—</span>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3>Special Handover Instructions</h3>
-          <div class="instructions-box">
-            <p id="modal-instructions">No explicit instruction profiles were registered for this package asset tracking sequence.</p>
-          </div>
-        </div>
+        <button class="modal-close" onclick="closeModal()">&#x2715;</button>
       </div>
 
-      <div class="modal-actions-footer">
-        <button class="btn-modal-secondary" onclick="closeModal()">Close Panel</button>
-        <button class="btn-modal-pass" id="modalBtnPass">Pass Request</button>
-        <button class="btn-modal-primary" id="modalBtnAccept">Accept Delivery</button>
+      <div class="modal-scroll">
+
+        <div class="modal-group">
+          <div class="modal-group-title">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Sender
+          </div>
+          <div class="modal-row"><span>Name</span><strong id="m-sender-name">—</strong></div>
+          <div class="modal-row"><span>Phone</span><strong id="m-sender-phone">—</strong></div>
+          <div class="modal-row"><span>Address</span><strong id="m-sender-address">—</strong></div>
+          <div class="modal-row"><span>City</span><strong id="m-sender-city">—</strong></div>
+          <div class="modal-row"><span>District</span><strong id="m-sender-district">—</strong></div>
+        </div>
+
+        <div class="modal-group">
+          <div class="modal-group-title">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Receiver
+          </div>
+          <div class="modal-row"><span>Name</span><strong id="m-receiver-name">—</strong></div>
+          <div class="modal-row"><span>Phone</span><strong id="m-receiver-phone">—</strong></div>
+          <div class="modal-row"><span>Address</span><strong id="m-receiver-address">—</strong></div>
+          <div class="modal-row"><span>City</span><strong id="m-receiver-city">—</strong></div>
+          <div class="modal-row"><span>District</span><strong id="m-receiver-district">—</strong></div>
+        </div>
+
+        <div class="modal-group">
+          <div class="modal-group-title">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Package
+          </div>
+          <div class="modal-row"><span>Type</span><strong id="m-pkg-type">—</strong></div>
+          <div class="modal-row"><span>Weight</span><strong id="m-weight">—</strong></div>
+          <div class="modal-row"><span>Dimensions (L x W x H)</span><strong id="m-dims">—</strong></div>
+          <div class="modal-row"><span>Estimated Value</span><strong id="m-value">—</strong></div>
+        </div>
+
+        <div class="modal-group">
+          <div class="modal-group-title">
+            <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Delivery &amp; Payment
+          </div>
+          <div class="modal-row"><span>Delivery Type</span><strong id="m-delivery-type">—</strong></div>
+          <div class="modal-row"><span>Payment Method</span><strong id="m-payment">—</strong></div>
+          <div class="modal-row"><span>Delivery Cost</span><strong id="m-cost" class="cost-green">—</strong></div>
+          <div class="modal-row"><span>Status</span><strong id="m-status">—</strong></div>
+        </div>
+
+        <div class="modal-group" id="m-instructions-group">
+          <div class="modal-group-title">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Instructions
+          </div>
+          <div class="instructions-text" id="m-instructions">—</div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-pass" onclick="passDelivery()">
+          <svg viewBox="0 0 24 24"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+          Pass to Agent
+        </button>
+        <button class="btn-accept-modal" onclick="acceptDelivery()">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Accept Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASS TO AGENT MODAL -->
+  <div id="passModal" class="modal-overlay" onclick="closePassModal(event)">
+    <div class="modal-card modal-card-sm">
+      <div class="modal-head">
+        <div>
+          <div class="modal-tracking">Pass Delivery</div>
+          <div class="modal-sub">Reassign this request to another agent</div>
+        </div>
+        <button class="modal-close" onclick="closePassModal()">&#x2715;</button>
+      </div>
+      <div class="pass-body">
+        <div class="pass-field">
+          <label class="pass-label">Select Agent</label>
+          <select class="filter-select pass-select" id="agentSelect">
+            <option value="">— Choose an agent —</option>
+            <option value="agent-001">Rajan Shrestha (agent-001)</option>
+            <option value="agent-002">Sita Tamang (agent-002)</option>
+            <option value="agent-003">Bikram Rai (agent-003)</option>
+            <option value="agent-004">Priya Karki (agent-004)</option>
+          </select>
+        </div>
+        <div class="pass-field">
+          <label class="pass-label">Note <span style="font-weight:400;color:var(--muted);">(optional)</span></label>
+          <textarea class="pass-textarea" id="passNote" placeholder="Add a note for the receiving agent…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-pass-cancel" onclick="closePassModal()">Cancel</button>
+        <button class="btn-accept-modal" onclick="confirmPass()">
+          <svg viewBox="0 0 24 24"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>
+          Confirm Pass
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // Live mock pool database array reflecting all required table columns
-    const mockDbPool = {
-      "NXP-9031": {
-        tracking_id: "NXP-9031",
-        user_id: "USR-1082",
-        sender_name: "Ramila Shrestha",
-        sender_phone: "9851012345",
-        sender_address: "Pako Galli, House #14",
-        sender_city: "Kathmandu",
-        sender_district: "Kathmandu",
-        receiver_name: "Siddharth Thapa",
-        receiver_phone: "9803112233",
-        receiver_address: "Sanepa Road, Lane 4B",
-        receiver_city: "Lalitpur",
-        receiver_district: "Lalitpur",
-        package_type: "Parcel",
-        weight: "2.5",
-        estimated_value: "4,500",
-        delivery_cost: "450",
-        length_cm: "20",
-        width_cm: "15",
-        height_cm: "10",
-        delivery_type: "Express",
-        payment_method: "Cash on Delivery (COD)",
-        status: "pending",
-        instructions: "Handle carefully. The package contains delicate handmade Nepali clay pottery structural molds. Please call the sender immediately if you cannot locate the designated building intersection entrance."
-      },
-      "NXP-4412": {
-        tracking_id: "NXP-4412",
-        user_id: "USR-4921",
-        sender_name: "Aman Shakya",
-        sender_phone: "9841890123",
-        sender_address: "Near Kamalpokhari Pond",
-        sender_city: "Bhaktapur",
-        sender_district: "Bhaktapur",
-        receiver_name: "Niranjan Gupta",
-        receiver_phone: "9818456789",
-        receiver_address: "Central Plaza, Shop 12",
-        receiver_city: "Kathmandu",
-        receiver_district: "Kathmandu",
-        package_type: "Electronics",
-        weight: "0.8",
-        estimated_value: "18,500",
-        delivery_cost: "1,200",
-        length_cm: "30",
-        width_cm: "30",
-        height_cm: "5",
-        delivery_type: "Standard",
-        payment_method: "Prepaid Digital Wallet",
-        status: "pending",
-        instructions: "Do not shake or drop. Electronics consignment bundle code inside. Deliver only to the specified receiver name after confirming their verification ID matches."
-      }
+    const requests = [
+      { tracking_id:'NXP-3001', user_id:'USR-101', sender_name:'Anil Sharma', sender_phone:'9841000001', sender_address:'Baneshwor Marg 14', sender_city:'Kathmandu', sender_district:'Kathmandu', receiver_name:'Priya Basnet', receiver_phone:'9841000002', receiver_address:'Pulchowk Road 7', receiver_city:'Lalitpur', receiver_district:'Lalitpur', package_type:'Parcel', weight:'1.4 kg', estimated_value:'NPR 1,500', delivery_cost:'NPR 180', length_cm:30, width_cm:20, height_cm:15, delivery_type:'Standard', payment_method:'Cash on Delivery', status:'Pending', instructions:'Please handle with care. The receiver is available after 4 PM. Call before arriving.' },
+      { tracking_id:'NXP-3002', user_id:'USR-102', sender_name:'Sanjay Lama', sender_phone:'9841000003', sender_address:'New Road 88', sender_city:'Kathmandu', sender_district:'Kathmandu', receiver_name:'Nisha Rai', receiver_phone:'9841000004', receiver_address:'Suryabinayak Tole 3', receiver_city:'Bhaktapur', receiver_district:'Bhaktapur', package_type:'Electronics', weight:'0.8 kg', estimated_value:'NPR 12,000', delivery_cost:'NPR 250', length_cm:25, width_cm:18, height_cm:10, delivery_type:'Express', payment_method:'Online', status:'Pending', instructions:'Fragile electronic item — do not tilt or drop. Require signature on delivery.' },
+      { tracking_id:'NXP-3003', user_id:'USR-103', sender_name:'Kamala Thapa', sender_phone:'9841000005', sender_address:'Kopundol Height 22', sender_city:'Lalitpur', sender_district:'Lalitpur', receiver_name:'Roshan Gurung', receiver_phone:'9841000006', receiver_address:'Madhyapur Chok 1', receiver_city:'Bhaktapur', receiver_district:'Bhaktapur', package_type:'Fragile', weight:'2.0 kg', estimated_value:'NPR 5,000', delivery_cost:'NPR 300', length_cm:40, width_cm:35, height_cm:30, delivery_type:'Standard', payment_method:'Cash on Delivery', status:'Pending', instructions:'Glass items inside. Keep upright at all times.' },
+      { tracking_id:'NXP-3004', user_id:'USR-104', sender_name:'Dipak Adhikari', sender_phone:'9841000007', sender_address:'Durbarmarg 5', sender_city:'Kathmandu', sender_district:'Kathmandu', receiver_name:'Sunita Shrestha', receiver_phone:'9841000008', receiver_address:'Imadol Lane 9', receiver_city:'Lalitpur', receiver_district:'Lalitpur', package_type:'Documents', weight:'0.3 kg', estimated_value:'NPR 500', delivery_cost:'NPR 120', length_cm:32, width_cm:25, height_cm:2, delivery_type:'Same-Day', payment_method:'Online', status:'Pending', instructions:'Legal documents — must be delivered today before 5 PM without fail.' },
+      { tracking_id:'NXP-3005', user_id:'USR-105', sender_name:'Binod Khadka', sender_phone:'9841000009', sender_address:'Patan Dhoka 3', sender_city:'Lalitpur', sender_district:'Lalitpur', receiver_name:'Gita Pandey', receiver_phone:'9841000010', receiver_address:'Tinkune 11', receiver_city:'Kathmandu', receiver_district:'Kathmandu', package_type:'Parcel', weight:'3.2 kg', estimated_value:'NPR 2,800', delivery_cost:'NPR 350', length_cm:50, width_cm:40, height_cm:25, delivery_type:'Standard', payment_method:'Cash on Delivery', status:'Pending', instructions:null },
+      { tracking_id:'NXP-3006', user_id:'USR-106', sender_name:'Rina Maharjan', sender_phone:'9841000011', sender_address:'Jawalakhel 18', sender_city:'Lalitpur', sender_district:'Lalitpur', receiver_name:'Subash Magar', receiver_phone:'9841000012', receiver_address:'Changunarayan Road 6', receiver_city:'Bhaktapur', receiver_district:'Bhaktapur', package_type:'Electronics', weight:'1.1 kg', estimated_value:'NPR 8,500', delivery_cost:'NPR 220', length_cm:28, width_cm:22, height_cm:12, delivery_type:'Express', payment_method:'Online', status:'Pending', instructions:'Receiver works night shift — available from 7 AM to 2 PM only.' },
+      { tracking_id:'NXP-3007', user_id:'USR-107', sender_name:'Prakash Sthapit', sender_phone:'9841000013', sender_address:'Bhaktapur Durbar 2', sender_city:'Bhaktapur', sender_district:'Bhaktapur', receiver_name:'Anita Joshi', receiver_phone:'9841000014', receiver_address:'Lazimpat 44', receiver_city:'Kathmandu', receiver_district:'Kathmandu', package_type:'Parcel', weight:'0.9 kg', estimated_value:'NPR 900', delivery_cost:'NPR 160', length_cm:20, width_cm:15, height_cm:10, delivery_type:'Standard', payment_method:'Cash on Delivery', status:'Pending', instructions:null },
+      { tracking_id:'NXP-3008', user_id:'USR-108', sender_name:'Mohan Tamrakar', sender_phone:'9841000015', sender_address:'Kalanki Chowk 7', sender_city:'Kathmandu', sender_district:'Kathmandu', receiver_name:'Sabina Karmacharya', receiver_phone:'9841000016', receiver_address:'Thimi 20', receiver_city:'Bhaktapur', receiver_district:'Bhaktapur', package_type:'Fragile', weight:'1.6 kg', estimated_value:'NPR 3,200', delivery_cost:'NPR 280', length_cm:35, width_cm:28, height_cm:20, delivery_type:'Same-Day', payment_method:'Online', status:'Pending', instructions:'Ceramic pottery inside. Handle extremely gently. Do not stack anything on top of this package.' },
+    ];
+
+    const TYPE_ICONS = {
+      'Parcel':      '<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+      'Electronics': '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+      'Fragile':     '<svg viewBox="0 0 24 24"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+      'Documents':   '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
     };
+    const TYPE_COLOR    = { 'Parcel':'blue','Electronics':'purple','Fragile':'orange','Documents':'green' };
+    const DELIVERY_BADGE = { 'Standard':'badge-std','Express':'badge-exp','Same-Day':'badge-same' };
 
-    function openDetails(id) {
-      const data = mockDbPool[id];
-      if (!data) return;
+    let filtered = [...requests];
+    let currentId = null;
 
-      document.getElementById('modal-tracking-id').textContent = data.tracking_id;
-      document.getElementById('modal-user-id').textContent = `#${data.user_id}`;
-      document.getElementById('modal-sender-name').textContent = data.sender_name;
-      document.getElementById('modal-sender-phone').textContent = data.sender_phone;
-      document.getElementById('modal-sender-address').textContent = data.sender_address;
-      document.getElementById('modal-sender-location').textContent = `${data.sender_city}, ${data.sender_district}`;
-      
-      document.getElementById('modal-receiver-name').textContent = data.receiver_name;
-      document.getElementById('modal-receiver-phone').textContent = data.receiver_phone;
-      document.getElementById('modal-receiver-address').textContent = data.receiver_address;
-      document.getElementById('modal-receiver-location').textContent = `${data.receiver_city}, ${data.receiver_district}`;
-      
-      document.getElementById('modal-package-type').textContent = data.package_type;
-      document.getElementById('modal-weight').textContent = `${data.weight} kg`;
-      document.getElementById('modal-dimensions').textContent = `${data.length_cm} × ${data.width_cm} × ${data.height_cm} cm`;
-      document.getElementById('modal-delivery-type').textContent = data.delivery_type;
-      
-      document.getElementById('modal-value').textContent = `NPR ${data.estimated_value}`;
-      document.getElementById('modal-cost').textContent = `NPR ${data.delivery_cost}`;
-      document.getElementById('modal-payment').textContent = data.payment_method;
-      document.getElementById('modal-status').textContent = data.status;
-      document.getElementById('modal-instructions').textContent = data.instructions;
-
-      // Assign dynamic interactions to footer action items
-      document.getElementById('modalBtnAccept').onclick = () => { closeModal(); handleAccept(id); };
-      document.getElementById('modalBtnPass').onclick = () => { closeModal(); handlePass(id); };
-
-      document.getElementById('detailModal').classList.add('active');
-    }
-
-    function closeModal() {
-      document.getElementById('detailModal').classList.remove('active');
-    }
-
-    function handleAccept(id) {
-      alert(`Success: Delivery Request ${id} has been claimed. It is now assigned to you and moved to your Active Routes panel.`);
-      removeCard(id);
-    }
-
-    function handlePass(id) {
-      alert(`Pass action triggered for ${id}. This request has been skipped and passed down to another matching delivery agent context thread.`);
-      removeCard(id);
-    }
-
-    function removeCard(id) {
-      const card = document.getElementById(`card-${id}`);
-      if (card) {
-        card.style.opacity = '0';
-        card.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-          card.remove();
-          updatePoolCount();
-        }, 300);
+    function renderCards() {
+      const grid  = document.getElementById('requestGrid');
+      const empty = document.getElementById('emptyState');
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = 'flex';
+        document.getElementById('resultCount').textContent = '0 requests available';
+        return;
       }
+      empty.style.display = 'none';
+      document.getElementById('resultCount').textContent = filtered.length + ' request' + (filtered.length !== 1 ? 's' : '') + ' available';
+
+      grid.innerHTML = filtered.map(function(r, i) {
+        return '<div class="request-card" style="animation-delay:' + (i * 0.05) + 's">' +
+          '<div class="card-head">' +
+            '<div class="card-icon-wrap ' + (TYPE_COLOR[r.package_type] || 'blue') + '">' + (TYPE_ICONS[r.package_type] || TYPE_ICONS['Parcel']) + '</div>' +
+            '<div class="card-head-info">' +
+              '<div class="card-tracking">' + r.tracking_id + '</div>' +
+              '<div class="card-user">Customer #' + r.user_id + '</div>' +
+            '</div>' +
+            '<div class="card-badges">' +
+              '<span class="card-badge ' + (DELIVERY_BADGE[r.delivery_type] || 'badge-std') + '">' + r.delivery_type + '</span>' +
+              (r.payment_method === 'Cash on Delivery'
+                ? '<span class="card-badge badge-cod">COD</span>'
+                : '<span class="card-badge badge-online">Online</span>') +
+            '</div>' +
+          '</div>' +
+          '<div class="card-route">' +
+            '<div class="card-location">' +
+              '<div class="location-dot dot-from"></div>' +
+              '<div class="location-info"><span class="location-label">Pickup</span><span class="location-val">' + r.sender_city + ', ' + r.sender_district + '</span></div>' +
+            '</div>' +
+            '<div class="route-line"></div>' +
+            '<div class="card-location">' +
+              '<div class="location-dot dot-to"></div>' +
+              '<div class="location-info"><span class="location-label">Deliver to</span><span class="location-val">' + r.receiver_city + ', ' + r.receiver_district + '</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-meta">' +
+            '<div class="meta-item"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>' + r.package_type + '</div>' +
+            '<div class="meta-item"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>' + r.weight + '</div>' +
+            '<div class="meta-cost">' + r.delivery_cost + '</div>' +
+          '</div>' +
+          '<div class="card-actions">' +
+            '<button class="btn-details" onclick="openDetail(\'' + r.tracking_id + '\')">' +
+              '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>View Details' +
+            '</button>' +
+            '<button class="btn-accept-card" onclick="quickAccept(\'' + r.tracking_id + '\')">' +
+              '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Accept' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
     }
 
-    function updatePoolCount() {
-      const remaining = document.querySelectorAll('.delivery-card').length;
-      document.getElementById('pool-count').textContent = `${remaining} Request(s) Near You`;
-      if(remaining === 0) {
-        document.getElementById('deliveryGrid').innerHTML = `
-          <div style="grid-column: 1/-1; text-align: center; padding: 60px; background: white; border-radius: var(--radius); border: 1px solid var(--border);">
-            <p style="font-weight:600; font-size:18px;">All caught up!</p>
-            <p style="color:var(--muted); font-size:14px; margin-top:4px;">No unassigned deliveries are available in your immediate geographic radius right now.</p>
-          </div>`;
+    function applyFilters() {
+      var q  = document.getElementById('searchInput').value.toLowerCase();
+      var dt = document.getElementById('filterType').value;
+      var dd = document.getElementById('filterDelivery').value;
+      var dp = document.getElementById('filterPayment').value;
+      filtered = requests.filter(function(r) {
+        var matchQ = !q  || r.tracking_id.toLowerCase().includes(q) || r.sender_city.toLowerCase().includes(q) || r.receiver_city.toLowerCase().includes(q) || r.sender_district.toLowerCase().includes(q) || r.receiver_district.toLowerCase().includes(q);
+        var matchT = !dt || r.package_type === dt;
+        var matchD = !dd || r.delivery_type === dd;
+        var matchP = !dp || r.payment_method === dp;
+        return matchQ && matchT && matchD && matchP;
+      });
+      renderCards();
+    }
+
+    function openDetail(id) {
+      var r = requests.find(function(x) { return x.tracking_id === id; });
+      if (!r) return;
+      currentId = id;
+      document.getElementById('m-tracking').textContent        = r.tracking_id;
+      document.getElementById('m-sender-name').textContent     = r.sender_name;
+      document.getElementById('m-sender-phone').textContent    = r.sender_phone;
+      document.getElementById('m-sender-address').textContent  = r.sender_address;
+      document.getElementById('m-sender-city').textContent     = r.sender_city;
+      document.getElementById('m-sender-district').textContent = r.sender_district;
+      document.getElementById('m-receiver-name').textContent     = r.receiver_name;
+      document.getElementById('m-receiver-phone').textContent    = r.receiver_phone;
+      document.getElementById('m-receiver-address').textContent  = r.receiver_address;
+      document.getElementById('m-receiver-city').textContent     = r.receiver_city;
+      document.getElementById('m-receiver-district').textContent = r.receiver_district;
+      document.getElementById('m-pkg-type').textContent    = r.package_type;
+      document.getElementById('m-weight').textContent      = r.weight;
+      document.getElementById('m-dims').textContent        = r.length_cm + ' x ' + r.width_cm + ' x ' + r.height_cm + ' cm';
+      document.getElementById('m-value').textContent       = r.estimated_value;
+      document.getElementById('m-delivery-type').textContent = r.delivery_type;
+      document.getElementById('m-payment').textContent     = r.payment_method;
+      document.getElementById('m-cost').textContent        = r.delivery_cost;
+      document.getElementById('m-status').textContent      = r.status;
+      var instrGroup = document.getElementById('m-instructions-group');
+      if (r.instructions) {
+        document.getElementById('m-instructions').textContent = r.instructions;
+        instrGroup.style.display = '';
+      } else {
+        instrGroup.style.display = 'none';
       }
+      document.getElementById('detailModal').classList.add('open');
+    }
+
+    function closeModal(e) {
+      if (!e || e.target.id === 'detailModal') document.getElementById('detailModal').classList.remove('open');
+    }
+
+    function acceptDelivery() {
+      var id = currentId;
+      document.getElementById('detailModal').classList.remove('open');
+      requests.splice(requests.findIndex(function(r){ return r.tracking_id === id; }), 1);
+      applyFilters();
+      showToast('Request ' + id + ' accepted — added to your active routes.', 'success');
+    }
+
+    function quickAccept(id) { currentId = id; acceptDelivery(); }
+
+    function passDelivery() {
+      document.getElementById('detailModal').classList.remove('open');
+      document.getElementById('agentSelect').value = '';
+      document.getElementById('passNote').value    = '';
+      document.getElementById('passModal').classList.add('open');
+    }
+
+    function closePassModal(e) {
+      if (!e || e.target.id === 'passModal') document.getElementById('passModal').classList.remove('open');
+    }
+
+    function confirmPass() {
+      var sel = document.getElementById('agentSelect');
+      if (!sel.value) { showToast('Please select an agent first.', 'danger'); return; }
+      var agentName = sel.options[sel.selectedIndex].text;
+      document.getElementById('passModal').classList.remove('open');
+      requests.splice(requests.findIndex(function(r){ return r.tracking_id === currentId; }), 1);
+      applyFilters();
+      showToast('Request ' + currentId + ' passed to ' + agentName + '.', 'success');
     }
 
     function toggleDuty(cb) {
-      const label = document.getElementById('dutyLabelText');
-      const status = document.getElementById('dutyStatusText');
-      if (cb.checked) {
-        label.textContent = 'On Duty';
-        status.textContent = 'Accepting new deliveries';
-        status.className = 'duty-status-text on-duty';
-      } else {
-        label.textContent = 'Off Duty';
-        status.textContent = 'Not accepting deliveries';
-        status.className = 'duty-status-text';
-      }
+      var label  = document.getElementById('dutyLabelText');
+      var status = document.getElementById('dutyStatusText');
+      if (cb.checked) { label.textContent='On Duty'; status.textContent='Accepting new deliveries'; status.className='duty-status-text on-duty'; }
+      else             { label.textContent='Off Duty'; status.textContent='Not accepting deliveries'; status.className='duty-status-text'; }
     }
+
+    function showToast(msg, type) {
+      var el = document.createElement('div');
+      el.className = 'alert alert-' + type;
+      el.innerHTML = '<span>' + msg + '</span><button onclick="this.parentElement.remove()">x</button>';
+      document.body.appendChild(el);
+      setTimeout(function(){ if (el.parentNode) el.remove(); }, 3400);
+    }
+
+    renderCards();
   </script>
+
 </body>
 </html>
