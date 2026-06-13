@@ -189,6 +189,10 @@
         <div class="summary-info">
           <div class="summary-label">Estimated Total</div>
           <div class="summary-amount" id="totalAmount">NPR 150</div>
+          <div class="summary-info">
+    <div>ETA: <span id="etaValue">3-5 Business Days</span></div>
+    <div>Distance: <span id="distanceValue">10 km</span></div>
+</div>
         </div>
         <div class="summary-actions">
           <button type="submit" class="btn-primary" id="confirmBtn">Confirm &amp; Create Shipment</button>
@@ -202,9 +206,24 @@
 {% block scripts %}
 <script>
   var prices = { Standard: 150, Express: 350, "Same-day": 500 };
+  var eta = {
+    Standard: "3-5 Business Days",
+    Express: "1-2 Business Days",
+    "Same-day": "Delivered Today"
+};
+
+var distance = {
+    Standard: "10 km",
+    Express: "25 km",
+    "Same-day": "50 km"
+};
   document.querySelectorAll('input[name="delivery_type"]').forEach(function(r) {
     r.addEventListener('change', function() {
       document.getElementById('totalAmount').textContent = 'NPR ' + prices[r.value];
+      document.getElementById('etaValue').textContent =
+    eta[r.value];
+document.getElementById('distanceValue').textContent =
+    distance[r.value];
     });
   });
 </script>
