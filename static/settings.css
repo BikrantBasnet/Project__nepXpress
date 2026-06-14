@@ -25,13 +25,13 @@ body.dark-mode .danger-card { border-color: #5a1a1a; }
 body.dark-mode .slider { background: #444; }
 
 /* ── MAIN (settings uses .main, not .main-wrapper) ── */
-.main { flex: 1; padding: 32px 28px; height: 100vh; overflow-y: auto; min-width: 0; }
+.main { flex: 1; height: 100vh; overflow-y: auto; min-width: 0; }
 .page-header { margin-bottom: 24px; }
 .page-title { font-size: 24px; font-weight: 800; color: #1a1f2e; letter-spacing: -0.4px; }
 .page-sub { font-size: 14px; color: #8a93a8; margin-top: 4px; }
 
 /* ── GRID ── */
-.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 32px 28px; }
 
 /* ── CARD ── */
 .card {

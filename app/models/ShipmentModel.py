@@ -116,7 +116,7 @@ class Shipment(BaseModel):
         db.close()
 
         total = len(rows)
-        delivered = in_transit = failed = 0
+        delivered = in_transit = failed = processing = delayed = 0
         value_spent = value_this_month = value_last_month = 0.0   # package value
         ship_spent = 0.0                                          # delivery cost
 
@@ -134,8 +134,12 @@ class Shipment(BaseModel):
             ship_spent += ship
             if st == "delivered":
                 delivered += 1
-            elif st in ("in_transit", "delayed"):
+            elif st == "in_transit":
                 in_transit += 1
+            elif st == "delayed":
+                delayed += 1
+            elif st == "processing":
+                processing += 1
             elif st == "cancelled":
                 failed += 1
             d = r["created_at"]
@@ -150,13 +154,16 @@ class Shipment(BaseModel):
         success_rate = (delivered / total * 100) if total else 0
         base = total if total else 1
         return {
-            "total": total, "delivered": delivered, "in_transit": in_transit, "failed": failed,
+            "total": total, "delivered": delivered, "in_transit": in_transit,
+            "processing": processing, "delayed": delayed, "failed": failed,
             "value_spent": value_spent, "avg_value": avg_value,
             "ship_spent": ship_spent, "avg_ship": avg_ship,
             "value_this_month": value_this_month, "value_last_month": value_last_month,
             "success_rate": success_rate,
             "pct_delivered": round(delivered / base * 100),
             "pct_transit": round(in_transit / base * 100),
+            "pct_processing": round(processing / base * 100),
+            "pct_delayed": round(delayed / base * 100),
             "pct_failed": round(failed / base * 100),
         }
 

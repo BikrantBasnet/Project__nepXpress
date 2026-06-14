@@ -43,7 +43,8 @@
           <a class="filter-tab {{ 'active' if current_filter == 'all' }}"        href="{{ url_for('shipment_history') }}">All</a>
           <a class="filter-tab {{ 'active' if current_filter == 'delivered' }}"  href="{{ url_for('shipment_history', status='delivered') }}">Delivered</a>
           <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}" href="{{ url_for('shipment_history', status='in_transit') }}">In Transit</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'pending' }}"    href="{{ url_for('shipment_history', status='pending') }}">Processing</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'delayed' }}"    href="{{ url_for('shipment_history', status='delayed') }}">Delayed</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'processing' }}" href="{{ url_for('shipment_history', status='processing') }}">Processing</a>
           <a class="filter-tab {{ 'active' if current_filter == 'cancelled' }}"  href="{{ url_for('shipment_history', status='cancelled') }}">Cancelled</a>
         </div>
         <div class="filter-right">
@@ -59,9 +60,12 @@
         <table class="shipment-table">
           <thead>
             <tr>
-              <th>Tracking ID</th>
+            <th>Tracking ID</th>
               <th>Destination</th>
               <th>Date</th>
+              <th>Processing</th>
+              <th>In Transit</th>
+              <th>Completed</th>
               <th>Amount</th>
               <th>Status</th>
             </tr>
@@ -71,20 +75,28 @@
               {% set raw = s.status | lower %}
               {% if raw == 'in_transit' %}{% set cls = 'transit' %}{% set label = 'In Transit' %}
               {% elif raw == 'delivered' %}{% set cls = 'delivered' %}{% set label = 'Delivered' %}
-              {% elif raw in ['processing','pending'] %}{% set cls = 'processing' %}{% set label = raw | capitalize %}
+              {% elif raw == 'processing' %}{% set cls = 'processing' %}{% set label = 'Processing' %}
               {% elif raw == 'delayed' %}{% set cls = 'transit' %}{% set label = 'Delayed' %}
               {% elif raw == 'cancelled' %}{% set cls = 'cancelled' %}{% set label = 'Cancelled' %}
               {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
               <tr>
-                <td class="tracking-id">{{ s.tracking_id }}</td>
+           <td class="tracking-id">{{ s.tracking_id }}</td>
                 <td>{{ s.receiver_city or '—' }}</td>
                 <td>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
+                <td>{{ s.processing_at.strftime('%d %b, %I:%M %p') if s.processing_at else '—' }}</td>
+                <td>{{ s.in_transit_at.strftime('%d %b, %I:%M %p') if s.in_transit_at else '—' }}</td>
+                <td>
+                  {% if s.delivered_at %}{{ s.delivered_at.strftime('%d %b, %I:%M %p') }}
+                  {% elif s.delayed_at %}{{ s.delayed_at.strftime('%d %b, %I:%M %p') }}
+                  {% elif s.cancelled_at %}{{ s.cancelled_at.strftime('%d %b, %I:%M %p') }}
+                  {% else %}—{% endif %}
+                </td>
                 <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
                 <td><span class="badge {{ cls }}">{{ label }}</span></td>
               </tr>
             {% else %}
               <tr>
-                <td colspan="5" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
+                <td colspan="8" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
                   {% if current_filter == 'all' %}
                     No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
                   {% else %}

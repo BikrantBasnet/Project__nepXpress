@@ -170,7 +170,7 @@ def create_app():
                 "delivery_cost": delivery_cost,
                 "delivery_type": delivery_type,
                 "payment_method": payment_method,
-                "status": "pending",
+                "status": "processing",
                 "instructions": request.form.get("instructions", "").strip(),
             })
             flash(f"Shipment created! Tracking ID: {tracking_id} — Total: NPR {delivery_cost}", "success")
@@ -195,9 +195,10 @@ def create_app():
         get_flashed_messages()
         user_id = session.get("user_id")
 
-        # validate ?status= against a whitelist (tab value -> DB enum value)
+       # validate ?status= against a whitelist (tab value -> DB enum value)
         allowed = {"delivered": "delivered", "in_transit": "in_transit",
-                   "pending": "pending", "cancelled": "cancelled"}
+                   "processing": "processing",
+                   "delayed": "delayed", "cancelled": "cancelled"}
         raw = request.args.get("status", "all")
         db_status = allowed.get(raw)            # None for "all" or anything invalid
 
