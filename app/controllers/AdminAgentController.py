@@ -90,7 +90,7 @@ class AdminAgentController(BaseController):
                 """SELECT s.tracking_id, u.name AS customer_name,
                           s.destination, s.status, s.amount, s.created_at
                    FROM shipments s
-                   LEFT JOIN users u ON s.customer_id = u.id
+                   LEFT JOIN users u ON s.user_id = u.id
                    WHERE s.agent_id = %s
                    ORDER BY s.created_at DESC LIMIT 6""",
                 (agent_id,), fetchall=True
