@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NepXpress – Page Not Found</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif; background: #f7f8fa; color: #1a1f2e;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .err-wrap {
+      width: 100%; max-width: 480px; background: #fff; border-radius: 20px;
+      padding: 48px 52px; box-shadow: 0 24px 60px rgba(15,23,42,0.12); text-align: center;
+    }
+    .err-code { font-size: 72px; font-weight: 900; color: #e8a020; letter-spacing: -2px; line-height: 1; }
+    .err-title { font-size: 26px; font-weight: 800; margin: 12px 0 8px; }
+    .err-text { font-size: 15px; color: #8a93a8; margin-bottom: 32px; line-height: 1.6; }
+    .err-btn {
+      display: inline-block; background: #0d0f14; color: #fff; padding: 14px 28px;
+      border-radius: 10px; font-size: 15px; font-weight: 700; text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .err-btn:hover { background: #e8a020; transform: translateY(-2px); }
+  </style>
+</head>
+<body>
+  <div class="err-wrap">
+    <div class="err-code">404</div>
+    <h1 class="err-title">Page Not Found</h1>
+    <p class="err-text">The page you're looking for doesn't exist or has been moved.</p>
+    <a href="/dashboard" class="err-btn">Back to Dashboard</a>
+  </div>
+</body>
+</html>

@@ -24,25 +24,30 @@
       <form method="POST" action="{{ url_for('create_shipment') }}">
       <div class="form-grid">
 
-        <!-- CARD 1: Sender -->
+<!-- CARD 1: Sender -->
         <section class="card">
           <h2 class="card-title">Sender Information</h2>
           <div class="form-group">
             <label>Full Name</label>
-            <input type="text" id="senderName" name="sender_name" placeholder="Enter sender's full name" required />
+            <input type="text" id="senderName" name="sender_name" placeholder="Enter sender's full name" value="{{ current_user.name if current_user else '' }}" required />
           </div>
           <div class="form-group">
             <label>Phone Number</label>
-            <input type="tel" name="sender_phone" placeholder="+977 98XXXXXXXX" />
+            <input type="tel" name="sender_phone" placeholder="+977 98XXXXXXXX" value="{{ current_user.phone if current_user and current_user.phone else '' }}" />
           </div>
           <div class="form-group">
             <label>Pickup Address</label>
-            <input type="text" name="sender_address" placeholder="Street address, area" />
+            <input type="text" name="sender_address" placeholder="Street address, area" value="{{ current_user.address if current_user and current_user.address else '' }}" />
           </div>
           <div class="form-row">
             <div class="form-group">
               <label>City</label>
-              <input type="text" name="sender_city" placeholder="Enter city" />
+              <select name="sender_city" required>
+                <option value="">Select city</option>
+                {% for city in cities %}
+                  <option value="{{ city }}">{{ city }}</option>
+                {% endfor %}
+              </select>
             </div>
             <div class="form-group">
               <label>District</label>
@@ -69,7 +74,12 @@
           <div class="form-row">
             <div class="form-group">
               <label>City</label>
-              <input type="text" name="receiver_city" placeholder="Enter city" />
+              <select name="receiver_city" required>
+                <option value="">Select city</option>
+                {% for city in cities %}
+                  <option value="{{ city }}">{{ city }}</option>
+                {% endfor %}
+              </select>
             </div>
             <div class="form-group">
               <label>District</label>
@@ -101,21 +111,6 @@
             <div class="form-group">
               <label>Estimated Value (NPR)</label>
               <input type="number" name="value" placeholder="0" min="0" />
-            </div>
-          </div>
-
-          <div class="form-row three-col">
-            <div class="form-group">
-              <label>Length (cm)</label>
-              <input type="number" name="length" placeholder="0" />
-            </div>
-            <div class="form-group">
-              <label>Width (cm)</label>
-              <input type="number" name="width" placeholder="0" />
-            </div>
-            <div class="form-group">
-              <label>Height (cm)</label>
-              <input type="number" name="height" placeholder="0" />
             </div>
           </div>
 

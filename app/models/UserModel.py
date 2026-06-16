@@ -18,12 +18,13 @@ class User(BaseModel):
     table = "users"
     
     
-    def __init__(self, name="", email="", password="", role="customer", security_answer=""):
+    def __init__(self, name="", email="", password="", role="customer", security_answer="", phone=""):
         self.id = None
         self.name = name
         self.email = email
         self.__password = password
         self.role = role
+        self.phone = phone
         self.__security_answer = security_answer  # plain text, hashed on save
         self.created_at = None
     
@@ -54,12 +55,11 @@ class User(BaseModel):
             hashed_answer = generate_password_hash(self.__security_answer.strip().lower())
 
             query = (
-                f"INSERT INTO {self.table} (name, email, password, role, security_answer) "
-                f"VALUES (%s, %s, %s, %s, %s)"
+                f"INSERT INTO {self.table} (name, email, password, role, security_answer, phone) "
+                f"VALUES (%s, %s, %s, %s, %s, %s)"
             )
-            db.execute(query, (self.name, self.email, hashed_password, self.role, hashed_answer))
+            db.execute(query, (self.name, self.email, hashed_password, self.role, hashed_answer, self.phone))
             db.close()
-    
     def update_profile_info(self, name, phone, address):
         """Update name, phone, and address by email (email stays the login key)."""
         db = Database()

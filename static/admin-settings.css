@@ -1,4 +1,4 @@
-/* ── SETTINGS PAGE STYLES ── */
+/* ── SETTINGS PAGE ── */
 
 .settings-layout {
   display: grid;
@@ -7,11 +7,8 @@
   align-items: start;
 }
 
-@media (max-width: 800px) {
-  .settings-layout { grid-template-columns: 1fr; }
-}
+@media (max-width: 800px) { .settings-layout { grid-template-columns: 1fr; } }
 
-/* ── SETTINGS NAV ── */
 .settings-nav {
   background: var(--bg2);
   border: 1px solid var(--border);
@@ -21,7 +18,8 @@
   flex-direction: column;
   gap: 2px;
   position: sticky;
-  top: 80px;
+  top: 88px;
+  box-shadow: var(--shadow-sm);
 }
 
 .settings-nav-item {
@@ -32,7 +30,7 @@
   border-radius: var(--radius-sm);
   font-family: 'DM Sans', sans-serif;
   font-size: 13.5px;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--text2);
   background: none;
   border: none;
@@ -43,10 +41,13 @@
 }
 
 .settings-nav-item:hover  { background: var(--bg3); color: var(--text); }
-.settings-nav-item.active { background: rgba(249,115,22,0.12); color: var(--accent); font-weight: 500; }
+.settings-nav-item.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 600;
+}
 
-/* ── SETTINGS PANELS ── */
-.settings-panels { display: flex; flex-direction: column; gap: 0; }
+.settings-panels { display: flex; flex-direction: column; }
 
 .settings-panel {
   display: none;
@@ -55,23 +56,25 @@
   border-radius: var(--radius);
   overflow: hidden;
   animation: fadeUp 0.25s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .settings-panel.active { display: block; }
 
-/* ── SECTION TITLE ── */
 .settings-section-title {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 22px 24px 18px;
   border-bottom: 1px solid var(--border);
+  background: var(--bg3);
 }
 
 .settings-section-icon {
   width: 40px; height: 40px;
   border-radius: 10px;
-  background: rgba(249,115,22,0.1);
+  background: var(--accent-light);
+  border: 1px solid #fed7aa;
   display: flex; align-items: center; justify-content: center;
   font-size: 18px;
   flex-shrink: 0;
@@ -81,15 +84,11 @@
   font-family: 'Syne', sans-serif;
   font-size: 15px;
   font-weight: 700;
+  color: var(--text);
 }
 
-.settings-sub {
-  font-size: 12px;
-  color: var(--text3);
-  margin-top: 2px;
-}
+.settings-sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
-/* ── PROFILE AVATAR ROW ── */
 .settings-avatar-row {
   display: flex;
   align-items: center;
@@ -99,7 +98,7 @@
 
 .settings-avatar {
   width: 60px; height: 60px;
-  border-radius: 14px;
+  border-radius: 15px;
   background: linear-gradient(135deg, var(--accent), #fb923c);
   display: flex; align-items: center; justify-content: center;
   font-family: 'Syne', sans-serif;
@@ -107,24 +106,20 @@
   font-size: 20px;
   color: white;
   flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(249,115,22,0.3);
 }
 
 .settings-avatar-name {
   font-family: 'Syne', sans-serif;
   font-size: 16px;
   font-weight: 700;
+  color: var(--text);
 }
 
-.settings-avatar-role {
-  font-size: 12px;
-  color: var(--text3);
-  margin-top: 2px;
-}
+.settings-avatar-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
-/* ── SETTINGS FORM ── */
 .settings-form { padding: 20px 24px; }
 
-/* ── SETTINGS FOOTER ── */
 .settings-footer {
   display: flex;
   justify-content: flex-end;
@@ -133,13 +128,7 @@
   background: var(--bg3);
 }
 
-/* ── INPUT WITH TOGGLE ── */
-.input-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
+.input-wrap { position: relative; display: flex; align-items: center; }
 .input-wrap .form-input { padding-right: 40px; width: 100%; }
 
 .pw-toggle {
@@ -156,7 +145,6 @@
 
 .pw-toggle:hover { color: var(--text); }
 
-/* ── PASSWORD STRENGTH ── */
 .pw-strength {
   display: flex;
   align-items: center;
@@ -172,17 +160,9 @@
   background: var(--bg4);
 }
 
-#pw-strength-label {
-  font-size: 11.5px;
-  font-weight: 500;
-  min-width: 70px;
-  text-align: right;
-}
+#pw-strength-label { font-size: 11.5px; font-weight: 600; min-width: 70px; text-align: right; }
 
-/* ── NOTIFICATION LIST ── */
-.notif-list {
-  padding: 8px 0;
-}
+.notif-list { padding: 4px 0; }
 
 .notif-row {
   display: flex;
@@ -198,24 +178,13 @@
 
 .notif-info { flex: 1; }
 
-.notif-title {
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--text);
-}
+.notif-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.notif-desc  { font-size: 12.5px; color: var(--text3); margin-top: 2px; }
 
-.notif-desc {
-  font-size: 12px;
-  color: var(--text3);
-  margin-top: 2px;
-}
-
-/* ── TOGGLE SWITCH ── */
 .toggle {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 44px; height: 24px;
   flex-shrink: 0;
   margin-left: 16px;
 }
@@ -244,7 +213,7 @@
 }
 
 .toggle input:checked + .toggle-slider {
-  background: rgba(249,115,22,0.2);
+  background: var(--accent-light);
   border-color: var(--accent);
 }
 

@@ -90,7 +90,7 @@ class AdminReportsController(BaseController):
                 "  COALESCE(SUM(s.amount), 0) AS total_spent, "
                 "  MAX(s.created_at)           AS last_order "
                 "FROM users u "
-                "LEFT JOIN shipments s ON s.customer_id = u.id "
+                "LEFT JOIN shipments s ON s.user_id = u.id "
                 "WHERE u.role = 'customer' "
                 "GROUP BY u.id, u.name "
                 "ORDER BY total_shipments DESC "

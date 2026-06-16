@@ -1,8 +1,8 @@
-/* ============================================================
+/* ==========================================================
    CREATE SHIPMENT — page-specific styles only.
    Shared shell (sidebar, topbar, main-wrapper, content,
    help-btn, svg reset, body) lives in common.css.
-   ============================================================ */
+   ========================================================== */
 
 .page-header { margin-bottom: 32px; }
 .page-title { font-size: 34px; font-weight: 800; color: #0c131f; }

@@ -13,16 +13,13 @@
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">
-      <div class="logo-icon">🚚</div>
-      <div>
-        <div class="logo-text">nep<span>Xpress</span></div>
-      </div>
+      <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
     </div>
     <div class="logo-sub">Admin Panel</div>
   </div>
   <nav class="nav">
     <div class="nav-section">Overview</div>
-    <a class="nav-item active" href="#"><span class="nav-icon">⊞</span> Dashboard</a>
+    <a class="nav-item active" href="/admin-dashboard"><span class="nav-icon">⊞</span> Dashboard</a>
     <div class="nav-section">Management</div>
     <a class="nav-item" href="/admin-shipments"><span class="nav-icon">📦</span> Shipments<span class="nav-badge" id="sb-shipments">—</span></a>
     <a class="nav-item" href="/admin-users"><span class="nav-icon">👥</span> Users</a>
@@ -428,25 +425,27 @@ async function handleLogout() {
 
 /* ── INIT ── */
 async function init() {
+  // Use Flask session name as fallback — no redirect on API auth fail
+  const flaskName = "{{ user_name|default('Admin') }}";
+  adminName = flaskName;
+  $('sb-avatar').textContent  = initials(adminName);
+  $('top-avatar').textContent = initials(adminName);
+  $('sb-name').textContent    = adminName;
   setDate();
-try {
-    const me = await apiFetch('/api/admin/me');
-    adminName = me.name || 'Admin';
-    const av = initials(adminName);
-    $('sb-avatar').textContent = av;
-    $('top-avatar').textContent = av;
-    $('sb-name').textContent = adminName;
-    setDate();
-} catch(e) {
-    // Not logged in via API — use template session variables instead
-    adminName = "{{ user_name }}" || 'Admin';
-    const av = initials(adminName);
-    $('sb-avatar').textContent = av;
-    $('top-avatar').textContent = av;
-    $('sb-name').textContent = adminName;
-    setDate();
-}
 
+  // Try to also set via API (works if logged in via API session too)
+  try {
+    const me = await apiFetch('/api/admin/me');
+    adminName = me.name || flaskName;
+    $('sb-avatar').textContent  = initials(adminName);
+    $('top-avatar').textContent = initials(adminName);
+    $('sb-name').textContent    = adminName;
+    setDate();
+  } catch(e) {
+    // Not logged in via API — that's fine, Flask session handles page auth
+  }
+
+  // Load all dashboard data in parallel
   const [stats, shipments, agents, status, users, alerts] = await Promise.allSettled([
     apiFetch('/api/admin/dashboard/stats'),
     apiFetch('/api/admin/dashboard/shipments/recent'),

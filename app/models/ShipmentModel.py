@@ -28,8 +28,8 @@ class Shipment(BaseModel):
             " sender_city, sender_district, receiver_name, receiver_phone, "
             " receiver_address, receiver_city, receiver_district, package_type, "
             " weight, estimated_value, delivery_cost, length_cm, width_cm, height_cm, "
-            " delivery_type, payment_method, status, instructions) "
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            " delivery_type, payment_method, status, instructions, destination) "  # ← added
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"  # ← 24
         )
         db.execute(query, (
             data["tracking_id"],
@@ -44,17 +44,17 @@ class Shipment(BaseModel):
             data.get("receiver_address", ""),
             data.get("receiver_city", ""),
             data.get("receiver_district", ""),
+            data.get("destination", ""),
             data.get("package_type", ""),
             data.get("weight") or None,
             data.get("estimated_value") or 0,
             data.get("delivery_cost") or 0,
-            data.get("length_cm") or None,
-            data.get("width_cm") or None,
-            data.get("height_cm") or None,
             data.get("delivery_type", "Standard"),
             data.get("payment_method", "cod"),
             data.get("status", "Pending"),
             data.get("instructions", ""),
+            # destination = "receiver_city, receiver_district" for the agent delivery list
+            f"{data.get('receiver_city', '')} {data.get('receiver_district', '')}".strip(),  # ← added
         ))
         db.close()
     # ---- READ: history page ----
@@ -118,7 +118,7 @@ class Shipment(BaseModel):
         db.close()
 
         total = len(rows)
-        delivered = in_transit = failed = 0
+        delivered = in_transit = failed = processing = delayed = 0
         value_spent = value_this_month = value_last_month = 0.0   # package value
         ship_spent = 0.0                                          # delivery cost
 
@@ -136,8 +136,12 @@ class Shipment(BaseModel):
             ship_spent += ship
             if st == "delivered":
                 delivered += 1
-            elif st in ("in_transit", "delayed"):
+            elif st == "in_transit":
                 in_transit += 1
+            elif st == "delayed":
+                delayed += 1
+            elif st == "processing":
+                processing += 1
             elif st == "cancelled":
                 failed += 1
             d = r["created_at"]
@@ -152,13 +156,16 @@ class Shipment(BaseModel):
         success_rate = (delivered / total * 100) if total else 0
         base = total if total else 1
         return {
-            "total": total, "delivered": delivered, "in_transit": in_transit, "failed": failed,
+            "total": total, "delivered": delivered, "in_transit": in_transit,
+            "processing": processing, "delayed": delayed, "failed": failed,
             "value_spent": value_spent, "avg_value": avg_value,
             "ship_spent": ship_spent, "avg_ship": avg_ship,
             "value_this_month": value_this_month, "value_last_month": value_last_month,
             "success_rate": success_rate,
             "pct_delivered": round(delivered / base * 100),
             "pct_transit": round(in_transit / base * 100),
+            "pct_processing": round(processing / base * 100),
+            "pct_delayed": round(delayed / base * 100),
             "pct_failed": round(failed / base * 100),
         }
 
@@ -171,3 +178,30 @@ class Shipment(BaseModel):
         )
         db.close()
         return results
+
+    @classmethod
+    def get_available_deliveries(cls):
+        """Fetch all shipments that have not been assigned to any driver yet."""
+        sql = """
+            SELECT id, tracking_id, sender_city, destination, package_type, 
+                   weight, estimated_value, delivery_cost, status 
+            FROM shipments 
+            WHERE agent_id IS NULL AND status = 'pending'
+            ORDER BY created_at DESC
+        """
+        return execute_query(sql, fetchall=True)
+
+    @classmethod
+    def assign_agent_to_shipment(cls, shipment_id, agent_id):
+        """Assign driver ID and update status tracking."""
+        sql = """
+            UPDATE shipments 
+            SET agent_id = %s, status = 'processing', updated_at = NOW() 
+            WHERE id = %s AND agent_id IS NULL
+        """
+        db = Database()
+        cursor = db.connection.cursor()
+        affected_rows = cursor.execute(sql, (agent_id, shipment_id))
+        db.connection.commit()
+        db.close()
+        return affected_rows

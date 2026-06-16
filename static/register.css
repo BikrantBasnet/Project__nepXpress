@@ -1,9 +1,3 @@
-/* ============================================================
-   register.css — register-only rules.
-   Everything shared (shell, brand, fields, buttons, tabs,
-   alerts) lives in auth.css (linked first). Only the bits
-   unique to the register form are kept here.
-   ============================================================ */
 
 /* section divider headings ("Personal Information", "Security") */
 .section-heading { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 22px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1.5px solid var(--border); }

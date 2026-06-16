@@ -162,8 +162,13 @@ INSERT INTO shipments (tracking_id, customer_id, agent_id, destination, status, 
 ALTER TABLE users 
 ADD COLUMN security_answer VARCHAR(255) DEFAULT NULL;
 
-DESCRIBE delivery_agents;
+ALTER TABLE shipments
+RENAME COLUMN customer_id TO user_id;
 
-SELECT * FROM delivery_agents;
+USE nepxpress;
+DESCRIBE shipments;
+
+
+
 
 

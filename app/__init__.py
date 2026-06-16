@@ -136,6 +136,14 @@ def create_app():
                 flash("Please select a valid delivery type.", "danger")
                 return redirect(url_for("create_shipment"))
 
+            # weight is required and must be greater than 0
+            try:
+                weight = float(request.form.get("weight") or 0)
+            except ValueError:
+                weight = 0
+            if weight <= 0:
+                flash("Package weight must be greater than 0 kg.", "danger")
+                return redirect(url_for("create_shipment"))
             # Server-side price lookup based on delivery type
             delivery_prices = {"Standard": 150, "Express": 350, "Same-day": 500}
             delivery_cost = delivery_prices.get(delivery_type, 0)
@@ -156,26 +164,29 @@ def create_app():
                 "receiver_address": request.form.get("receiver_address", "").strip(),
                 "receiver_city": request.form.get("receiver_city", "").strip(),
                 "receiver_district": request.form.get("receiver_district", "").strip(),
+                "destination": request.form.get("receiver_city", "").strip(),
                 "package_type": request.form.get("package_type", "").strip(),
-                "weight": request.form.get("weight") or None,
+                "weight": weight,
                 "estimated_value": request.form.get("value") or 0,
                 "delivery_cost": delivery_cost,
-                "length_cm": request.form.get("length") or None,
-                "width_cm": request.form.get("width") or None,
-                "height_cm": request.form.get("height") or None,
                 "delivery_type": delivery_type,
                 "payment_method": payment_method,
-                "status": "pending",
+                "status": "processing",
                 "instructions": request.form.get("instructions", "").strip(),
             })
             flash(f"Shipment created! Tracking ID: {tracking_id} — Total: NPR {delivery_cost}", "success")
             return redirect(url_for("shipment_history"))
 
         get_flashed_messages()
+        current_user = User(email=session.get("user_email")).find_by("email", session.get("user_email"))
+        cities = ["Kathmandu", "Pokhara", "Itahari", "Biratnagar", "Lalitpur",
+                  "Bhaktapur", "Birgunj", "Dharan", "Butwal", "Nepalgunj"]
         return render_template(
             "create-shipment.html",
             user_name=session.get("user_name"),
-            user_role=session.get("user_role")
+            user_role=session.get("user_role"),
+            current_user=current_user,
+            cities=cities
         )
 
     @app.route("/shipment-history")
@@ -185,9 +196,10 @@ def create_app():
         get_flashed_messages()
         user_id = session.get("user_id")
 
-        # validate ?status= against a whitelist (tab value -> DB enum value)
+       # validate ?status= against a whitelist (tab value -> DB enum value)
         allowed = {"delivered": "delivered", "in_transit": "in_transit",
-                   "pending": "pending", "cancelled": "cancelled"}
+                   "processing": "processing",
+                   "delayed": "delayed", "cancelled": "cancelled"}
         raw = request.args.get("status", "all")
         db_status = allowed.get(raw)            # None for "all" or anything invalid
 

@@ -17,12 +17,12 @@ class Database:
     def __init__(self):
         self.connection = pymysql.connect(
             host=config.MYSQL_HOST,
+            port=config.MYSQL_PORT,
             user=config.MYSQL_USER,
             password=config.MYSQL_PASSWORD,
             database=config.MYSQL_DATABASE,
             charset='utf8mb4'
         )
-
     def fetch_one(self, query, params=None):
         cursor = self.connection.cursor(pymysql.cursors.DictCursor)
         cursor.execute(query, params)
@@ -49,12 +49,11 @@ class Database:
     @staticmethod
     def create_tables():
         """
-        Expanded to create all 4 tables NepXpress needs.
-        Teammate's original users table is preserved exactly.
+        Creates the user-side tables NepXpress needs.
         """
         db = Database()
 
-        # ── users (teammate's original, untouched) ───────────────────── #
+        # ── users ─────────────────────────────────────────────────────── #
         db.execute(
             "CREATE TABLE IF NOT EXISTS users ("
             "id INT PRIMARY KEY AUTO_INCREMENT,"
@@ -63,6 +62,9 @@ class Database:
             "password VARCHAR(255) NOT NULL,"
             "role VARCHAR(20) NOT NULL DEFAULT 'customer',"
             "status VARCHAR(20) NOT NULL DEFAULT 'active',"
+            "phone VARCHAR(20),"
+            "address TEXT,"
+            "security_answer VARCHAR(255) DEFAULT NULL,"
             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
             ")"
         )
@@ -81,22 +83,40 @@ class Database:
             ")"
         )
 
-        # ── shipments ────────────────────────────────────────────────── #
+        # ── shipments (customer-side shape) ──────────────────────────── #
         db.execute(
             "CREATE TABLE IF NOT EXISTS shipments ("
             "id INT PRIMARY KEY AUTO_INCREMENT,"
-            "tracking_id VARCHAR(30) NOT NULL UNIQUE,"
-            "customer_id INT NOT NULL,"
-            "agent_id INT,"
-            "destination VARCHAR(200) NOT NULL,"
+            "tracking_id VARCHAR(40) NOT NULL UNIQUE,"
+            "user_id INT NOT NULL,"
+            "sender_name VARCHAR(120),"
+            "sender_phone VARCHAR(20),"
+            "sender_address VARCHAR(255),"
+            "sender_city VARCHAR(100),"
+            "sender_district VARCHAR(100),"
+            "receiver_name VARCHAR(120),"
+            "receiver_phone VARCHAR(20),"
+            "receiver_address VARCHAR(255),"
+            "receiver_city VARCHAR(100),"
+            "receiver_district VARCHAR(100),"
+            "destination VARCHAR(200),"
+            "package_type VARCHAR(50),"
+            "weight DECIMAL(10,2),"
+            "estimated_value DECIMAL(12,2) NOT NULL DEFAULT 0.00,"
+            "delivery_cost DECIMAL(12,2) NOT NULL DEFAULT 0.00,"
+            "delivery_type VARCHAR(20) NOT NULL DEFAULT 'Standard',"
+            "payment_method VARCHAR(20) NOT NULL DEFAULT 'cod',"
             "status ENUM('pending','processing','in_transit','delivered','delayed','cancelled')"
             "  NOT NULL DEFAULT 'pending',"
-            "amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,"
-            "notes TEXT,"
+            "instructions TEXT,"
+            "processing_at DATETIME DEFAULT NULL,"
+            "in_transit_at DATETIME DEFAULT NULL,"
+            "delivered_at DATETIME DEFAULT NULL,"
+            "delayed_at DATETIME DEFAULT NULL,"
+            "cancelled_at DATETIME DEFAULT NULL,"
             "created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             "updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
-            "FOREIGN KEY (customer_id) REFERENCES users(id) ON DELETE CASCADE,"
-            "FOREIGN KEY (agent_id) REFERENCES users(id) ON DELETE SET NULL"
+            "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
             ")"
         )
 
@@ -142,4 +162,3 @@ def execute_query(query, params=None, fetchone=False, fetchall=False):
             return cursor.lastrowid if cursor.lastrowid else cursor.rowcount
     finally:
         db.close()
-        

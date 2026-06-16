@@ -45,12 +45,22 @@
 
       <div class="sum-grid">
 
-        <!-- DELIVERY STATUS (conic-gradient ring, zero JS) -->
+     <!-- DELIVERY STATUS (conic-gradient ring, zero JS) -->
         <section class="sum-card">
           <h3 class="sum-card-title">Delivery Status</h3>
           <div class="status-wrap">
+            {% set c1 = summary.pct_delivered %}
+            {% set c2 = c1 + summary.pct_transit %}
+            {% set c3 = c2 + summary.pct_processing %}
+            {% set c4 = c3 + summary.pct_delayed %}
             <div class="status-ring"
-                 style="--d: {{ summary.pct_delivered }}%; --t: {{ summary.pct_delivered + summary.pct_transit }}%;">
+                 style="background: conic-gradient(
+                   #22c55e 0% {{ c1 }}%,
+                   #f97316 {{ c1 }}% {{ c2 }}%,
+                   #3b82f6 {{ c2 }}% {{ c3 }}%,
+                   #eab308 {{ c3 }}% {{ c4 }}%,
+                   #ef4444 {{ c4 }}% 100%
+                 );">
               <div class="status-hole">
                 <span class="status-total">{{ summary.total }}</span>
                 <span class="status-total-label">Total</span>
@@ -59,6 +69,8 @@
             <div class="status-legend">
               <div class="legend-item"><span class="dot green"></span> Delivered <b>{{ summary.delivered }}</b></div>
               <div class="legend-item"><span class="dot orange"></span> In Transit <b>{{ summary.in_transit }}</b></div>
+              <div class="legend-item"><span class="dot blue"></span> Processing <b>{{ summary.processing }}</b></div>
+              <div class="legend-item"><span class="dot yellow"></span> Delayed <b>{{ summary.delayed }}</b></div>
               <div class="legend-item"><span class="dot red"></span> Failed <b>{{ summary.failed }}</b></div>
             </div>
           </div>

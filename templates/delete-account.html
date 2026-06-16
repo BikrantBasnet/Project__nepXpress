@@ -6,7 +6,8 @@
   <title>NepXpress – Delete Account</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}"/>
-  <style>
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
     body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:#f7f8fa; }
     .delete-wrapper {
       width:100%; max-width:480px; background:#fff; border-radius:20px;
@@ -27,7 +28,8 @@
       position:absolute; left:14px; top:50%; transform:translateY(-50%);
       width:17px; height:17px; stroke:#8a93a8; fill:none; stroke-width:1.8; pointer-events:none;
     }
-    .input-wrap input {
+ .input-wrap input {
+      box-sizing:border-box;
       width:100%; height:52px; background:#f2f4f8; border:1.5px solid transparent;
       border-radius:10px; padding:0 16px 0 46px; font-size:16px; font-family:inherit;
       color:#1a1f2e; outline:none; transition:all 0.2s;
