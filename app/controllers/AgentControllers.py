@@ -124,21 +124,42 @@ class AgentController(BaseController):
         if not shipment_id or not reason:
             return jsonify({"success": False, "message": "Missing shipment_id or reason"}), 400
 
-        new_attempts = Shipment.record_failed_attempt(shipment_id, agent_id)
+        # reason is now saved as a note in the log
+        new_attempts = Shipment.record_failed_attempt(shipment_id, agent_id, reason=reason)
 
         if new_attempts >= 3:
-            Shipment.update_status(shipment_id, agent_id, "return_to_sender")
+            Shipment.update_status(shipment_id, agent_id, "return_to_sender",
+                                notes="Max attempts reached — returning to sender")
             return jsonify({
-                "success": True,
-                "attempts": new_attempts,
-                "final": True,
+                "success": True, "attempts": new_attempts, "final": True,
                 "message": "3 attempts reached — shipment marked for return to sender."
             })
 
-        Shipment.update_status(shipment_id, agent_id, "Failed Attempt")
         return jsonify({
-            "success": True,
-            "attempts": new_attempts,
-            "final": False,
+            "success": True, "attempts": new_attempts, "final": False,
             "message": f"Failed attempt {new_attempts} of 3 recorded."
         })
+
+    def settings(self):
+        if "user_id" not in session or session.get("user_role") != "agent":
+            return redirect(url_for("auth.login"))
+
+        from app.models.UserModel import User  # or however your user model is named
+        user = User().find_by_id(session.get("user_id"))
+
+        if request.method == "POST":
+            form_type = request.form.get("form_type")
+            if form_type == "profile":
+                # update name, phone, zone
+                pass
+            elif form_type == "password":
+                # verify current, hash new, update
+                pass
+            return redirect(url_for("agent.settings"))
+
+        return render_template(
+            "agent-settings.html",
+            user=user,
+            user_name=session.get("user_name"),
+            user_role=session.get("user_role")
+        )

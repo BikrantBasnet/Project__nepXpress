@@ -55,5 +55,38 @@ class AgentRoutes:
             methods=["GET"]
         )
 
+        self.bp.add_url_rule(
+            "/agent-settings",
+            endpoint="settings",
+            view_func=self.controller.settings,
+            methods=["GET", "POST"]
+        )
+
+        self.bp.add_url_rule(
+            "/agent-routes", 
+            endpoint="shipment_management",
+            view_func=self.controller.shipment_management,
+            methods=["GET"]
+        )
+        
+        self.bp.add_url_rule(
+            "/api/agent/update-status",
+            endpoint="update_status",
+            view_func=self.controller.update_status,
+            methods=["POST"]
+        )
+        self.bp.add_url_rule(
+            "/api/agent/fail-delivery",
+            endpoint="fail_delivery",
+            view_func=self.controller.fail_delivery,
+            methods=["POST"]
+        )
+        self.bp.add_url_rule(
+            "/agent-settings",
+            endpoint="settings",
+            view_func=self.controller.settings,
+            methods=["GET", "POST"]
+        )
+        
         return self.bp
      

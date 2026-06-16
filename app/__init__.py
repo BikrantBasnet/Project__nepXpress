@@ -60,10 +60,7 @@ def create_app():
     from app.routes.AgentRoutes import AgentRoutes
     agent_routes = AgentRoutes()
     app.register_blueprint(agent_routes.register_routes())
-
-    app.add_url_rule("/agent-routes",              view_func=AgentController.shipment_management, methods=["GET"])
-    app.add_url_rule("/api/agent/update-status",   view_func=AgentController.update_status,       methods=["POST"])
-    app.add_url_rule("/api/agent/fail-delivery",   view_func=AgentController.fail_delivery,       methods=["POST"])
+    
     # ── PUBLIC ──────────────────────────────────────────────────────────── #
 
     @app.route("/")

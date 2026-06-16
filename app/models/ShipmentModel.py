@@ -217,41 +217,77 @@ class Shipment(BaseModel):
     
     @classmethod
     def get_active_for_agent(cls, agent_id):
-        sql = """
+        # Step 1: get the shipments
+        shipments = execute_query(
+            """
             SELECT id, tracking_id, sender_name, sender_phone,
                 sender_address, sender_city, receiver_name, receiver_phone,
                 receiver_address, receiver_city, package_type, weight,
-                delivery_cost, payment_method, status, instructions
+                delivery_cost, payment_method, status, instructions, attempts
             FROM shipments
             WHERE agent_id = %s
             AND status NOT IN ('delivered', 'cancelled', 'return_to_sender')
             ORDER BY created_at ASC
-        """
-        return execute_query(sql, (agent_id,), fetchall=True)
+            """,
+            (agent_id,), fetchall=True
+        )
 
-    @classmethod
-    def update_status(cls, shipment_id, agent_id, new_status):
-        """Only lets the assigned agent update their own shipment."""
-        sql = """
-            UPDATE shipments
-            SET status = %s, updated_at = NOW()
-            WHERE id = %s AND agent_id = %s
-        """
-        return execute_query(sql, (new_status, shipment_id, agent_id))
+        if not shipments:
+            return []
 
+        # Step 2: for each shipment, fetch its status log from the notebook
+        for shipment in shipments:
+            logs = execute_query(
+                """
+                SELECT status, notes,
+                    DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS time
+                FROM shipment_status_logs
+                WHERE shipment_id = %s
+                ORDER BY created_at ASC
+                """,
+                (shipment["id"],), fetchall=True
+            )
+            # Attach the history so the template can read it
+            # If no logs yet, seed with the current status so the timeline isn't empty
+            shipment["history"] = logs if logs else [
+                {"status": shipment["status"], "time": "—", "notes": None}
+            ]
+
+        return shipments
+
+    
     @classmethod
-    def record_failed_attempt(cls, shipment_id, agent_id):
-        """
-        Increments attempt count. Returns the new count so the
-        controller can decide whether to flip to return_to_sender.
-        Requires an 'attempts' column — see migration below.
-        """
+    def update_status(cls, shipment_id, agent_id, new_status, notes=None):
+        # Update the current status on the shipment (the whiteboard)
         execute_query(
-            "UPDATE shipments SET attempts = attempts + 1, updated_at = NOW() WHERE id = %s AND agent_id = %s",
+            "UPDATE shipments SET status = %s, updated_at = NOW() "
+            "WHERE id = %s AND agent_id = %s",
+            (new_status, shipment_id, agent_id)
+        )
+        # Write to the notebook so history is never lost
+        cls.log_status_change(shipment_id, new_status, agent_id, notes)
+
+    @classmethod
+    def record_failed_attempt(cls, shipment_id, agent_id, reason=None):
+        execute_query(
+            "UPDATE shipments SET attempts = attempts + 1, updated_at = NOW() "
+            "WHERE id = %s AND agent_id = %s",
             (shipment_id, agent_id)
         )
         row = execute_query(
             "SELECT attempts FROM shipments WHERE id = %s",
             (shipment_id,), fetchone=True
         )
-        return row["attempts"] if row else 0
+        new_attempts = row["attempts"] if row else 0
+        # Log it with the reason as a note
+        cls.log_status_change(shipment_id, "Failed Attempt", agent_id, notes=reason)
+        return new_attempts
+    
+    @classmethod
+    def log_status_change(cls, shipment_id, new_status, agent_id, notes=None):
+        """Write one row to the notebook every time status changes."""
+        execute_query(
+            "INSERT INTO shipment_status_logs (shipment_id, status, changed_by, notes) "
+            "VALUES (%s, %s, %s, %s)",
+            (shipment_id, new_status, agent_id, notes)
+        )
