@@ -11,7 +11,7 @@ class AuthController(BaseController):
                 return redirect(url_for("admin_dashboard"))
             if session.get("user_role") == "agent":
                 return redirect(url_for("agent.dashboard"))
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("user.dashboard"))
         if request.method == "GET":
             return render_template("login.html")
         if request.method == "POST":
@@ -38,11 +38,11 @@ class AuthController(BaseController):
                 return redirect(url_for("admin_dashboard"))
             if user_data["role"] == "agent":
                 return redirect(url_for("agent.dashboard"))
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("user.dashboard"))
 
     def register(self):
         if "user_id" in session:
-            return redirect(url_for("dashboard"))
+           return redirect(url_for("user.dashboard"))
         if request.method == "GET":
             return render_template("register.html")
         if request.method == "POST":
@@ -76,14 +76,41 @@ class AuthController(BaseController):
             except Exception as e:
                 flash(f"Registration failed: {str(e)}", "danger")
                 return render_template("register.html")
-    def logout(self):
-        if "user_id" not in session:
-            return redirect(url_for("auth.login"))
-        if request.method == "POST":
-            session.clear()
-            flash("You have been logged out successfully.", "success")
-            return redirect(url_for("auth.login"))
-        return render_template("logout.html")
+    
+    def forgot_password(self):
+        if request.method == "GET":
+            return render_template("forgot-password.html")
+
+        email = request.form.get("email", "").strip()
+        security_answer = request.form.get("security_answer", "").strip()
+        new_password = request.form.get("new_password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+
+        if not email or not security_answer or not new_password or not confirm_password:
+            flash("All fields are required.", "danger")
+            return render_template("forgot-password.html")
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return render_template("forgot-password.html")
+
+        if len(new_password) < 6:
+            flash("Password must be at least 6 characters.", "danger")
+            return render_template("forgot-password.html")
+
+        user = User(email=email)
+        user_data = user.find_by("email", email)
+        if not user_data:
+            flash("No account found with that email.", "danger")
+            return render_template("forgot-password.html")
+
+        if not user.check_security_answer(security_answer):
+            flash("Incorrect security answer. Please try again.", "danger")
+            return render_template("forgot-password.html")
+
+        user.update_password(new_password)
+        flash("Password reset successful! Please login with your new password.", "success")
+        return redirect(url_for("auth.login"))
 
     def settings(self):
         if "user_id" not in session:

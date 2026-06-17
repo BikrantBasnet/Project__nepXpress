@@ -21,12 +21,6 @@ class Authroutes:
             methods=["GET", "POST"]
         )
         self.bp.add_url_rule(
-            "/logout",
-            endpoint="logout",
-            view_func=self.controller.logout,
-            methods=["GET", "POST"]
-        )
-        self.bp.add_url_rule(
             "/about-us",
             endpoint="about_us",
             view_func=self.controller.about_us,
@@ -44,4 +38,11 @@ class Authroutes:
             view_func=self.controller.terms,
             methods=["GET"]
         )
+        self.bp.add_url_rule(
+            "/forgot-password",
+            endpoint="forgot_password",
+            view_func=self.controller.forgot_password,
+            methods=["GET", "POST"]
+        )
         return self.bp
+    

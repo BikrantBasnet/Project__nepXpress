@@ -4,7 +4,6 @@
 {% block title %}Settings - NepXpress{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}"/>
 {% endblock %}
 
@@ -16,9 +15,8 @@
         <h1>Settings</h1>
         <p>Manage your account and preferences</p>
       </div>
-      <a href="/dashboard" class="back-btn">
-        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back
+     <a href="/dashboard" class="back-btn">
+        ← Back
       </a>
     </header>
 
@@ -32,7 +30,7 @@
             <p class="card-desc">Update your personal information</p>
           </div>
         </div>
-        <form method="POST" action="{{ url_for('settings') }}">
+        <form method="POST" action="{{ url_for('user.settings') }}">
           <input type="hidden" name="form_type" value="profile">
           <div class="form-group">
             <label>Full Name</label>
@@ -62,7 +60,7 @@
             <p class="card-desc">Update your account password</p>
           </div>
         </div>
-        <form method="POST" action="{{ url_for('settings') }}">
+        <form method="POST" action="{{ url_for('user.settings') }}">
           <input type="hidden" name="form_type" value="password">
           <div class="form-group">
             <label>Current Password</label>
