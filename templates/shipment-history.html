@@ -15,9 +15,8 @@
         <h1>Shipment History</h1>
         <p>View and manage all your past deliveries</p>
       </div>
-      <a href="/dashboard" class="back-btn">
-        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back
+     <a href="/dashboard" class="back-btn">
+        ← Back
       </a>
     </header>
     <main class="content">
@@ -40,12 +39,12 @@
       <!-- FILTERS (tabs are links; backend filters via ?status=) -->
       <div class="filters-bar">
         <div class="filter-tabs">
-          <a class="filter-tab {{ 'active' if current_filter == 'all' }}"        href="{{ url_for('shipment_history') }}">All</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'delivered' }}"  href="{{ url_for('shipment_history', status='delivered') }}">Delivered</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}" href="{{ url_for('shipment_history', status='in_transit') }}">In Transit</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'delayed' }}"    href="{{ url_for('shipment_history', status='delayed') }}">Delayed</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'processing' }}" href="{{ url_for('shipment_history', status='processing') }}">Processing</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'cancelled' }}"  href="{{ url_for('shipment_history', status='cancelled') }}">Cancelled</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'all' }}"        href="{{ url_for('user.shipment_history') }}">All</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'delivered' }}"  href="{{ url_for('user.shipment_history', status='delivered') }}">Delivered</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}" href="{{ url_for('user.shipment_history', status='in_transit') }}">In Transit</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'delayed' }}"    href="{{ url_for('user.shipment_history', status='delayed') }}">Delayed</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'processing' }}" href="{{ url_for('user.shipment_history', status='processing') }}">Processing</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'cancelled' }}"  href="{{ url_for('user.shipment_history', status='cancelled') }}">Cancelled</a>
         </div>
         <div class="filter-right">
           <div class="search-box">
@@ -70,44 +69,46 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody id="rows">
-            {% for s in shipments %}
-              {% set raw = s.status | lower %}
-              {% if raw == 'in_transit' %}{% set cls = 'transit' %}{% set label = 'In Transit' %}
-              {% elif raw == 'delivered' %}{% set cls = 'delivered' %}{% set label = 'Delivered' %}
-              {% elif raw == 'processing' %}{% set cls = 'processing' %}{% set label = 'Processing' %}
-              {% elif raw == 'delayed' %}{% set cls = 'transit' %}{% set label = 'Delayed' %}
-              {% elif raw == 'cancelled' %}{% set cls = 'cancelled' %}{% set label = 'Cancelled' %}
-              {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
-              <tr>
-           <td class="tracking-id">{{ s.tracking_id }}</td>
-                <td>{{ s.receiver_city or '—' }}</td>
-                <td>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
-                <td>{{ s.processing_at.strftime('%d %b, %I:%M %p') if s.processing_at else '—' }}</td>
-                <td>{{ s.in_transit_at.strftime('%d %b, %I:%M %p') if s.in_transit_at else '—' }}</td>
-                <td>
-                  {% if s.delivered_at %}{{ s.delivered_at.strftime('%d %b, %I:%M %p') }}
-                  {% elif s.delayed_at %}{{ s.delayed_at.strftime('%d %b, %I:%M %p') }}
-                  {% elif s.cancelled_at %}{{ s.cancelled_at.strftime('%d %b, %I:%M %p') }}
-                  {% else %}—{% endif %}
-                </td>
-                <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
-                <td><span class="badge {{ cls }}">{{ label }}</span></td>
-              </tr>
-            {% else %}
-              <tr>
-                <td colspan="8" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
-                  {% if current_filter == 'all' %}
-                    No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
-                  {% else %}
-                    No shipments match this filter. <a href="{{ url_for('shipment_history') }}" style="color:#0d0d0d;font-weight:600;">View all →</a>
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+        <tbody id="rows">
+    {% set status_map = {
+      'in_transit': ('transit', 'In Transit'),
+      'delivered':  ('delivered', 'Delivered'),
+      'processing': ('processing', 'Processing'),
+      'delayed':    ('transit', 'Delayed'),
+      'cancelled':  ('cancelled', 'Cancelled')
+    } %}
+    {% for s in shipments %}
+      {% set raw = s.status | lower %}
+      {% set cls, label = status_map.get(raw, ('', raw | capitalize)) %}
+      <tr>
+        <td class="tracking-id">{{ s.tracking_id }}</td>
+        <td>{{ s.receiver_city or '—' }}</td>
+        <td>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
+        <td>{{ s.processing_at.strftime('%d %b, %I:%M %p') if s.processing_at else '—' }}</td>
+        <td>{{ s.in_transit_at.strftime('%d %b, %I:%M %p') if s.in_transit_at else '—' }}</td>
+        <td>
+          {% if s.delivered_at %}{{ s.delivered_at.strftime('%d %b, %I:%M %p') }}
+          {% elif s.delayed_at %}{{ s.delayed_at.strftime('%d %b, %I:%M %p') }}
+          {% elif s.cancelled_at %}{{ s.cancelled_at.strftime('%d %b, %I:%M %p') }}
+          {% else %}—{% endif %}
+        </td>
+        <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
+        <td><span class="badge {{ cls }}">{{ label }}</span></td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="8" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
+          {% if current_filter == 'all' %}
+            No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
+          {% else %}
+            No shipments match this filter. <a href="{{ url_for('user.shipment_history') }}" style="color:#0d0d0d;font-weight:600;">View all →</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    </div>
 
       <!-- PAGINATION -->
       <div class="pagination">

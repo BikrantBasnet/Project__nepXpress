@@ -26,10 +26,10 @@ class Shipment(BaseModel):
             "INSERT INTO shipments "
             "(tracking_id, user_id, sender_name, sender_phone, sender_address, "
             " sender_city, sender_district, receiver_name, receiver_phone, "
-            " receiver_address, receiver_city, receiver_district, package_type, "
-            " weight, estimated_value, delivery_cost, length_cm, width_cm, height_cm, "
-            " delivery_type, payment_method, status, instructions, destination) "  # ← added
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"  # ← 24
+            " receiver_address, receiver_city, receiver_district, destination, package_type, "
+            " weight, estimated_value, delivery_cost, "
+            " delivery_type, payment_method, status, instructions) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         )
         db.execute(query, (
             data["tracking_id"],
@@ -55,8 +55,6 @@ class Shipment(BaseModel):
             data.get("payment_method", "cod"),
             data.get("status", "Pending"),
             data.get("instructions", ""),
-            # destination = "receiver_city, receiver_district" for the agent delivery list
-            f"{data.get('receiver_city', '')} {data.get('receiver_district', '')}".strip(),  # ← added
         ))
         db.close()
     # ---- READ: history page ----

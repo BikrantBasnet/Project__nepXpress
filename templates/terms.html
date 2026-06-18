@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — NepXpress</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nepxpress.css') }}" />
+  <style>
+    .legal-hero {
+      padding: 140px 24px 60px;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(37,99,235,.14) 0%, transparent 70%);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .legal-hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin: 12px 0 16px;
+    }
+    .legal-hero p { color: var(--text-muted); font-size: 1rem; }
+    .legal-body {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 72px 24px 100px;
+    }
+    .legal-body h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 48px 0 14px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .legal-body h2::before {
+      content: '';
+      display: block;
+      width: 4px; height: 20px;
+      background: var(--blue);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .legal-body p, .legal-body li {
+      color: var(--text-muted);
+      font-size: .97rem;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+    .legal-body ul { padding-left: 20px; }
+    .legal-body ul li { list-style: disc; list-style-position: outside; }
+    .legal-body .last-updated {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,99,235,.1);
+      border: 1px solid rgba(37,99,235,.2);
+      color: var(--blue-light);
+      font-size: .8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-bottom: 48px;
+    }
+    .legal-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 40px 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nx-nav scrolled" id="nx-nav">
+  <div class="nx-nav__inner">
+    <a href="/" class="nx-logo">
+      <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
+    </a>
+    <ul class="nx-nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <div class="nx-nav__cta">
+      <a href="/login" class="btn-ghost">Log in</a>
+      <a href="/register" class="btn-primary">Get Started</a>
+    </div>
+    <button class="nx-nav__burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nx-nav__mobile" id="mobile-menu">
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+    <a href="/login">Log in</a>
+    <a href="/register">Get Started</a>
+  </div>
+</nav>
+
+<div class="legal-hero">
+  <span class="nx-eyebrow"><span class="dot"></span> Legal</span>
+  <h1>Terms of Service</h1>
+  <p>Please read these terms carefully before using NepXpress.</p>
+</div>
+
+<div class="legal-body">
+  <span class="last-updated">📅 Last updated: January 1, 2026</span>
+
+  <p>Welcome to NepXpress. These Terms of Service ("Terms") govern your access to and use of the NepXpress logistics platform, including our website, mobile applications, APIs, and related services (collectively, the "Service"). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service.</p>
+
+  <h2>1. Introduction</h2>
+  <p>NepXpress Logistics Pvt. Ltd. ("NepXpress," "we," "us," or "our") operates a technology-driven logistics platform providing shipment management, real-time tracking, and delivery coordination services across Nepal. These Terms constitute a legally binding agreement between you ("User," "you," or "your") and NepXpress.</p>
+
+  <h2>2. Eligibility</h2>
+  <p>You must be at least 18 years of age or have the legal authority to enter into contracts under applicable Nepali law. By using the Service, you represent and warrant that you meet this requirement. Businesses must be duly registered under applicable law.</p>
+
+  <h2>3. User Responsibilities</h2>
+  <p>By using the Service, you agree to:</p>
+  <ul>
+    <li>Provide accurate, complete, and current information during registration and in all shipment requests.</li>
+    <li>Maintain the confidentiality of your account credentials and notify us immediately of any unauthorized use.</li>
+    <li>Use the Service only for lawful purposes in compliance with all applicable laws and regulations of Nepal.</li>
+    <li>Not misuse, reverse-engineer, scrape, or otherwise interfere with the Service or its underlying infrastructure.</li>
+    <li>Not use the Service to ship prohibited, illegal, hazardous, or counterfeit goods.</li>
+  </ul>
+
+  <h2>4. Shipment Policies</h2>
+  <p>All shipments processed through NepXpress are subject to the following policies:</p>
+  <ul>
+    <li><strong>Prohibited Items:</strong> Explosives, narcotics, counterfeit currency, human remains, live animals, perishables without prior arrangement, and any items prohibited by Nepali law.</li>
+    <li><strong>Accurate Declaration:</strong> You are responsible for accurately declaring the contents, weight, and value of all shipments. Misrepresentation may result in service termination and legal liability.</li>
+    <li><strong>Packaging:</strong> Goods must be adequately packaged for transit. NepXpress is not liable for damage resulting from improper packaging.</li>
+    <li><strong>Delivery Timelines:</strong> Estimated delivery times are provided as a guide only. NepXpress is not liable for delays caused by weather, strikes, force majeure events, or inaccessible locations.</li>
+    <li><strong>Proof of Delivery:</strong> A digital signature or photograph constitutes valid proof of delivery.</li>
+  </ul>
+
+  <h2>5. Service Usage</h2>
+  <p>NepXpress reserves the right to modify, suspend, or discontinue any aspect of the Service at any time with reasonable notice. We may also terminate or suspend your account if you breach these Terms. Usage of the Service is subject to applicable rate limits, fair-use policies, and any agreed commercial terms.</p>
+
+  <h2>6. Liability Limitations</h2>
+  <p>To the maximum extent permitted by Nepali law:</p>
+  <ul>
+    <li>NepXpress's liability for loss or damage to any shipment is limited to the declared value of the shipment or NPR 5,000, whichever is lower, unless additional insurance has been purchased.</li>
+    <li>NepXpress shall not be liable for indirect, incidental, special, or consequential damages arising from the use or inability to use the Service.</li>
+    <li>NepXpress does not warrant that the Service will be uninterrupted, error-free, or free of viruses or other harmful components.</li>
+  </ul>
+
+  <h2>7. Intellectual Property</h2>
+  <p>All content, trademarks, logos, software, and materials associated with NepXpress are the exclusive property of NepXpress Logistics Pvt. Ltd. and are protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without express written permission.</p>
+
+  <div class="legal-divider"></div>
+
+  <h2>8. Governing Law</h2>
+  <p>These Terms are governed by the laws of Nepal. Any disputes shall be subject to the exclusive jurisdiction of the courts of Kathmandu, Nepal.</p>
+
+  <h2>9. Changes to Terms</h2>
+  <p>NepXpress may update these Terms at any time. Continued use of the Service after changes are posted constitutes your acceptance of the updated Terms. We will provide notice of material changes via email or in-app notification.</p>
+
+  <h2>10. Contact Information</h2>
+  <p>For questions about these Terms, please contact us:</p>
+  <ul>
+    <li><strong>Email:</strong> legal@nepxpress.com.np</li>
+    <li><strong>Phone:</strong> +977-1-XXXXXXX</li>
+    <li><strong>Address:</strong> NepXpress Logistics Pvt. Ltd., Kathmandu, Nepal</li>
+  </ul>
+</div>
+
+<footer class="nx-footer">
+  <div class="nx-container">
+    <div class="nx-footer__top">
+      <div class="nx-footer__brand">
+        <a href="/" class="nx-logo nx-logo--lg">
+          <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
+        </a>
+        <p>Nepal's modern logistics platform. Moving shipments smarter, faster, and with complete visibility.</p>
+      </div>
+      <div class="nx-footer__col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About Us</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="nx-footer__col">
+        <h5>Account</h5>
+        <ul>
+          <li><a href="/login">Log In</a></li>
+          <li><a href="/register">Sign Up</a></li>
+        </ul>
+      </div>
+      <div class="nx-footer__col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy-policy">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="nx-footer__bottom">
+      <p>© 2026 NepXpress. All Rights Reserved.</p>
+      <p>Made with ❤️ for Nepal</p>
+    </div>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/nepxpress.js') }}"></script>
+</body>
+</html>

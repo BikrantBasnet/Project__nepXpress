@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NepXpress — Moving Nepal Forward</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nepxpress.css') }}" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ NAV ═══════════════════════ -->
+<nav class="nx-nav" id="nx-nav">
+  <div class="nx-nav__inner">
+    <a href="/" class="nx-logo">
+      <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
+    </a>
+    <ul class="nx-nav__links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/about" class="active">About</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <div class="nx-nav__cta">
+      <a href="/login" class="btn-ghost">Log in</a>
+      <a href="/register" class="btn-primary">Get Started</a>
+    </div>
+    <button class="nx-nav__burger" id="burger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nx-nav__mobile" id="mobile-menu">
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+    <a href="/login">Log in</a>
+    <a href="/register">Get Started</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════ HERO ══════════════════════ -->
+<section class="nx-hero">
+  <!-- ambient orbs -->
+  <div class="orb orb--blue"></div>
+  <div class="orb orb--orange"></div>
+  <div class="orb orb--violet"></div>
+
+  <!-- floating logistics icons -->
+  <div class="float-icon float-icon--1" aria-hidden="true">📦</div>
+  <div class="float-icon float-icon--2" aria-hidden="true">🚚</div>
+  <div class="float-icon float-icon--3" aria-hidden="true">📍</div>
+  <div class="float-icon float-icon--4" aria-hidden="true">✈️</div>
+  <div class="float-icon float-icon--5" aria-hidden="true">⚡</div>
+
+  <div class="nx-hero__inner">
+    <!-- Left: text -->
+    <div class="nx-hero__text reveal-up">
+      <div class="nx-eyebrow">
+        <span class="dot"></span> Nepal's Premier Logistics Platform
+      </div>
+      <h1 class="nx-hero__headline">
+        Moving Nepal<br />
+        <span class="nx-gradient-text">Forward</span>
+      </h1>
+      <p class="nx-hero__sub">One Delivery at a Time</p>
+      <p class="nx-hero__desc">
+        NepXpress is a modern logistics platform designed to simplify shipment management,
+        real-time tracking, and delivery operations across Nepal. We help businesses and
+        individuals move shipments efficiently through a smarter, technology-driven
+        logistics network.
+      </p>
+      <div class="nx-hero__actions">
+        <a href="/register" class="btn-primary btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Start Shipping
+        </a>
+        <a href="/about#mission" class="btn-glass btn-lg">Learn More</a>
+      </div>
+      <!-- inline stats -->
+      <div class="nx-hero__stats">
+        <div class="hero-stat">
+          <span class="hero-stat__num">4</span>
+          <span class="hero-stat__label">Core Modules</span>
+        </div>
+        <div class="hero-stat__divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat__num">3</span>
+          <span class="hero-stat__label">User Roles</span>
+        </div>
+        <div class="hero-stat__divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat__num">24/7</span>
+          <span class="hero-stat__label">System Access</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: illustration -->
+    <div class="nx-hero__visual reveal-right">
+      <div class="nx-truck-card">
+        <div class="nx-truck-card__glow"></div>
+        <svg class="nx-truck-svg" viewBox="0 0 520 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Road -->
+          <rect x="0" y="260" width="520" height="60" rx="4" fill="#1e293b"/>
+          <rect x="60" y="284" width="80" height="8" rx="4" fill="#334155"/>
+          <rect x="200" y="284" width="80" height="8" rx="4" fill="#334155"/>
+          <rect x="340" y="284" width="80" height="8" rx="4" fill="#334155"/>
+          <!-- Truck body -->
+          <rect x="60" y="160" width="280" height="120" rx="12" fill="#1d4ed8"/>
+          <!-- Cab -->
+          <rect x="340" y="190" width="120" height="90" rx="10" fill="#2563eb"/>
+          <!-- Cab window -->
+          <rect x="355" y="200" width="80" height="50" rx="6" fill="#93c5fd" opacity="0.7"/>
+          <!-- Windshield glare -->
+          <rect x="360" y="204" width="30" height="12" rx="3" fill="white" opacity="0.4"/>
+          <!-- NepXpress text on truck -->
+          <text x="110" y="220" font-family="Inter,sans-serif" font-weight="700" font-size="22" fill="white">NepXpress</text>
+          <text x="110" y="248" font-family="Inter,sans-serif" font-size="13" fill="#93c5fd">Fast · Reliable · Tracked</text>
+          <!-- Wheels -->
+          <circle cx="140" cy="282" r="28" fill="#0f172a" stroke="#475569" stroke-width="4"/>
+          <circle cx="140" cy="282" r="14" fill="#334155"/>
+          <circle cx="280" cy="282" r="28" fill="#0f172a" stroke="#475569" stroke-width="4"/>
+          <circle cx="280" cy="282" r="14" fill="#334155"/>
+          <circle cx="420" cy="282" r="28" fill="#0f172a" stroke="#475569" stroke-width="4"/>
+          <circle cx="420" cy="282" r="14" fill="#334155"/>
+          <!-- Status ping -->
+          <circle cx="460" cy="130" r="14" fill="#10b981" opacity="0.9"/>
+          <circle cx="460" cy="130" r="22" fill="#10b981" opacity="0.2" class="ping"/>
+          <text x="453" y="135" font-family="Inter" font-size="12" fill="white">✓</text>
+          <!-- Route dots -->
+          <circle cx="80" cy="140" r="6" fill="#f59e0b"/>
+          <line x1="86" y1="140" x2="190" y2="140" stroke="#475569" stroke-width="2" stroke-dasharray="6,4"/>
+          <circle cx="196" cy="140" r="6" fill="#f59e0b" opacity="0.6"/>
+          <line x1="202" y1="140" x2="320" y2="140" stroke="#475569" stroke-width="2" stroke-dasharray="6,4"/>
+          <circle cx="326" cy="140" r="6" fill="#2563eb"/>
+        </svg>
+        <!-- live tracking badge -->
+        <div class="nx-tracking-badge">
+          <span class="pulse-dot"></span>
+          Live Tracking Active
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- scroll cue -->
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <div class="scroll-cue__arrow"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ TRUST BAR ═════════════════ -->
+
+
+<!-- ═══════════════════════════════════════════ MISSION / VISION ══════════ -->
+<section class="nx-section" id="mission">
+  <div class="nx-container nx-grid-2">
+    <div class="nx-card nx-card--glass reveal-up" style="--delay:0s">
+      <div class="nx-card__icon" style="background: linear-gradient(135deg,#2563eb22,#2563eb44)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <h3 class="nx-card__title">Our Mission</h3>
+      <p class="nx-card__body">To simplify logistics and empower businesses and individuals through reliable, technology-driven shipment management solutions that work at the speed of modern commerce.</p>
+    </div>
+    <div class="nx-card nx-card--glass reveal-up" style="--delay:.12s">
+      <div class="nx-card__icon" style="background: linear-gradient(135deg,#f59e0b22,#f59e0b44)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <h3 class="nx-card__title">Our Vision</h3>
+      <p class="nx-card__body">To become Nepal's most trusted logistics platform by connecting people, businesses, and deliveries through innovation — building infrastructure that makes every corner of Nepal reachable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ WHY NEPXPRESS ═════════════ -->
+<section class="nx-section nx-section--alt">
+  <div class="nx-container">
+    <div class="nx-section-header reveal-up">
+      <span class="nx-eyebrow"><span class="dot dot--orange"></span> Why NepXpress</span>
+      <h2 class="nx-section-title">Built for Nepal.<br/><span class="nx-gradient-text">Engineered for Scale.</span></h2>
+      <p class="nx-section-desc">Every feature is designed around the real challenges of logistics in Nepal — from mountain terrain to last-mile delivery in dense urban corridors.</p>
+    </div>
+    <div class="nx-features-grid">
+      <div class="nx-feature reveal-up" style="--delay:0s">
+        <div class="nx-feature__num">01</div>
+        <div class="nx-feature__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93A10 10 0 0 1 21 12a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2"/></svg>
+        </div>
+        <h4>Real-Time Tracking</h4>
+        <p>Live GPS updates so customers and businesses always know exactly where their shipment is, down to the last kilometer.</p>
+      </div>
+      <div class="nx-feature reveal-up" style="--delay:.08s">
+        <div class="nx-feature__num">02</div>
+        <div class="nx-feature__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h4>Secure Shipment Management</h4>
+        <p>End-to-end encrypted shipment records, tamper-proof tracking history, and role-based access for full operational security.</p>
+      </div>
+      <div class="nx-feature reveal-up" style="--delay:.16s">
+        <div class="nx-feature__num">03</div>
+        <div class="nx-feature__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><path d="M16 11v-2a2 2 0 0 0-2-2H9"/></svg>
+        </div>
+        <h4>Reliable Delivery Operations</h4>
+        <p>A vetted network of delivery partners operating on optimized routes across all 77 districts with SLA-backed commitments.</p>
+      </div>
+      <div class="nx-feature reveal-up" style="--delay:.24s">
+        <div class="nx-feature__num">04</div>
+        <div class="nx-feature__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <h4>Technology-Driven Platform</h4>
+        <p>Modern dashboards, automated dispatch, intelligent route optimization, and API-first architecture for seamless integrations.</p>
+      </div>
+      <div class="nx-feature reveal-up" style="--delay:.32s">
+        <div class="nx-feature__num">05</div>
+        <div class="nx-feature__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4>Customer-Centric Approach</h4>
+        <p>24/7 support, proactive delivery notifications, and a customer portal designed to put control back in the hands of the shipper.</p>
+      </div>
+      <div class="nx-feature reveal-up" style="--delay:.40s">
+        <div class="nx-feature__num">06</div>
+        <div class="nx-feature__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h4>Smart Shipment Management</h4>
+        <p>Bulk shipment scheduling, label generation, weight-based pricing, and real-time analytics — all from a single dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ STATS ════════════════════ -->
+<section class="nx-section nx-stats-section">
+  <div class="orb orb--blue" style="top:30%;left:-10%;opacity:.4"></div>
+  <div class="nx-container">
+    <div class="nx-stats-grid">
+      <div class="nx-stat reveal-up" style="--delay:0s">
+        <div class="nx-stat__num counter" data-target="100">0</div>
+        <div class="nx-stat__suffix">+</div>
+        <div class="nx-stat__label">Demo Shipments</div>
+      </div>
+      <div class="nx-stat reveal-up" style="--delay:.1s">
+        <div class="nx-stat__num counter" data-target="7">0</div>
+        <div class="nx-stat__suffix">+</div>
+        <div class="nx-stat__label">Demo Locations</div>
+      </div>
+      <div class="nx-stat reveal-up" style="--delay:.2s">
+        <div class="nx-stat__num counter" data-target="100">0</div>
+        <div class="nx-stat__suffix">%</div>
+        <div class="nx-stat__label">Project Completion</div>
+      </div>
+      <div class="nx-stat reveal-up" style="--delay:.3s">
+        <div class="nx-stat__num counter" data-target="5">0</div>
+        <div class="nx-stat__suffix">+</div>
+        <div class="nx-stat__label">Team Members</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ HOW IT WORKS ══════════════ -->
+<section class="nx-section">
+  <div class="nx-container">
+    <div class="nx-section-header reveal-up">
+      <span class="nx-eyebrow"><span class="dot"></span> How It Works</span>
+      <h2 class="nx-section-title">Shipping made <span class="nx-gradient-text">ridiculously simple</span></h2>
+    </div>
+    <div class="nx-steps">
+      <div class="nx-step reveal-up" style="--delay:0s">
+        <div class="nx-step__circle">1</div>
+        <div class="nx-step__connector"></div>
+        <h4>Create a Shipment</h4>
+        <p>Enter pickup and delivery details. Our system calculates cost, assigns a tracking ID, and generates your label instantly.</p>
+      </div>
+      <div class="nx-step reveal-up" style="--delay:.12s">
+        <div class="nx-step__circle">2</div>
+        <div class="nx-step__connector"></div>
+        <h4>We Pick It Up</h4>
+        <p>A verified NepXpress courier collects your package from the source address on your chosen schedule.</p>
+      </div>
+      <div class="nx-step reveal-up" style="--delay:.24s">
+        <div class="nx-step__circle">3</div>
+        <div class="nx-step__connector"></div>
+        <h4>Track in Real Time</h4>
+        <p>Every scan, checkpoint, and route update appears live in your dashboard and via SMS notifications.</p>
+      </div>
+      <div class="nx-step reveal-up" style="--delay:.36s">
+        <div class="nx-step__circle">4</div>
+        <div class="nx-step__connector" style="display:none"></div>
+        <h4>Delivered. Confirmed.</h4>
+        <p>Proof-of-delivery photo and digital signature captured at drop-off. Your record is stored securely forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ NETWORK MAP ═══════════════ -->
+<section class="nx-section nx-section--alt">
+  <div class="nx-container">
+    <div class="nx-section-header reveal-up">
+      <span class="nx-eyebrow"><span class="dot dot--orange"></span> Coverage</span>
+      <h2 class="nx-section-title">Delivering across <span class="nx-gradient-text">all of Nepal</span></h2>
+      <p class="nx-section-desc">From Kathmandu's commercial hubs to remote hill districts — our network is built for Nepal's unique geography.</p>
+    </div>
+    <div class="nx-network reveal-up" style="--delay:.1s">
+      <div class="nx-network__map">
+        <!-- Abstract Nepal-inspired route SVG -->
+        <svg viewBox="0 0 600 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="routeGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#2563eb" stop-opacity=".6"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity=".6"/>
+            </linearGradient>
+          </defs>
+          <!-- Route lines -->
+          <path d="M60,180 C120,120 200,160 280,100 C360,40 440,140 540,100" stroke="url(#routeGrad)" stroke-width="2.5" stroke-dasharray="8,4" fill="none"/>
+          <path d="M60,200 C160,170 280,200 400,180 C480,165 520,180 540,170" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4,6" fill="none" opacity=".4"/>
+          <!-- Nodes -->
+          <circle cx="60" cy="180" r="10" fill="#2563eb"/>
+          <circle cx="60" cy="180" r="18" fill="#2563eb" opacity=".2"/>
+          <text x="40" y="210" font-family="Inter" font-size="11" fill="#94a3b8">Mahendranagar</text>
+          <circle cx="170" cy="140" r="8" fill="#f59e0b"/>
+          <circle cx="170" cy="140" r="15" fill="#f59e0b" opacity=".2"/>
+          <text x="155" y="165" font-family="Inter" font-size="11" fill="#94a3b8">Pokhara</text>
+          <circle cx="280" cy="100" r="14" fill="#2563eb"/>
+          <circle cx="280" cy="100" r="26" fill="#2563eb" opacity=".25" class="ping"/>
+          <text x="256" y="135" font-family="Inter" font-size="12" fill="white" font-weight="600">Kathmandu</text>
+          <circle cx="390" cy="130" r="8" fill="#f59e0b"/>
+          <circle cx="390" cy="130" r="15" fill="#f59e0b" opacity=".2"/>
+          <text x="372" y="155" font-family="Inter" font-size="11" fill="#94a3b8">Janakpur</text>
+          <circle cx="540" cy="100" r="10" fill="#2563eb"/>
+          <circle cx="540" cy="100" r="18" fill="#2563eb" opacity=".2"/>
+          <text x="515" y="128" font-family="Inter" font-size="11" fill="#94a3b8">Biratnagar</text>
+          <!-- Moving truck on route -->
+          <g class="truck-anim">
+            <rect x="268" y="93" width="24" height="14" rx="3" fill="#f59e0b"/>
+            <rect x="280" y="93" width="12" height="14" rx="2" fill="#fbbf24"/>
+            <circle cx="273" cy="108" r="4" fill="#1e293b"/>
+            <circle cx="286" cy="108" r="4" fill="#1e293b"/>
+          </g>
+        </svg>
+      </div>
+      <div class="nx-network__pills">
+        <div class="network-pill"><span>🏔️</span> Kathmandu Valley</div>
+        <div class="network-pill"><span>🌄</span> Pokhara</div>
+        <div class="network-pill"><span>🌿</span> Terai Belt</div>
+        <div class="network-pill"><span>⛰️</span> Hill Districts</div>
+        <div class="network-pill"><span>🛤️</span> 77 Districts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="nx-section">
+    <div class="nx-container">
+
+        <div class="nx-section-header reveal-up">
+            <span class="nx-eyebrow">
+                <span class="dot"></span>
+                Project Features
+            </span>
+
+            <h2 class="nx-section-title">
+                Built for efficient logistics management
+            </h2>
+        </div>
+
+        <div class="nx-grid-3">
+
+            <div class="nx-card nx-card--glass">
+                <h3>Shipment Tracking</h3>
+                <p>Monitor shipment status and delivery progress in real time.</p>
+            </div>
+
+            <div class="nx-card nx-card--glass">
+                <h3>Agent Management</h3>
+                <p>Manage delivery agents and assign shipments efficiently.</p>
+            </div>
+
+            <div class="nx-card nx-card--glass">
+                <h3>Analytics Dashboard</h3>
+                <p>View shipment statistics and operational insights.</p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ CTA ══════════════════════ -->
+<section class="nx-cta">
+  <div class="orb orb--blue" style="top:-20%;right:-10%;opacity:.5"></div>
+  <div class="orb orb--orange" style="bottom:-20%;left:-5%;opacity:.4"></div>
+  <div class="nx-container nx-cta__inner reveal-up">
+    <div class="nx-cta__logo">
+      <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
+    </div>
+    <h2 class="nx-cta__title">Ready to Ship Smarter?</h2>
+    <p class="nx-cta__desc">Join NepXpress and experience a smarter way to manage shipments, streamline deliveries, and stay connected with every step of the logistics journey.</p>
+    <div class="nx-cta__actions">
+      <a href="/register" class="btn-primary btn-lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Create Free Account
+      </a>
+      <a href="/login" class="btn-glass btn-lg">Log In</a>
+    </div>
+    <div class="nx-cta__trust">
+      <span>✓ No setup fee</span>
+      <span>✓ Coverage across 77 districts</span>
+      <span>✓ 24/7 support</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ FOOTER ═══════════════════ -->
+<footer class="nx-footer">
+  <div class="nx-container">
+    <div class="nx-footer__top">
+      <div class="nx-footer__brand">
+        <a href="/" class="nx-logo nx-logo--lg">
+          <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
+        </a>
+        <p>Nepal's modern logistics platform. Moving shipments smarter, faster, and with complete visibility.</p>
+        <div class="nx-footer__social">
+          <a href="#" aria-label="Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" aria-label="Twitter">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53A4.48 4.48 0 0 0 22.43.36a9 9 0 0 1-2.88 1.1A4.52 4.52 0 0 0 16.11 0c-2.5 0-4.52 2.02-4.52 4.52 0 .35.04.7.11 1.03C7.69 5.4 4.07 3.58 1.64 0.84a4.52 4.52 0 0 0 1.4 6.04A4.49 4.49 0 0 1 .96 6.4v.06a4.52 4.52 0 0 0 3.63 4.43 4.56 4.56 0 0 1-2.04.08 4.52 4.52 0 0 0 4.22 3.14A9.06 9.06 0 0 1 0 15.54a12.8 12.8 0 0 0 6.92 2.03c8.3 0 12.85-6.88 12.85-12.85 0-.2 0-.39-.01-.58A9.17 9.17 0 0 0 23 3z"/></svg>
+          </a>
+          <a href="#" aria-label="LinkedIn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="nx-footer__col">
+        <h5>Platform</h5>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About Us</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="nx-footer__col">
+        <h5>Account</h5>
+        <ul>
+          <li><a href="/login">Log In</a></li>
+          <li><a href="/register">Sign Up</a></li>
+          <li><a href="/dashboard">Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="nx-footer__col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy-policy">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="nx-footer__bottom">
+      <p>© 2026 NepXpress. All Rights Reserved.</p>
+      <p>Made with ❤️ for Nepal</p>
+    </div>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/nepxpress.js') }}"></script>
+</body>
+</html>
