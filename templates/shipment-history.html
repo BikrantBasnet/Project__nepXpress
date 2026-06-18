@@ -109,31 +109,26 @@
     </tbody>
     </table>
     </div>
-
-      <!-- PAGINATION -->
+    <!-- PAGINATION -->
       <div class="pagination">
         <div class="page-info">
           {% if shipments %}Showing {{ shipments | length }} shipment{{ 's' if shipments | length != 1 else '' }}{% else %}No shipments{% endif %}
         </div>
-        <div class="page-controls">
-          <button class="page-btn" disabled>← Prev</button>
-          <button class="page-btn active">1</button>
-          <button class="page-btn">Next →</button>
-        </div>
       </div>
-
     </main>
   </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Only JS on the page: live text search across rows.
+  // Live search: hide rows that don't match what's typed in the search box.
   document.getElementById('search').addEventListener('input', function () {
-    var q = this.value.toLowerCase();
+    const query = this.value.toLowerCase();
     document.querySelectorAll('#rows tr').forEach(function (row) {
+      // Skip the empty-state row (it has no tracking-id cell)
       if (!row.querySelector('.tracking-id')) return;
-      row.classList.toggle('hide', !row.textContent.toLowerCase().includes(q));
+      const matches = row.textContent.toLowerCase().includes(query);
+      row.classList.toggle('hide', !matches);
     });
   });
 </script>
