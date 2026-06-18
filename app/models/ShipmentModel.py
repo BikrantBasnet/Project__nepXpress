@@ -44,11 +44,13 @@ class Shipment(BaseModel):
             data.get("receiver_address", ""),
             data.get("receiver_city", ""),
             data.get("receiver_district", ""),
-            data.get("destination", ""),
             data.get("package_type", ""),
             data.get("weight") or None,
             data.get("estimated_value") or 0,
             data.get("delivery_cost") or 0,
+            data.get("length_cm") or None,
+            data.get("width_cm") or None,
+            data.get("height_cm") or None,
             data.get("delivery_type", "Standard"),
             data.get("payment_method", "cod"),
             data.get("status", "Pending"),
@@ -116,7 +118,7 @@ class Shipment(BaseModel):
         db.close()
 
         total = len(rows)
-        delivered = in_transit = failed = processing = delayed = 0
+        delivered = in_transit = failed = 0
         value_spent = value_this_month = value_last_month = 0.0   # package value
         ship_spent = 0.0                                          # delivery cost
 
@@ -134,12 +136,8 @@ class Shipment(BaseModel):
             ship_spent += ship
             if st == "delivered":
                 delivered += 1
-            elif st == "in_transit":
+            elif st in ("in_transit", "delayed"):
                 in_transit += 1
-            elif st == "delayed":
-                delayed += 1
-            elif st == "processing":
-                processing += 1
             elif st == "cancelled":
                 failed += 1
             d = r["created_at"]
@@ -154,16 +152,13 @@ class Shipment(BaseModel):
         success_rate = (delivered / total * 100) if total else 0
         base = total if total else 1
         return {
-            "total": total, "delivered": delivered, "in_transit": in_transit,
-            "processing": processing, "delayed": delayed, "failed": failed,
+            "total": total, "delivered": delivered, "in_transit": in_transit, "failed": failed,
             "value_spent": value_spent, "avg_value": avg_value,
             "ship_spent": ship_spent, "avg_ship": avg_ship,
             "value_this_month": value_this_month, "value_last_month": value_last_month,
             "success_rate": success_rate,
             "pct_delivered": round(delivered / base * 100),
             "pct_transit": round(in_transit / base * 100),
-            "pct_processing": round(processing / base * 100),
-            "pct_delayed": round(delayed / base * 100),
             "pct_failed": round(failed / base * 100),
         }
 
@@ -203,3 +198,94 @@ class Shipment(BaseModel):
         db.connection.commit()
         db.close()
         return affected_rows
+    
+    @classmethod
+    def get_active_for_agent(cls, agent_id):
+        sql = """
+            SELECT id, tracking_id, sender_name, sender_phone,
+                sender_address, sender_city, receiver_name, receiver_phone,
+                receiver_address, receiver_city, package_type, weight,
+                delivery_cost, payment_method, status, instructions
+            FROM shipments
+            WHERE agent_id = %s
+            AND status NOT IN ('delivered', 'cancelled')
+            ORDER BY created_at ASC
+        """
+        return execute_query(sql, (agent_id,), fetchall=True)
+    
+    @classmethod
+    def get_active_for_agent(cls, agent_id):
+        # Step 1: get the shipments
+        shipments = execute_query(
+            """
+            SELECT id, tracking_id, sender_name, sender_phone,
+                sender_address, sender_city, receiver_name, receiver_phone,
+                receiver_address, receiver_city, package_type, weight,
+                delivery_cost, payment_method, status, instructions, attempts
+            FROM shipments
+            WHERE agent_id = %s
+            AND status NOT IN ('delivered', 'cancelled', 'return_to_sender')
+            ORDER BY created_at ASC
+            """,
+            (agent_id,), fetchall=True
+        )
+
+        if not shipments:
+            return []
+
+        # Step 2: for each shipment, fetch its status log from the notebook
+        for shipment in shipments:
+            logs = execute_query(
+                """
+                SELECT status, notes,
+                    DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS time
+                FROM shipment_status_logs
+                WHERE shipment_id = %s
+                ORDER BY created_at ASC
+                """,
+                (shipment["id"],), fetchall=True
+            )
+            # Attach the history so the template can read it
+            # If no logs yet, seed with the current status so the timeline isn't empty
+            shipment["history"] = logs if logs else [
+                {"status": shipment["status"], "time": "—", "notes": None}
+            ]
+
+        return shipments
+
+    
+    @classmethod
+    def update_status(cls, shipment_id, agent_id, new_status, notes=None):
+        # Update the current status on the shipment (the whiteboard)
+        execute_query(
+            "UPDATE shipments SET status = %s, updated_at = NOW() "
+            "WHERE id = %s AND agent_id = %s",
+            (new_status, shipment_id, agent_id)
+        )
+        # Write to the notebook so history is never lost
+        cls.log_status_change(shipment_id, new_status, agent_id, notes)
+
+    @classmethod
+    def record_failed_attempt(cls, shipment_id, agent_id, reason=None):
+        execute_query(
+            "UPDATE shipments SET attempts = attempts + 1, updated_at = NOW() "
+            "WHERE id = %s AND agent_id = %s",
+            (shipment_id, agent_id)
+        )
+        row = execute_query(
+            "SELECT attempts FROM shipments WHERE id = %s",
+            (shipment_id,), fetchone=True
+        )
+        new_attempts = row["attempts"] if row else 0
+        # Log it with the reason as a note
+        cls.log_status_change(shipment_id, "Failed Attempt", agent_id, notes=reason)
+        return new_attempts
+    
+    @classmethod
+    def log_status_change(cls, shipment_id, new_status, agent_id, notes=None):
+        """Write one row to the notebook every time status changes."""
+        execute_query(
+            "INSERT INTO shipment_status_logs (shipment_id, status, changed_by, notes) "
+            "VALUES (%s, %s, %s, %s)",
+            (shipment_id, new_status, agent_id, notes)
+        )
