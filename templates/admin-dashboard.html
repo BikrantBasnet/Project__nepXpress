@@ -13,7 +13,7 @@
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">
-      <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+      <div class="logo-text">nep<span>Xpress</span></div>
     </div>
     <div class="logo-sub">Admin Panel</div>
   </div>
@@ -425,27 +425,26 @@ async function handleLogout() {
 
 /* ── INIT ── */
 async function init() {
-  // Use Flask session name as fallback — no redirect on API auth fail
+  setDate();
+
+  // Use Flask session name as fallback - NEVER redirect on API auth fail
   const flaskName = "{{ user_name|default('Admin') }}";
   adminName = flaskName;
   $('sb-avatar').textContent  = initials(adminName);
   $('top-avatar').textContent = initials(adminName);
   $('sb-name').textContent    = adminName;
-  setDate();
 
-  // Try to also set via API (works if logged in via API session too)
+  // Try the API session too - just a bonus, never blocks the page
   try {
     const me = await apiFetch('/api/admin/me');
     adminName = me.name || flaskName;
     $('sb-avatar').textContent  = initials(adminName);
     $('top-avatar').textContent = initials(adminName);
     $('sb-name').textContent    = adminName;
-    setDate();
   } catch(e) {
-    // Not logged in via API — that's fine, Flask session handles page auth
+    console.log('API session not active, using Flask session name instead.');
   }
 
-  // Load all dashboard data in parallel
   const [stats, shipments, agents, status, users, alerts] = await Promise.allSettled([
     apiFetch('/api/admin/dashboard/stats'),
     apiFetch('/api/admin/dashboard/shipments/recent'),
@@ -466,6 +465,7 @@ async function init() {
 }
 
 init();
+
 </script>
 </body>
 </html>
