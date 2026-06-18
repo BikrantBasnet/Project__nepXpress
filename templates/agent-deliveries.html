@@ -192,7 +192,6 @@
           </div>
           <div class="modal-row"><span>Type</span><strong id="m-pkg-type">—</strong></div>
           <div class="modal-row"><span>Weight</span><strong id="m-weight">—</strong></div>
-          <div class="modal-row"><span>Dimensions (L x W x H)</span><strong id="m-dims">—</strong></div>
           <div class="modal-row"><span>Estimated Value</span><strong id="m-value">—</strong></div>
         </div>
 
@@ -369,7 +368,7 @@
       document.getElementById('m-tracking').textContent = 'Loading…';
       ['m-sender-name','m-sender-phone','m-sender-address','m-sender-city','m-sender-district',
        'm-receiver-name','m-receiver-phone','m-receiver-address','m-receiver-city','m-receiver-district',
-       'm-pkg-type','m-weight','m-dims','m-value','m-delivery-type','m-payment','m-cost','m-status'
+       'm-pkg-type','m-weight','m-value','m-delivery-type','m-payment','m-cost','m-status'
       ].forEach(function(id){ document.getElementById(id).textContent = '…'; });
       document.getElementById('m-instructions-group').style.display = 'none';
       document.getElementById('detailModal').classList.add('open');
@@ -392,8 +391,6 @@
           document.getElementById('m-receiver-district').textContent = r.receiver_district || '—';
           document.getElementById('m-pkg-type').textContent          = r.package_type || '—';
           document.getElementById('m-weight').textContent            = r.weight != null ? r.weight + ' kg' : '—';
-          var dims = (r.length_cm || '?') + ' x ' + (r.width_cm || '?') + ' x ' + (r.height_cm || '?') + ' cm';
-          document.getElementById('m-dims').textContent              = dims;
           document.getElementById('m-value').textContent             = r.estimated_value != null ? 'NPR ' + parseFloat(r.estimated_value).toLocaleString() : '—';
           document.getElementById('m-delivery-type').textContent     = r.delivery_type || '—';
           document.getElementById('m-payment').textContent           = r.payment_method || '—';
