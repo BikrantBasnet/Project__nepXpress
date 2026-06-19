@@ -49,10 +49,6 @@
       <p id="topbar-date">Loading…</p>
     </div>
     <div class="topbar-right">
-      <div class="topbar-btn" title="Search">🔍</div>
-      <div class="topbar-btn" title="Notifications" id="notif-btn">
-        🔔<span class="notif-dot" id="notif-dot" style="display:none"></span>
-      </div>
       <div class="topbar-avatar" id="top-avatar">SA</div>
     </div>
   </div>
@@ -149,19 +145,7 @@
           </div>
         </div>
 
-        <!-- SYSTEM ALERTS -->
-        <div class="panel">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">System Alerts</div>
-              <div class="panel-sub">Requires attention</div>
-            </div>
-            <a class="view-all" href="#">View All →</a>
-          </div>
-          <div class="alerts-list" id="alerts-list">
-            <div class="error-state"><span>⏳</span><p>Loading…</p></div>
-          </div>
-        </div>
+        
 
       </div><!-- /right -->
     </div><!-- /dashboard-grid -->
@@ -445,13 +429,12 @@ async function init() {
     console.log('API session not active, using Flask session name instead.');
   }
 
-  const [stats, shipments, agents, status, users, alerts] = await Promise.allSettled([
+  const [stats, shipments, agents, status, users] = await Promise.allSettled([
     apiFetch('/api/admin/dashboard/stats'),
     apiFetch('/api/admin/dashboard/shipments/recent'),
     apiFetch('/api/admin/dashboard/agents/top'),
     apiFetch('/api/admin/dashboard/delivery-status'),
     apiFetch('/api/admin/dashboard/users/recent'),
-    apiFetch('/api/admin/dashboard/alerts'),
   ]);
 
   if (stats.status     === 'fulfilled') renderKPI(stats.value);
@@ -461,7 +444,6 @@ async function init() {
   if (agents.status    === 'fulfilled') renderAgents(agents.value);
   if (status.status    === 'fulfilled') renderDonut(status.value);
   if (users.status     === 'fulfilled') renderUsers(users.value);
-  if (alerts.status    === 'fulfilled') renderAlerts(alerts.value);
 }
 
 init();
