@@ -9,7 +9,6 @@ class Shipment(BaseModel):
     def __init__(self):
         self.id = None
 
-    # Fix #6: try/finally ensures DB connection always closes
     @staticmethod
     def generate_tracking_id():
         db = Database()
@@ -55,12 +54,10 @@ class Shipment(BaseModel):
             data.get("delivery_cost") or 0,
             data.get("delivery_type", "Standard"),
             data.get("payment_method", "cod"),
-            # Fix #2: default lowercase to match DB ENUM
             data.get("status", "processing"),
             data.get("instructions", ""),
         ))
         db.close()
-
 
     # ---- READ: history page ----
     def find_by_user(self, user_id, status=None):
@@ -88,9 +85,11 @@ class Shipment(BaseModel):
         db.close()
         stats = {"total": 0, "Delivered": 0, "In Transit": 0, "Processing": 0}
         label_map = {
-            "delivered": "Delivered", "in_transit": "In Transit", "in transit": "In Transit",
-            "processing": "Processing", "pending": "Processing",
-            "delayed": "In Transit", "cancelled": "Cancelled",
+            "delivered":  "Delivered",
+            "in_transit": "In Transit",
+            "delayed":    "In Transit",
+            "processing": "Processing",
+            "cancelled":  "Cancelled",
         }
         for row in rows:
             stats["total"] += row["cnt"]
@@ -99,7 +98,6 @@ class Shipment(BaseModel):
                 stats[label] += row["cnt"]
         return stats
 
-    # Fix #5: only return completed shipments for history page
     @classmethod
     def get_history_for_agent(cls, agent_id):
         sql = """
@@ -107,12 +105,10 @@ class Shipment(BaseModel):
             FROM shipments s
             JOIN users u ON s.user_id = u.id
             WHERE s.agent_id = %s
-              AND s.status IN ('delivered', 'cancelled', 'return_to_sender')
+              AND s.status IN ('delivered', 'cancelled')
             ORDER BY s.updated_at DESC
         """
         return execute_query(sql, (agent_id,), fetchall=True)
-
-    # ---- READ: summary page numbers ----
 
     # ---- READ: summary page numbers ----
     def get_summary_for_user(self, user_id):
@@ -146,10 +142,9 @@ class Shipment(BaseModel):
                 in_transit += 1
             elif st == "delayed":
                 delayed += 1
-                in_transit += 1   # delayed counts toward in-transit total
             elif st == "cancelled":
                 cancelled += 1
-                failed += 1       # cancelled counts toward failed total
+                failed += 1
             elif st == "processing":
                 processing += 1
             d = r["created_at"]
@@ -175,12 +170,13 @@ class Shipment(BaseModel):
             "ship_spent": ship_spent, "avg_ship": avg_ship,
             "value_this_month": value_this_month, "value_last_month": value_last_month,
             "success_rate": success_rate,
-            "pct_delivered": round(delivered / base * 100),
-            "pct_transit": round(in_transit / base * 100),
-            "pct_processing": round(processing / base * 100),
-            "pct_delayed": round(delayed / base * 100),
-            "pct_failed": round(failed / base * 100),
-            "pct_cancelled": round(cancelled / base * 100),
+            "base": base,
+            "pct_delivered":   round(delivered   / base * 100),
+            "pct_transit":     round(in_transit   / base * 100),
+            "pct_processing":  round(processing   / base * 100),
+            "pct_delayed":     round(delayed       / base * 100),
+            "pct_failed":      round(failed        / base * 100),
+            "pct_cancelled":   round(cancelled     / base * 100),
         }
 
     # ---- READ: dashboard + summary recent list ----
@@ -207,10 +203,10 @@ class Shipment(BaseModel):
 
     @classmethod
     def assign_agent_to_shipment(cls, shipment_id, agent_id):
-        """Agent accepts the job. Status becomes 'processing' — assigned but not yet picked up."""
+        """Agent accepts the job. Status becomes 'in_transit' immediately."""
         sql = """
             UPDATE shipments
-            SET agent_id = %s, status = 'processing', updated_at = NOW()
+            SET agent_id = %s, status = 'in_transit', updated_at = NOW()
             WHERE id = %s AND agent_id IS NULL
         """
         db = Database()
@@ -220,7 +216,6 @@ class Shipment(BaseModel):
         db.close()
         return affected_rows
 
-    # Fix #1: removed duplicate get_active_for_agent — keeping only the full version
     @classmethod
     def get_active_for_agent(cls, agent_id):
         shipments = execute_query(
@@ -231,7 +226,7 @@ class Shipment(BaseModel):
                 delivery_cost, payment_method, status, instructions, attempts
             FROM shipments
             WHERE agent_id = %s
-            AND status NOT IN ('delivered', 'cancelled', 'return_to_sender')
+            AND status NOT IN ('delivered', 'cancelled')
             ORDER BY created_at ASC
             """,
             (agent_id,), fetchall=True
@@ -257,13 +252,12 @@ class Shipment(BaseModel):
 
         return shipments
 
-    # Fix #4: map agent-friendly labels to valid DB ENUM values before saving
+    # Map agent-friendly labels to valid DB ENUM values
     STATUS_MAP = {
-        "Picked Up":        "picked_up",
-        "In Transit":       "in_transit",
-        "Out for Delivery": "out_for_delivery",
-        "Delivered":        "delivered",
-        "return_to_sender": "cancelled",
+        "In Transit":  "in_transit",
+        "Delivered":   "delivered",
+        "Delayed":     "delayed",
+        "Cancelled":   "cancelled",
     }
 
     @classmethod
@@ -274,7 +268,6 @@ class Shipment(BaseModel):
             "WHERE id = %s AND agent_id = %s",
             (db_status, shipment_id, agent_id)
         )
-        # Log the human-readable label so history is descriptive
         cls.log_status_change(shipment_id, new_status, agent_id, notes)
 
     @classmethod
@@ -292,10 +285,8 @@ class Shipment(BaseModel):
         cls.log_status_change(shipment_id, "Failed Attempt", agent_id, notes=reason)
         return new_attempts
 
-
     @classmethod
     def log_status_change(cls, shipment_id, new_status, agent_id, notes=None):
-        """Write one row to shipment_status_logs every time status changes."""
         execute_query(
             "INSERT INTO shipment_status_logs (shipment_id, status, changed_by, notes) "
             "VALUES (%s, %s, %s, %s)",
