@@ -122,10 +122,15 @@ class AuthController(BaseController):
 
     def about_us(self):
         return render_template("about-us.html")
-    
+
+    def contact(self):
+        return render_template("contact.html")
+
     def privacy_policy(self):
         return render_template("privacy-policy.html")
 
     def terms(self):
         return render_template("terms.html")
+
+    
     

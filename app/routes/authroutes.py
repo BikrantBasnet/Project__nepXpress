@@ -39,6 +39,13 @@ class Authroutes:
             methods=["GET"]
         )
         self.bp.add_url_rule(
+           "/contact",
+            endpoint="contact",
+            view_func=self.controller.contact,
+             methods=["GET"]
+        )
+
+        self.bp.add_url_rule(
             "/forgot-password",
             endpoint="forgot_password",
             view_func=self.controller.forgot_password,
