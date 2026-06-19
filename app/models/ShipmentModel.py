@@ -49,7 +49,6 @@ class Shipment(BaseModel):
             data.get("receiver_city", ""),
             data.get("receiver_district", ""),
             data.get("destination", ""),
-            data.get("destination", ""),
             data.get("package_type", ""),
             data.get("weight") or None,
             data.get("estimated_value") or 0,
@@ -125,7 +124,7 @@ class Shipment(BaseModel):
         db.close()
 
         total = len(rows)
-        delivered = in_transit = failed = 0
+        delivered = in_transit = failed = processing = delayed = cancelled = 0
         value_spent = value_this_month = value_last_month = 0.0
         ship_spent = 0.0
 
