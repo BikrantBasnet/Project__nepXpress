@@ -847,10 +847,18 @@ ul { list-style: none; }
   padding: 72px 24px 36px;
 }
 .nx-footer__top {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+    gap: 100px;
+  .nx-footer__brand,
+.nx-footer__col {
+    text-align: center;
+}
+
+.nx-footer__col {
+    min-width: 140px;
+}
 }
 .nx-footer__brand p {
   color: var(--text-dim);
