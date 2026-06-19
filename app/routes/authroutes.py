@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask  import Blueprint
 from app.controllers.authcontrollers import AuthController
 
 
@@ -21,7 +21,7 @@ class Authroutes:
             methods=["GET", "POST"]
         )
         self.bp.add_url_rule(
-            "/about-us",
+            "/home",
             endpoint="about_us",
             view_func=self.controller.about_us,
             methods=["GET", "POST"]
