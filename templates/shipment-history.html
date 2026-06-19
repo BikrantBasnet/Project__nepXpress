@@ -10,17 +10,15 @@
 
 {% block body %}
   <div class="main">
-<header class="topbar">
+    <header class="topbar">
       <div class="topbar-title">
         <h1>Shipment History</h1>
         <p>View and manage all your past deliveries</p>
       </div>
-     <a href="/dashboard" class="back-btn">
-        ← Back
-      </a>
+      <a href="/dashboard" class="back-btn">← Back</a>
     </header>
+    
     <main class="content">
-
       <div class="page-header">
         <div>
           <h1 class="page-title">All Shipments</h1>
@@ -28,7 +26,6 @@
         </div>
       </div>
 
-      <!-- STATS -->
       <div class="stats-row">
         <div class="stat-card"><div class="stat-number">{{ stats.total }}</div><div class="stat-label">Total Shipments</div></div>
         <div class="stat-card"><div class="stat-number">{{ stats['Delivered'] }}</div><div class="stat-label">Delivered</div></div>
@@ -36,9 +33,8 @@
         <div class="stat-card"><div class="stat-number">{{ stats['Processing'] }}</div><div class="stat-label">Processing</div></div>
       </div>
 
-      <!-- FILTERS (tabs are links; backend filters via ?status=) -->
       <div class="filters-bar">
-       <div class="filter-tabs">
+        <div class="filter-tabs">
           <a class="filter-tab {{ 'active' if current_filter == 'all' }}"         href="{{ url_for('user.shipment_history') }}">All</a>
           <a class="filter-tab {{ 'active' if current_filter == 'processing' }}"  href="{{ url_for('user.shipment_history', status='processing') }}">Processing</a>
           <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}"  href="{{ url_for('user.shipment_history', status='in_transit') }}">In Transit</a>
@@ -54,62 +50,54 @@
         </div>
       </div>
 
-      <!-- TABLE -->
       <div class="table-card">
         <table class="shipment-table">
           <thead>
             <tr>
-            <th>Tracking ID</th>
+              <th>Tracking ID</th>
               <th>Destination</th>
-              <th>Date</th>
-              <th>Processing</th>
-              <th>In Transit</th>
-              <th>Completed</th>
+              <th>Creation Date</th>
+              <th>Agent ID</th>
+              <th>Agent Name</th>
               <th>Amount</th>
               <th>Status</th>
             </tr>
           </thead>
-        <tbody id="rows">
-   {% set status_map = {
-      'processing':  ('processing', 'Processing'),
-      'in_transit':  ('transit',    'In Transit'),
-      'delivered':   ('delivered',  'Delivered'),
-      'delayed':     ('delayed',    'Delayed'),
-      'cancelled':   ('cancelled',  'Cancelled')
-    } %}
-    {% for s in shipments %}
-      {% set raw = s.status | lower %}
-      {% set cls, label = status_map.get(raw, ('', raw | capitalize)) %}
-      <tr>
-        <td class="tracking-id">{{ s.tracking_id }}</td>
-        <td>{{ s.receiver_city or '—' }}</td>
-        <td>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '—' }}</td>
-        <td>{{ s.processing_at.strftime('%d %b, %I:%M %p') if s.processing_at else '—' }}</td>
-        <td>{{ s.in_transit_at.strftime('%d %b, %I:%M %p') if s.in_transit_at else '—' }}</td>
-        <td>
-          {% if s.delivered_at %}{{ s.delivered_at.strftime('%d %b, %I:%M %p') }}
-          {% elif s.delayed_at %}{{ s.delayed_at.strftime('%d %b, %I:%M %p') }}
-          {% elif s.cancelled_at %}{{ s.cancelled_at.strftime('%d %b, %I:%M %p') }}
-          {% else %}—{% endif %}
-        </td>
-        <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
-        <td><span class="badge {{ cls }}">{{ label }}</span></td>
-      </tr>
-    {% else %}
-      <tr>
-        <td colspan="8" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
-          {% if current_filter == 'all' %}
-            No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
-          {% else %}
-            No shipments match this filter. <a href="{{ url_for('user.shipment_history') }}" style="color:#0d0d0d;font-weight:600;">View all →</a>
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-    </table>
-    </div>
-    <!-- PAGINATION -->
+          <tbody id="rows">
+            {% set status_map = {
+              'processing':  ('processing', 'Processing'),
+              'in_transit':  ('transit',    'In Transit'),
+              'delivered':   ('delivered',  'Delivered'),
+              'delayed':     ('delayed',    'Delayed'),
+              'cancelled':   ('cancelled',  'Cancelled')
+            } %}
+            {% for s in shipments %}
+              {% set raw = s.status | lower %}
+              {% set cls, label = status_map.get(raw, ('', raw | capitalize)) %}
+              <tr>
+                <td class="tracking-id">{{ s.tracking_id }}</td>
+                <td>{{ s.receiver_city or '—' }}</td>
+                <td>{{ s.created_at.strftime('%d %b %Y, %I:%M %p') if s.created_at else '—' }}</td>
+                <td>{{ s.agent_id if s.agent_id else '—' }}</td>
+                <td>{{ s.agent_name if s.agent_name else 'Not Assigned' }}</td>
+                <td>NPR {{ '{:,.0f}'.format(s.estimated_value | float) if s.estimated_value else '—' }}</td>
+                <td><span class="badge {{ cls }}">{{ label }}</span></td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="7" style="text-align:center; padding:48px 0; color:#aaa; font-size:15px;">
+                  {% if current_filter == 'all' %}
+                    No shipments found. <a href="/create-shipment" style="color:#0d0d0d;font-weight:600;">Create your first one →</a>
+                  {% else %}
+                    No shipments match this filter. <a href="{{ url_for('user.shipment_history') }}" style="color:#0d0d0d;font-weight:600;">View all →</a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
       <div class="pagination">
         <div class="page-info">
           {% if shipments %}Showing {{ shipments | length }} shipment{{ 's' if shipments | length != 1 else '' }}{% else %}No shipments{% endif %}
@@ -121,11 +109,9 @@
 
 {% block scripts %}
 <script>
-  // Live search: hide rows that don't match what's typed in the search box.
   document.getElementById('search').addEventListener('input', function () {
     const query = this.value.toLowerCase();
     document.querySelectorAll('#rows tr').forEach(function (row) {
-      // Skip the empty-state row (it has no tracking-id cell)
       if (!row.querySelector('.tracking-id')) return;
       const matches = row.textContent.toLowerCase().includes(query);
       row.classList.toggle('hide', !matches);

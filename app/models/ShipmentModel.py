@@ -61,19 +61,27 @@ class Shipment(BaseModel):
 
     # ---- READ: history page ----
     def find_by_user(self, user_id, status=None):
-        db = Database()
+        """
+        Fetches all shipments for a specific customer, joining the users 
+        table to retrieve the assigned agent's id and name dynamically.
+        """
+        from app.models.database import execute_query
+
+        query = """
+            SELECT s.*, u.name AS agent_name 
+            FROM shipments s
+            LEFT JOIN users u ON s.agent_id = u.id
+            WHERE s.user_id = %s
+        """
+        params = [user_id]
+
         if status:
-            results = db.fetch_all(
-                "SELECT * FROM shipments WHERE user_id=%s AND status=%s ORDER BY created_at DESC",
-                (user_id, status)
-            )
-        else:
-            results = db.fetch_all(
-                "SELECT * FROM shipments WHERE user_id=%s ORDER BY created_at DESC",
-                (user_id,)
-            )
-        db.close()
-        return results
+            query += " AND s.status = %s"
+            params.append(status)
+
+        query += " ORDER BY s.created_at DESC"
+
+        return execute_query(query, params, fetchall=True)
 
     # ---- READ: history stat cards ----
     def get_stats_for_user(self, user_id):
@@ -254,21 +262,28 @@ class Shipment(BaseModel):
 
     # Map agent-friendly labels to valid DB ENUM values
     STATUS_MAP = {
-        "In Transit":  "in_transit",
-        "Delivered":   "delivered",
-        "Delayed":     "delayed",
-        "Cancelled":   "cancelled",
+        "In Transit":   "in_transit",
+        "Delivered":    "delivered",
+        "Delayed":      "delayed",
+        "Cancelled":    "cancelled",
     }
 
     @classmethod
-    def update_status(cls, shipment_id, agent_id, new_status, notes=None):
-        db_status = cls.STATUS_MAP.get(new_status, new_status)
-        execute_query(
-            "UPDATE shipments SET status = %s, updated_at = NOW() "
-            "WHERE id = %s AND agent_id = %s",
-            (db_status, shipment_id, agent_id)
-        )
-        cls.log_status_change(shipment_id, new_status, agent_id, notes)
+    def update_status(cls, shipment_id, agent_id, status, notes=None):
+        """
+        Updates the shipment status from the agent dashboard.
+        """
+        db_status = cls.STATUS_MAP.get(status, status.lower())
+
+        query = """
+            UPDATE shipments 
+            SET status = %s, updated_at = NOW() 
+            WHERE id = %s AND agent_id = %s
+        """
+        params = [db_status, shipment_id, agent_id]
+
+        execute_query(query, params)
+        cls.log_status_change(shipment_id, status, agent_id, notes=notes)
 
     @classmethod
     def record_failed_attempt(cls, shipment_id, agent_id, reason=None):
