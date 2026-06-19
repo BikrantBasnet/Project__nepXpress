@@ -18,8 +18,8 @@
       <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
     </a>
     <ul class="nx-nav__links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about" class="active">About</a></li>
+      <li><a href="#home" id="home-link" class="active">Home</a></li>
+      <li><a href="#mission" id="about-link">About</a></li>
       <li><a href="/contact">Contact</a></li>
     </ul>
     <div class="nx-nav__cta">
@@ -32,7 +32,7 @@
   </div>
   <div class="nx-nav__mobile" id="mobile-menu">
     <a href="/">Home</a>
-    <a href="/about">About</a>
+    <a href="#about">About</a>
     <a href="/contact">Contact</a>
     <a href="/login">Log in</a>
     <a href="/register">Get Started</a>
@@ -40,7 +40,7 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════ HERO ══════════════════════ -->
-<section class="nx-hero">
+<section class="nx-hero" id="home">
   <!-- ambient orbs -->
   <div class="orb orb--blue"></div>
   <div class="orb orb--orange"></div>
@@ -487,7 +487,25 @@
     </div>
   </div>
 </footer>
+<script>
+window.addEventListener("scroll", function () {
+    const homeLink = document.getElementById("home-link");
+    const aboutLink = document.getElementById("about-link");
+    const missionSection = document.getElementById("mission");
 
+    if (!homeLink || !aboutLink || !missionSection) return;
+
+    const missionTop = missionSection.offsetTop - 100;
+
+    if (window.scrollY >= missionTop) {
+        homeLink.classList.remove("active");
+        aboutLink.classList.add("active");
+    } else {
+        aboutLink.classList.remove("active");
+        homeLink.classList.add("active");
+    }
+});
+</script>
 <script src="{{ url_for('static', filename='js/nepxpress.js') }}"></script>
 </body>
 </html>
