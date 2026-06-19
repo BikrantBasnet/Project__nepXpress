@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NepXpress – Active Routes</title>
+  <title>NepXpress – Active Shipments</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='agent-routes.css') }}"/>
@@ -60,7 +60,7 @@
       </a>
       <a href="/agent-routes" class="nav-item active">
         <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-        Active Routes
+        Active Shipments
       </a>
       <a href="{{ url_for('agent.delivery_history') }}" class="nav-item">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -86,77 +86,80 @@
 
     <header class="topbar">
       <div class="topbar-title">
-        <h1>Active Routes</h1>
+        <h1>Active Shipments</h1>
         <p>Manage and update your assigned deliveries</p>
       </div>
-      <div class="topbar-right">
-        <button class="btn-map-toggle" id="mapToggleBtn" onclick="toggleMap()">
-          <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-          Show Map
-        </button>
-        <button class="notif-btn">
-          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-dot"></span>
-        </button>
-      </div>
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
     </header>
 
     <main class="content">
 
-      <!-- MAP PANEL (hidden by default) -->
-      <div class="map-panel" id="mapPanel" style="display:none;">
-        <div class="map-panel-head">
-          <div>
-            <div class="map-panel-title">Route Overview</div>
-            <div class="map-panel-sub">Optimised order for today's deliveries</div>
-          </div>
-          <button class="map-close-btn" onclick="toggleMap()">
-            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-        <div class="map-placeholder">
+      <!-- MAP PLACEHOLDER -->
+      <div class="map-placeholder-section">
+        <div class="map-placeholder-inner">
           <svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-          <p>Map integration coming soon</p>
-          <small>GPS route optimisation will appear here</small>
+          <span>Map view — route optimisation coming soon</span>
         </div>
-        <div class="map-stop-list" id="mapStopList"></div>
       </div>
 
       <!-- SUMMARY STRIP -->
       <div class="summary-strip">
-        <div class="summary-card">
-          <div class="summary-num" id="s-total">3</div>
-          <div class="summary-lbl">Assigned today</div>
+        <div class="summary-item">
+          <span class="summary-num" id="s-total">0</span>
+          <span class="summary-lbl">Assigned</span>
         </div>
         <div class="summary-divider"></div>
-        <div class="summary-card">
-          <div class="summary-num green" id="s-done">0</div>
-          <div class="summary-lbl">Completed</div>
+        <div class="summary-item">
+          <span class="summary-num blue" id="s-picked">0</span>
+          <span class="summary-lbl">Picked Up</span>
         </div>
         <div class="summary-divider"></div>
-        <div class="summary-card">
-          <div class="summary-num orange" id="s-progress">1</div>
-          <div class="summary-lbl">In progress</div>
+        <div class="summary-item">
+          <span class="summary-num green" id="s-transit">0</span>
+          <span class="summary-lbl">In Transit</span>
         </div>
         <div class="summary-divider"></div>
-        <div class="summary-card">
-          <div class="summary-num red" id="s-failed">0</div>
-          <div class="summary-lbl">Failed attempts</div>
+        <div class="summary-item">
+          <span class="summary-num orange" id="s-out">0</span>
+          <span class="summary-lbl">Out for Delivery</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-num red" id="s-failed">0</span>
+          <span class="summary-lbl">Failed</span>
         </div>
       </div>
 
-      <!-- DELIVERY CARDS -->
-      <div class="route-list" id="routeList"></div>
+      <!-- DELIVERY LIST -->
+      <div class="shipment-section">
+        <div class="section-bar">
+          <h3>Your Shipments</h3>
+          <span class="section-count" id="sectionCount">0 active</span>
+        </div>
+
+        <div id="shipmentList">
+          <!-- populated by JS -->
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <p>No active shipments</p>
+          <small>Accepted deliveries will appear here.</small>
+        </div>
+      </div>
 
     </main>
   </div>
 
-  <!-- ══ COMPLETE DELIVERY MODAL ══════════════════════════ -->
+  <!-- ══ COMPLETE MODAL ════════════════════════════════ -->
   <div id="completeModal" class="modal-overlay" onclick="closeCompleteModal(event)">
     <div class="modal-card">
       <div class="modal-head">
         <div>
-          <div class="modal-tracking" id="cm-tracking">—</div>
+          <div class="modal-title" id="cm-id">—</div>
           <div class="modal-sub">Mark Delivery Complete</div>
         </div>
         <button class="modal-close" onclick="closeCompleteModal()">&#x2715;</button>
@@ -164,65 +167,66 @@
 
       <div class="modal-scroll">
 
-        <div class="complete-section">
-          <div class="complete-section-label">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <!-- Proof of delivery -->
+        <div class="modal-section">
+          <div class="modal-section-label">
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             Proof of Delivery Photo
           </div>
-          <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('proofPhotoInput').click()">
-            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>Tap to upload photo</span>
-            <small>JPG, PNG up to 10MB</small>
+          <div class="photo-drop" id="photoDrop" onclick="document.getElementById('proofInput').click()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Upload photo</span>
+            <small>JPG or PNG — tap to browse or use camera</small>
           </div>
-          <input type="file" id="proofPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this)"/>
-          <div class="photo-preview-wrap" id="photoPreviewWrap" style="display:none;">
-            <img id="photoPreview" src="" alt="Proof of delivery"/>
-            <button class="photo-retake" onclick="retakePhoto()">
+          <input type="file" id="proofInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)"/>
+          <div class="photo-preview" id="photoPreview" style="display:none;">
+            <img id="proofImg" src="" alt="Proof"/>
+            <button class="retake-btn" onclick="retakePhoto()">
               <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
               Retake
             </button>
           </div>
         </div>
 
-        <div class="complete-section">
-          <div class="complete-section-label">
+        <!-- Recipient confirmation -->
+        <div class="modal-section">
+          <div class="modal-section-label">
             <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Recipient Confirmation
           </div>
-          <div class="recipient-options">
-            <label class="radio-card" id="rc-name-card">
-              <input type="radio" name="recipientType" value="name" onchange="toggleRecipientType('name')"/>
-              <span class="radio-label">Confirm recipient name</span>
+          <div class="rc-options">
+            <label class="rc-option">
+              <input type="radio" name="rcType" value="name" onchange="toggleRC('name')"/>
+              <span>Confirm by name</span>
             </label>
-            <label class="radio-card" id="rc-sig-card">
-              <input type="radio" name="recipientType" value="signature" onchange="toggleRecipientType('signature')"/>
-              <span class="radio-label">Digital signature</span>
+            <label class="rc-option">
+              <input type="radio" name="rcType" value="signature" onchange="toggleRC('signature')"/>
+              <span>Digital signature</span>
             </label>
           </div>
-          <div id="recipientNameWrap" class="recipient-input-wrap" style="display:none;">
-            <input type="text" id="recipientNameInput" class="text-input" placeholder="Enter recipient's full name"/>
+          <div id="rcNameWrap" style="display:none; margin-top:10px;">
+            <input type="text" id="recipientName" class="text-field" placeholder="Enter recipient's full name"/>
           </div>
-          <div id="signatureWrap" class="sig-wrap" style="display:none;">
+          <div id="rcSigWrap" style="display:none; margin-top:10px;">
             <canvas id="sigCanvas" class="sig-canvas"></canvas>
-            <div class="sig-actions">
-              <button class="sig-clear-btn" onclick="clearSignature()">Clear</button>
-            </div>
+            <button class="clear-sig-btn" onclick="clearSig()">Clear signature</button>
           </div>
         </div>
 
-        <div class="complete-section" id="codSection" style="display:none;">
-          <div class="complete-section-label">
+        <!-- COD payment -->
+        <div class="modal-section" id="codSection" style="display:none;">
+          <div class="modal-section-label">
             <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Cash on Delivery
           </div>
           <div class="cod-options">
-            <label class="radio-card">
-              <input type="radio" name="codStatus" value="collected"/>
-              <span class="radio-label">Payment collected — <strong id="cod-amount">NPR 0</strong></span>
+            <label class="rc-option">
+              <input type="radio" name="codPay" value="collected"/>
+              <span>Payment collected — <strong id="codAmt">NPR 0</strong></span>
             </label>
-            <label class="radio-card">
-              <input type="radio" name="codStatus" value="waived"/>
-              <span class="radio-label">Payment waived / already paid online</span>
+            <label class="rc-option">
+              <input type="radio" name="codPay" value="waived"/>
+              <span>Already paid / waived</span>
             </label>
           </div>
         </div>
@@ -230,8 +234,8 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn-cancel-modal" onclick="closeCompleteModal()">Cancel</button>
-        <button class="btn-confirm-complete" onclick="confirmComplete()">
+        <button class="btn-modal-cancel" onclick="closeCompleteModal()">Cancel</button>
+        <button class="btn-modal-confirm green-btn" onclick="confirmComplete()">
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           Confirm Delivery
         </button>
@@ -239,65 +243,40 @@
     </div>
   </div>
 
-  <!-- ══ FAIL DELIVERY MODAL ══════════════════════════════ -->
+  <!-- ══ FAIL MODAL ════════════════════════════════════ -->
   <div id="failModal" class="modal-overlay" onclick="closeFailModal(event)">
-    <div class="modal-card modal-card-sm">
+    <div class="modal-card modal-sm">
       <div class="modal-head">
         <div>
-          <div class="modal-tracking" id="fm-tracking">—</div>
+          <div class="modal-title" id="fm-id">—</div>
           <div class="modal-sub">Report Failed Attempt</div>
         </div>
         <button class="modal-close" onclick="closeFailModal()">&#x2715;</button>
       </div>
-
       <div class="fail-body">
-        <div class="fail-attempts-banner" id="failAttemptsBanner"></div>
-
-        <div class="fail-field">
-          <label class="fail-label">Reason for failed delivery</label>
-          <div class="reason-list" id="reasonList">
-            <label class="reason-option">
-              <input type="radio" name="failReason" value="Customer unavailable"/>
-              <span>Customer unavailable</span>
-            </label>
-            <label class="reason-option">
-              <input type="radio" name="failReason" value="Wrong address"/>
-              <span>Wrong address</span>
-            </label>
-            <label class="reason-option">
-              <input type="radio" name="failReason" value="Access denied"/>
-              <span>Access denied to premises</span>
-            </label>
-            <label class="reason-option">
-              <input type="radio" name="failReason" value="Refused delivery"/>
-              <span>Customer refused delivery</span>
-            </label>
-            <label class="reason-option">
-              <input type="radio" name="failReason" value="Package damaged"/>
-              <span>Package damaged in transit</span>
-            </label>
-            <label class="reason-option">
-              <input type="radio" name="failReason" value="Other"/>
-              <span>Other</span>
-            </label>
+        <div class="modal-section-label" style="padding:0 0 10px;">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Select failure reason
+        </div>
+        <div class="reason-list">
+          <label class="reason-opt"><input type="radio" name="failReason" value="Customer unavailable"/><span>Customer unavailable</span></label>
+          <label class="reason-opt"><input type="radio" name="failReason" value="Wrong address"/><span>Wrong address</span></label>
+          <label class="reason-opt"><input type="radio" name="failReason" value="Access denied"/><span>Access denied to premises</span></label>
+          <label class="reason-opt"><input type="radio" name="failReason" value="Refused delivery"/><span>Customer refused delivery</span></label>
+          <label class="reason-opt"><input type="radio" name="failReason" value="Package damaged"/><span>Package damaged in transit</span></label>
+          <label class="reason-opt"><input type="radio" name="failReason" value="Other"/><span>Other</span></label>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="modal-section-label" style="padding:0 0 8px;">
+            Additional notes <span style="font-weight:400;color:var(--muted)">(optional)</span>
           </div>
-        </div>
-
-        <div class="fail-field">
-          <label class="fail-label">Additional notes <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
-          <textarea class="fail-textarea" id="failNotes" placeholder="Describe what happened…"></textarea>
-        </div>
-
-        <div class="return-warning" id="returnWarning" style="display:none;">
-          <svg viewBox="0 0 24 24"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>This is the 3rd failed attempt. The package will be marked for <strong>return to sender</strong>.</span>
+          <textarea id="failNotes" class="fail-textarea" placeholder="Describe what happened…"></textarea>
         </div>
       </div>
-
       <div class="modal-footer">
-        <button class="btn-cancel-modal" onclick="closeFailModal()">Cancel</button>
-        <button class="btn-confirm-fail" onclick="confirmFail()">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <button class="btn-modal-cancel" onclick="closeFailModal()">Cancel</button>
+        <button class="btn-modal-confirm red-btn" onclick="confirmFail()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           Record Failed Attempt
         </button>
       </div>
@@ -305,224 +284,276 @@
   </div>
 
   <script>
-    // Remove the hardcoded array and use:
+    // ── Data ─────────────────────────────────────────────
+    // Each delivery's `status` is the RAW DB ENUM value:
+    // 'processing' | 'picked_up' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'Failed Delivery Attempt'
     const deliveries = {{ deliveries | tojson | safe }};
 
-    // Status progression
-    const STATUS_FLOW = ['Pending', 'Picked Up', 'In Transit', 'Out for Delivery', 'Delivered'];
-    const STATUS_CLASS = {
-      'Pending':           'st-pending',
-      'Picked Up':         'st-picked',
-      'In Transit':        'st-transit',
-      'Out for Delivery':  'st-out',
-      'Delivered':         'st-delivered',
-      'Failed Attempt':    'st-failed',
-      'Return to Sender':  'st-return',
+    // Order of raw DB statuses, in progression sequence
+    const STATUS_ORDER = ['processing', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'];
+
+    // Raw DB status -> human-readable label shown on the page
+    const STATUS_LABELS = {
+      'processing':              'Pending',
+      'picked_up':                'Picked Up',
+      'in_transit':                'In Transit',
+      'out_for_delivery':          'Out for Delivery',
+      'delivered':                 'Delivered',
+      'Failed Delivery Attempt':   'Failed Delivery Attempt'
     };
 
-    let activeDeliveryId = null;
-    let sigDrawing = false, sigCtx = null, sigCanvas = null;
+    // Raw DB status -> pill colour class
+    const STATUS_CLASS = {
+      'processing':              'st-pending',
+      'picked_up':                'st-picked',
+      'in_transit':                'st-transit',
+      'out_for_delivery':          'st-out',
+      'delivered':                 'st-delivered',
+      'Failed Delivery Attempt':   'st-failed'
+    };
 
-    // ── Render all cards ─────────────────────────────────
-    function renderAll() {
-      const list = document.getElementById('routeList');
-      if (deliveries.length === 0) {
-        list.innerHTML = '<div class="no-deliveries"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><p>No deliveries assigned for today.</p><small>Check back after accepting new requests.</small></div>';
+    // Raw DB status -> the agent-facing label to send to /api/agent/update-status
+    // (the backend's STATUS_MAP converts this label back into the next raw DB value)
+    const NEXT_LABEL = {
+      'processing':        'Picked Up',
+      'picked_up':         'In Transit',
+      'in_transit':        'Out for Delivery',
+      'out_for_delivery':  'Delivered',
+    };
+
+    let activeId = null;
+    let sigCtx = null, sigDrawing = false;
+
+    // ── Render ────────────────────────────────────────────
+    function render() {
+      var list  = document.getElementById('shipmentList');
+      var empty = document.getElementById('emptyState');
+      var active = deliveries.filter(function(d){ return d.status !== 'delivered'; });
+
+      updateSummary();
+
+      if (active.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'flex';
+        document.getElementById('sectionCount').textContent = '0 active';
         return;
       }
-      list.innerHTML = deliveries.map(function(d, i) {
-        return buildCard(d, i);
-      }).join('');
-      updateSummary();
-      buildMapStops();
-      // Init signature canvas after render
-      sigCanvas = document.getElementById('sigCanvas');
-      if (sigCanvas) initSignatureCanvas();
-    }
 
-    function buildCard(d, i) {
-      var nextStatus = getNextStatus(d.status);
-      var isFinal    = d.status === 'Delivered' || d.status === 'Return to Sender';
-      var isFailed   = d.status === 'Failed Attempt';
-      var attemptsLeft = 3 - d.attempts;
+      empty.style.display = 'none';
+      document.getElementById('sectionCount').textContent = active.length + ' active';
 
-      return '<div class="delivery-card" id="card-' + d.id + '" style="animation-delay:' + (i*0.07) + 's">' +
+      list.innerHTML = active.map(function(d, i) {
+        var nextLabel = getNextLabel(d.status);
+        var isFailed  = d.status === 'Failed Delivery Attempt';
 
-        // ── Card header ──
-        '<div class="dc-head" onclick="toggleCard(' + d.id + ')">' +
-          '<div class="dc-head-left">' +
-            '<div class="dc-num">' + (i+1) + '</div>' +
-            '<div class="dc-info">' +
-              '<div class="dc-tracking">' + d.tracking_id + '</div>' +
-              '<div class="dc-receiver">' +
-                '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-                d.receiver_name + ' · ' + d.receiver_city +
+        return '<div class="shipment-row" id="row-' + d.id + '" style="animation-delay:' + (i*0.06) + 's">' +
+
+          // ── Always-visible header ──
+          '<div class="row-head" onclick="toggleRow(' + d.id + ')">' +
+            '<div class="row-num">' + (i+1) + '</div>' +
+            '<div class="row-info">' +
+              '<div class="row-tracking">' + d.tracking_id + '</div>' +
+              '<div class="row-route">' +
+                '<span>' + d.sender_city + '</span>' +
+                '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>' +
+                '<span>' + d.receiver_city + '</span>' +
               '</div>' +
             '</div>' +
-          '</div>' +
-          '<div class="dc-head-right">' +
-            '<span class="status-pill ' + (STATUS_CLASS[d.status] || 'st-pending') + '">' + d.status + '</span>' +
-            (d.attempts > 0 ? '<span class="attempt-tag">' + d.attempts + '/3 attempts</span>' : '') +
-            '<svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
-          '</div>' +
-        '</div>' +
-
-        // ── Expanded body ──
-        '<div class="dc-body" id="body-' + d.id + '">' +
-
-          // Addresses + contact
-          '<div class="dc-detail-grid">' +
-            '<div class="dc-detail-block">' +
-              '<div class="dc-detail-label">Pickup</div>' +
-              '<div class="dc-detail-val">' + d.sender_address + ', ' + d.sender_city + '</div>' +
-              '<a class="dc-phone" href="tel:' + d.sender_phone + '">' +
-                '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.95-.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>' +
-                d.sender_phone +
-              '</a>' +
-            '</div>' +
-            '<div class="dc-route-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>' +
-            '<div class="dc-detail-block">' +
-              '<div class="dc-detail-label">Deliver to</div>' +
-              '<div class="dc-detail-val">' + d.receiver_address + ', ' + d.receiver_city + '</div>' +
-              '<a class="dc-phone" href="tel:' + d.receiver_phone + '">' +
-                '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.95-.95a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>' +
-                d.receiver_phone +
-              '</a>' +
+            '<div class="row-right">' +
+              '<span class="st-pill ' + (STATUS_CLASS[d.status] || 'st-pending') + '">' + (STATUS_LABELS[d.status] || d.status) + '</span>' +
+              '<svg class="row-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
             '</div>' +
           '</div>' +
 
-          // Instructions
-          (d.instructions ? '<div class="dc-instructions"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + d.instructions + '</div>' : '') +
+          // ── Expandable body ──
+          '<div class="row-body" id="body-' + d.id + '">' +
 
-          // Status timeline
-          '<div class="dc-timeline">' +
-            buildTimeline(d) +
-          '</div>' +
+            // Addresses
+            '<div class="addr-grid">' +
+              '<div class="addr-block">' +
+                '<div class="addr-label">Pickup</div>' +
+                '<div class="addr-val">' + d.sender_address + ', ' + d.sender_city + '</div>' +
+                '<a class="phone-link" href="tel:' + d.sender_phone + '">' +
+                  '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>' +
+                  d.sender_phone +
+                '</a>' +
+              '</div>' +
+              '<div class="addr-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>' +
+              '<div class="addr-block">' +
+                '<div class="addr-label">Deliver to</div>' +
+                '<div class="addr-val">' + d.receiver_address + ', ' + d.receiver_city + '</div>' +
+                '<a class="phone-link" href="tel:' + d.receiver_phone + '">' +
+                  '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>' +
+                  d.receiver_phone +
+                '</a>' +
+              '</div>' +
+            '</div>' +
 
-          // Action buttons
-          '<div class="dc-actions">' +
-            buildActions(d, nextStatus, isFinal, isFailed, attemptsLeft) +
-          '</div>' +
+            // Instructions
+            (d.instructions ? '<div class="instr-block"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + d.instructions + '</div>' : '') +
 
-        '</div>' + // dc-body
-      '</div>'; // delivery-card
+            // Status timeline
+            '<div class="timeline-wrap">' +
+              '<div class="timeline-lbl">Status history</div>' +
+              '<div class="timeline">' +
+                d.history.map(function(h, hi) {
+                  var last = hi === d.history.length - 1;
+                  var label = STATUS_LABELS[h.status] || h.status;
+                  return '<div class="tl-step' + (last ? ' tl-active' : '') + '">' +
+                    '<div class="tl-dot' + (last ? ' tl-dot-live' : '') + '"></div>' +
+                    '<div class="tl-detail"><div class="tl-st">' + label + '</div><div class="tl-time">' + h.time + '</div></div>' +
+                  '</div>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+
+            // Actions
+            '<div class="row-actions">' +
+              buildActions(d, nextLabel, isFailed) +
+            '</div>' +
+
+          '</div>' + // row-body
+        '</div>'; // shipment-row
+      }).join('');
+
+      // re-init sig canvas after DOM update
+      sigCtx = null;
     }
 
-    function buildTimeline(d) {
-      var html = '<div class="timeline-label">Status history</div><div class="timeline-track">';
-      d.history.forEach(function(h, i) {
-        var isLast = i === d.history.length - 1;
-        html += '<div class="tl-step' + (isLast ? ' tl-current' : '') + '">' +
-          '<div class="tl-dot' + (isLast ? ' tl-dot-active' : '') + '"></div>' +
-          '<div class="tl-content">' +
-            '<div class="tl-status">' + h.status + '</div>' +
-            '<div class="tl-time">' + h.time + '</div>' +
-          '</div>' +
-        '</div>';
-      });
-      html += '</div>';
-      return html;
-    }
-
-    function buildActions(d, nextStatus, isFinal, isFailed, attemptsLeft) {
-      if (isFinal) {
-        return '<div class="action-complete-badge"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' +
-          (d.status === 'Delivered' ? 'Delivered successfully' : 'Returned to sender') + '</div>';
-      }
-
+    function buildActions(d, nextLabel, isFailed) {
       var html = '';
 
-      if (nextStatus && !isFailed) {
-        var btnLabel = nextStatus === 'Delivered' ? 'Mark as Delivered' : 'Mark as ' + nextStatus;
-        var btnClass = nextStatus === 'Delivered' ? 'btn-action-deliver' : 'btn-action-next';
-        if (nextStatus === 'Delivered') {
-          html += '<button class="' + btnClass + '" onclick="openCompleteModal(' + d.id + ')">' +
-            '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + btnLabel + '</button>';
+      // Next status button
+      if (nextLabel && !isFailed) {
+        if (nextLabel === 'Delivered') {
+          html += '<button class="act-btn act-deliver" onclick="openCompleteModal(' + d.id + ')">' +
+            '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Mark as Delivered</button>';
         } else {
-          html += '<button class="' + btnClass + '" onclick="advanceStatus(' + d.id + ')">' +
-            '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>' + btnLabel + '</button>';
+          html += '<button class="act-btn act-next" onclick="advanceStatus(' + d.id + ')">' +
+            '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Mark as ' + nextLabel + '</button>';
         }
       }
 
-      if (!isFinal && attemptsLeft > 0) {
-        html += '<button class="btn-action-fail" onclick="openFailModal(' + d.id + ')">' +
-          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>' +
-          'Failed Attempt' + '</button>';
+      if (isFailed) {
+        html += '<button class="act-btn act-next" onclick="retryAfterFail(' + d.id + ')">' +
+          '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Retry — Mark Picked Up</button>';
       }
 
-      if (attemptsLeft === 0 && !isFinal) {
-        html += '<div class="return-tag"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>Max attempts reached — awaiting return</div>';
+      // Failed attempt button (always present unless already failed)
+      if (!isFailed) {
+        html += '<button class="act-btn act-fail" onclick="openFailModal(' + d.id + ')">' +
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Failed Attempt</button>';
       }
 
       return html;
     }
 
-    function getNextStatus(current) {
-      var idx = STATUS_FLOW.indexOf(current);
-      return idx >= 0 && idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
+    // Given the current raw DB status, return the agent-facing label for the NEXT step
+    function getNextLabel(rawStatus) {
+      return NEXT_LABEL[rawStatus] || null;
     }
 
-    // ── Toggle card expand ───────────────────────────────
-    function toggleCard(id) {
+    // ── Toggle expand ─────────────────────────────────────
+    function toggleRow(id) {
       var body = document.getElementById('body-' + id);
-      var card = document.getElementById('card-' + id);
-      var isOpen = body.classList.contains('open');
-      // Close all first
-      document.querySelectorAll('.dc-body').forEach(function(b){ b.classList.remove('open'); });
-      document.querySelectorAll('.delivery-card').forEach(function(c){ c.classList.remove('expanded'); });
-      if (!isOpen) { body.classList.add('open'); card.classList.add('expanded'); }
+      var row  = document.getElementById('row-'  + id);
+      var open = body.classList.contains('open');
+      document.querySelectorAll('.row-body').forEach(function(b){ b.classList.remove('open'); });
+      document.querySelectorAll('.shipment-row').forEach(function(r){ r.classList.remove('expanded'); });
+      if (!open) { body.classList.add('open'); row.classList.add('expanded'); }
     }
 
-    // ── Advance status ───────────────────────────────────
+    // ── Advance status ────────────────────────────────────
+    // Sends the agent-facing LABEL to the backend (e.g. "Picked Up"),
+    // backend's STATUS_MAP converts it to the raw DB value (e.g. "picked_up").
+    // We optimistically update the local raw status to match what the backend will store.
+    var LABEL_TO_RAW = {
+      'Picked Up':         'picked_up',
+      'In Transit':        'in_transit',
+      'Out for Delivery':  'out_for_delivery',
+      'Delivered':         'delivered',
+    };
+
     function advanceStatus(id) {
       var d = deliveries.find(function(x){ return x.id === id; });
       if (!d) return;
-      var next = getNextStatus(d.status);
-      if (!next || next === 'Delivered') return;
+      var nextLabel = getNextLabel(d.status);
+      if (!nextLabel || nextLabel === 'Delivered') return;
 
       fetch('/api/agent/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shipment_id: id, status: next })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({shipment_id: id, status: nextLabel})
       })
       .then(function(r){ return r.json(); })
       .then(function(json){
         if (json.success) {
-          d.status = next;
-          d.history.push({ status: next, time: nowStr() });
-          renderAll();
-          setTimeout(function(){ toggleCard(id); }, 50);
-          showToast(json.message, 'success');
-        } else {
-          showToast(json.message, 'danger');
-        }
+          var rawNext = LABEL_TO_RAW[nextLabel] || nextLabel;
+          d.status = rawNext;
+          d.history.push({status: rawNext, time: nowStr()});
+          render();
+          setTimeout(function(){ toggleRow(id); }, 50);
+          showToast('Status updated to "' + nextLabel + '"', 'success');
+        } else { showToast(json.message, 'danger'); }
       })
-      .catch(function(){ showToast('Network error — please try again.', 'danger'); });
+      .catch(function(){ showToast('Network error — try again.', 'danger'); });
     }
 
-    // ── Complete modal ───────────────────────────────────
-    function openCompleteModal(id) {
-      activeDeliveryId = id;
+    // Retry after a failed attempt — sends agent back to "Picked Up"
+    function retryAfterFail(id) {
       var d = deliveries.find(function(x){ return x.id === id; });
-      document.getElementById('cm-tracking').textContent = d.tracking_id;
-      // Show COD section if applicable
+      if (!d) return;
+
+      fetch('/api/agent/update-status', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({shipment_id: id, status: 'Picked Up'})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(json){
+        if (json.success) {
+          d.status = 'picked_up';
+          d.history.push({status: 'picked_up', time: nowStr()});
+          render();
+          setTimeout(function(){ toggleRow(id); }, 50);
+          showToast('Retrying delivery — marked as Picked Up', 'success');
+        } else { showToast(json.message, 'danger'); }
+      })
+      .catch(function(){ showToast('Network error — try again.', 'danger'); });
+    }
+
+    // ── Summary ───────────────────────────────────────────
+    function updateSummary() {
+      var active = deliveries.filter(function(d){ return d.status !== 'delivered'; });
+      document.getElementById('s-total').textContent  = active.length;
+      document.getElementById('s-picked').textContent = active.filter(function(d){ return d.status === 'picked_up'; }).length;
+      document.getElementById('s-transit').textContent= active.filter(function(d){ return d.status === 'in_transit'; }).length;
+      document.getElementById('s-out').textContent    = active.filter(function(d){ return d.status === 'out_for_delivery'; }).length;
+      document.getElementById('s-failed').textContent = active.filter(function(d){ return d.status === 'Failed Delivery Attempt'; }).length;
+    }
+
+    // ── Complete modal ────────────────────────────────────
+    function openCompleteModal(id) {
+      activeId = id;
+      var d = deliveries.find(function(x){ return x.id === id; });
+      document.getElementById('cm-id').textContent = d.tracking_id;
+      // reset form
+      document.getElementById('photoDrop').style.display    = 'flex';
+      document.getElementById('photoPreview').style.display = 'none';
+      document.getElementById('proofInput').value = '';
+      document.getElementById('proofImg').src     = '';
+      document.querySelectorAll('input[name="rcType"]').forEach(function(r){ r.checked=false; });
+      document.getElementById('rcNameWrap').style.display = 'none';
+      document.getElementById('rcSigWrap').style.display  = 'none';
+      document.getElementById('recipientName').value = '';
+      // COD
       var codSec = document.getElementById('codSection');
-      if (d.payment_method === 'Cash on Delivery') {
+      if (d.payment_method === 'Cash on Delivery' || d.payment_method === 'cod') {
+        document.getElementById('codAmt').textContent = 'NPR ' + Number(d.delivery_cost || 0).toLocaleString();
         codSec.style.display = '';
-        document.getElementById('cod-amount').textContent = 'NPR ' + d.delivery_cost.toLocaleString();
-      } else {
-        codSec.style.display = 'none';
-      }
-      // Reset form
-      document.getElementById('photoPreviewWrap').style.display = 'none';
-      document.getElementById('photoUploadArea').style.display = 'flex';
-      document.getElementById('proofPhotoInput').value = '';
-      document.getElementById('recipientNameWrap').style.display = 'none';
-      document.getElementById('signatureWrap').style.display = 'none';
-      document.querySelectorAll('input[name="recipientType"]').forEach(function(r){ r.checked = false; });
-      document.querySelectorAll('input[name="codStatus"]').forEach(function(r){ r.checked = false; });
-      if (sigCtx) clearSignature();
+      } else { codSec.style.display = 'none'; }
+      document.querySelectorAll('input[name="codPay"]').forEach(function(r){ r.checked=false; });
       document.getElementById('completeModal').classList.add('open');
+      // init sig
+      setTimeout(initSig, 100);
     }
 
     function closeCompleteModal(e) {
@@ -530,52 +561,40 @@
     }
 
     function confirmComplete() {
-      // Validate photo
-      var photoSrc = document.getElementById('photoPreview').src;
-      if (!photoSrc || photoSrc === window.location.href) {
+      if (!document.getElementById('proofImg').src || document.getElementById('proofImg').src === window.location.href) {
         showToast('Please upload a proof of delivery photo.', 'danger'); return;
       }
-      // Validate recipient
-      var rcType = document.querySelector('input[name="recipientType"]:checked');
+      var rcType = document.querySelector('input[name="rcType"]:checked');
       if (!rcType) { showToast('Please confirm the recipient.', 'danger'); return; }
-      if (rcType.value === 'name' && !document.getElementById('recipientNameInput').value.trim()) {
-        showToast('Please enter the recipient\'s name.', 'danger'); return;
+      if (rcType.value === 'name' && !document.getElementById('recipientName').value.trim()) {
+        showToast('Please enter the recipient name.', 'danger'); return;
       }
+      var d = deliveries.find(function(x){ return x.id === activeId; });
 
-      // Inside confirmComplete(), replace the local d.status = 'Delivered' block with:
       fetch('/api/agent/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shipment_id: activeDeliveryId, status: 'Delivered' })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({shipment_id: activeId, status:'Delivered'})
       })
       .then(function(r){ return r.json(); })
       .then(function(json){
         if (json.success) {
-          var d = deliveries.find(function(x){ return x.id === activeDeliveryId; });
-          d.status = 'Delivered';
-          d.history.push({ status: 'Delivered', time: nowStr() });
+          d.status = 'delivered';
+          d.history.push({status:'delivered', time: nowStr()});
           document.getElementById('completeModal').classList.remove('open');
-          renderAll();
+          render();
           showToast(d.tracking_id + ' marked as Delivered!', 'success');
-        } else {
-          showToast(json.message, 'danger');
-        }
+        } else { showToast(json.message, 'danger'); }
       })
       .catch(function(){ showToast('Network error.', 'danger'); });
     }
 
-    // ── Fail modal ───────────────────────────────────────
+    // ── Fail modal ────────────────────────────────────────
     function openFailModal(id) {
-      activeDeliveryId = id;
+      activeId = id;
       var d = deliveries.find(function(x){ return x.id === id; });
-      document.getElementById('fm-tracking').textContent = d.tracking_id;
-      document.querySelectorAll('input[name="failReason"]').forEach(function(r){ r.checked = false; });
+      document.getElementById('fm-id').textContent = d.tracking_id;
+      document.querySelectorAll('input[name="failReason"]').forEach(function(r){ r.checked=false; });
       document.getElementById('failNotes').value = '';
-      var newAttempts = d.attempts + 1;
-      var banner = document.getElementById('failAttemptsBanner');
-      banner.textContent = 'Attempt ' + newAttempts + ' of 3';
-      banner.className = 'fail-attempts-banner ' + (newAttempts >= 3 ? 'banner-red' : 'banner-orange');
-      document.getElementById('returnWarning').style.display = newAttempts >= 3 ? 'flex' : 'none';
       document.getElementById('failModal').classList.add('open');
     }
 
@@ -585,164 +604,92 @@
 
     function confirmFail() {
       var reason = document.querySelector('input[name="failReason"]:checked');
-      if (!reason) { showToast('Please select a failure reason.', 'danger'); return; }
+      if (!reason) { showToast('Please select a reason.', 'danger'); return; }
+      var d = deliveries.find(function(x){ return x.id === activeId; });
 
       fetch('/api/agent/fail-delivery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ shipment_id: activeDeliveryId, reason: reason.value })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({shipment_id: activeId, reason: reason.value})
       })
       .then(function(r){ return r.json(); })
       .then(function(json){
         if (json.success) {
-          var d = deliveries.find(function(x){ return x.id === activeDeliveryId; });
-          d.attempts = json.attempts;
-          d.status   = json.final ? 'Return to Sender' : 'Failed Attempt';
-          d.history.push({ status: d.status, time: nowStr() });
+          d.status = 'Failed Delivery Attempt';
+          d.history.push({status:'Failed Delivery Attempt', time: nowStr()});
           document.getElementById('failModal').classList.remove('open');
-          renderAll();
-          showToast(json.message, json.final ? 'danger' : 'success');
-        } else {
+          render();
           showToast(json.message, 'danger');
-        }
+        } else { showToast(json.message, 'danger'); }
       })
-      .catch(function(){ showToast('Network error — please try again.', 'danger'); });
+      .catch(function(){ showToast('Network error.', 'danger'); });
     }
 
-    // ── Signature canvas ─────────────────────────────────
-    function initSignatureCanvas() {
-      sigCanvas = document.getElementById('sigCanvas');
-      if (!sigCanvas) return;
-      sigCtx = sigCanvas.getContext('2d');
-      sigCanvas.width  = sigCanvas.offsetWidth  || 340;
-      sigCanvas.height = sigCanvas.offsetHeight || 120;
-      sigCtx.strokeStyle = '#1a1f2e';
-      sigCtx.lineWidth   = 2;
-      sigCtx.lineCap     = 'round';
-
-      sigCanvas.addEventListener('mousedown',  startDraw);
-      sigCanvas.addEventListener('mousemove',  draw);
-      sigCanvas.addEventListener('mouseup',    stopDraw);
-      sigCanvas.addEventListener('mouseleave', stopDraw);
-      sigCanvas.addEventListener('touchstart', function(e){ e.preventDefault(); startDraw(e.touches[0]); }, {passive:false});
-      sigCanvas.addEventListener('touchmove',  function(e){ e.preventDefault(); draw(e.touches[0]); },    {passive:false});
-      sigCanvas.addEventListener('touchend',   stopDraw);
-    }
-
-    function startDraw(e) {
-      sigDrawing = true;
-      var r = sigCanvas.getBoundingClientRect();
-      sigCtx.beginPath();
-      sigCtx.moveTo(e.clientX - r.left, e.clientY - r.top);
-    }
-
-    function draw(e) {
-      if (!sigDrawing) return;
-      var r = sigCanvas.getBoundingClientRect();
-      sigCtx.lineTo(e.clientX - r.left, e.clientY - r.top);
-      sigCtx.stroke();
-    }
-
-    function stopDraw() { sigDrawing = false; }
-
-    function clearSignature() {
-      if (sigCtx && sigCanvas) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-    }
-
-    function toggleRecipientType(type) {
-      document.getElementById('recipientNameWrap').style.display = type === 'name'      ? '' : 'none';
-      document.getElementById('signatureWrap').style.display     = type === 'signature' ? '' : 'none';
-      if (type === 'signature') {
-        setTimeout(function(){
-          if (sigCanvas) { sigCanvas.width = sigCanvas.offsetWidth || 340; }
-        }, 50);
-      }
-    }
-
-    // ── Photo upload ─────────────────────────────────────
-    function handlePhotoUpload(input) {
+    // ── Photo ─────────────────────────────────────────────
+    function handlePhoto(input) {
       if (!input.files || !input.files[0]) return;
       var reader = new FileReader();
       reader.onload = function(e) {
-        document.getElementById('photoPreview').src = e.target.result;
-        document.getElementById('photoUploadArea').style.display  = 'none';
-        document.getElementById('photoPreviewWrap').style.display = 'flex';
+        document.getElementById('proofImg').src = e.target.result;
+        document.getElementById('photoDrop').style.display    = 'none';
+        document.getElementById('photoPreview').style.display = 'flex';
       };
       reader.readAsDataURL(input.files[0]);
     }
 
     function retakePhoto() {
-      document.getElementById('proofPhotoInput').value = '';
-      document.getElementById('photoPreview').src = '';
-      document.getElementById('photoPreviewWrap').style.display = 'none';
-      document.getElementById('photoUploadArea').style.display  = 'flex';
+      document.getElementById('proofInput').value = '';
+      document.getElementById('proofImg').src     = '';
+      document.getElementById('photoPreview').style.display = 'none';
+      document.getElementById('photoDrop').style.display    = 'flex';
     }
 
-    // ── Map toggle ───────────────────────────────────────
-    function toggleMap() {
-      var panel = document.getElementById('mapPanel');
-      var btn   = document.getElementById('mapToggleBtn');
-      var open  = panel.style.display !== 'none';
-      panel.style.display = open ? 'none' : '';
-      btn.innerHTML = open
-        ? '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Show Map'
-        : '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Hide Map';
+    // ── Signature ─────────────────────────────────────────
+    function toggleRC(type) {
+      document.getElementById('rcNameWrap').style.display = type === 'name'      ? '' : 'none';
+      document.getElementById('rcSigWrap').style.display  = type === 'signature' ? '' : 'none';
+      if (type === 'signature') setTimeout(initSig, 50);
     }
 
-    function buildMapStops() {
-      var list = document.getElementById('mapStopList');
-      list.innerHTML = deliveries.map(function(d, i) {
-        return '<div class="map-stop">' +
-          '<div class="map-stop-num">' + (i+1) + '</div>' +
-          '<div class="map-stop-info">' +
-            '<div class="map-stop-name">' + d.receiver_name + '</div>' +
-            '<div class="map-stop-addr">' + d.receiver_address + ', ' + d.receiver_city + '</div>' +
-          '</div>' +
-          '<span class="status-pill ' + (STATUS_CLASS[d.status] || 'st-pending') + '" style="font-size:11px;">' + d.status + '</span>' +
-        '</div>';
-      }).join('');
+    function initSig() {
+      var canvas = document.getElementById('sigCanvas');
+      if (!canvas) return;
+      canvas.width  = canvas.offsetWidth  || 420;
+      canvas.height = canvas.offsetHeight || 120;
+      sigCtx = canvas.getContext('2d');
+      sigCtx.strokeStyle = '#1a1f2e'; sigCtx.lineWidth = 2; sigCtx.lineCap = 'round';
+      canvas.onmousedown  = function(e){ sigDrawing=true; var r=canvas.getBoundingClientRect(); sigCtx.beginPath(); sigCtx.moveTo(e.clientX-r.left, e.clientY-r.top); };
+      canvas.onmousemove  = function(e){ if(!sigDrawing) return; var r=canvas.getBoundingClientRect(); sigCtx.lineTo(e.clientX-r.left, e.clientY-r.top); sigCtx.stroke(); };
+      canvas.onmouseup    = function(){ sigDrawing=false; };
+      canvas.onmouseleave = function(){ sigDrawing=false; };
+      canvas.ontouchstart = function(e){ e.preventDefault(); sigDrawing=true; var r=canvas.getBoundingClientRect(); var t=e.touches[0]; sigCtx.beginPath(); sigCtx.moveTo(t.clientX-r.left, t.clientY-r.top); };
+      canvas.ontouchmove  = function(e){ e.preventDefault(); if(!sigDrawing) return; var r=canvas.getBoundingClientRect(); var t=e.touches[0]; sigCtx.lineTo(t.clientX-r.left, t.clientY-r.top); sigCtx.stroke(); };
+      canvas.ontouchend   = function(){ sigDrawing=false; };
     }
 
-    // ── Summary strip ────────────────────────────────────
-    function updateSummary() {
-      var done = deliveries.filter(function(d){ return d.status === 'Delivered'; }).length;
-      var prog = deliveries.filter(function(d){ return d.status === 'In Transit' || d.status === 'Out for Delivery' || d.status === 'Picked Up'; }).length;
-      var fail = deliveries.filter(function(d){ return d.status === 'Failed Attempt'; }).length;
-      document.getElementById('s-total').textContent    = deliveries.length;
-      document.getElementById('s-done').textContent     = done;
-      document.getElementById('s-progress').textContent = prog;
-      document.getElementById('s-failed').textContent   = fail;
-    }
+    function clearSig() { if(sigCtx){ var c=document.getElementById('sigCanvas'); sigCtx.clearRect(0,0,c.width,c.height); } }
 
-    // ── Utilities ────────────────────────────────────────
-    function nowStr() {
-      var n = new Date();
-      return n.getFullYear() + '-' +
-        String(n.getMonth()+1).padStart(2,'0') + '-' +
-        String(n.getDate()).padStart(2,'0') + ' ' +
-        String(n.getHours()).padStart(2,'0') + ':' +
-        String(n.getMinutes()).padStart(2,'0');
-    }
-
+    // ── Utilities ─────────────────────────────────────────
     function toggleDuty(cb) {
-      var label  = document.getElementById('dutyLabelText');
-      var status = document.getElementById('dutyStatusText');
-      if (cb.checked) { label.textContent='On Duty'; status.textContent='Accepting new deliveries'; status.className='duty-status-text on-duty'; }
-      else             { label.textContent='Off Duty'; status.textContent='Not accepting deliveries'; status.className='duty-status-text'; }
+      var l=document.getElementById('dutyLabelText'), s=document.getElementById('dutyStatusText');
+      if(cb.checked){ l.textContent='On Duty'; s.textContent='Accepting new deliveries'; s.className='duty-status-text on-duty'; }
+      else           { l.textContent='Off Duty'; s.textContent='Not accepting deliveries'; s.className='duty-status-text'; }
+    }
+
+    function nowStr() {
+      var n=new Date();
+      return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')+' '+String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
     }
 
     function showToast(msg, type) {
-      var el = document.createElement('div');
-      el.className = 'alert alert-' + type;
-      el.innerHTML = '<span>' + msg + '</span><button onclick="this.parentElement.remove()">&#x2715;</button>';
+      var el=document.createElement('div'); el.className='alert alert-'+type;
+      el.innerHTML='<span>'+msg+'</span><button onclick="this.parentElement.remove()">&#x2715;</button>';
       document.body.appendChild(el);
-      setTimeout(function(){ if (el.parentNode) el.remove(); }, 3400);
+      setTimeout(function(){ if(el.parentNode) el.remove(); }, 3400);
     }
 
-    // ── Init ─────────────────────────────────────────────
-    renderAll();
-    // Auto-expand first card
-    setTimeout(function(){ if (deliveries.length) toggleCard(deliveries[0].id); }, 100);
+    // ── Init ──────────────────────────────────────────────
+    render();
+    setTimeout(function(){ if(deliveries.length) toggleRow(deliveries[0].id); }, 80);
   </script>
 
 </body>

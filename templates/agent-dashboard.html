@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='agent-dashboard.css') }}"/>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAStQP_A3Ad4PdkBJ8tWz8L2BN_2sgfbTM"></script>
 </head>
 <body>
 
@@ -187,11 +188,7 @@
           </button>
         </div>
         <div class="map-body">
-          <div class="map-placeholder">
-            <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-            <span>Interactive navigation map will load here</span>
-            <small>Showing your current route and delivery points</small>
-          </div>
+          <div id="map"></div>
         </div>
       </section>
 
@@ -462,6 +459,50 @@
       document.body.appendChild(el);
       setTimeout(function() { if (el.parentNode) el.remove(); }, 3200);
     }
+    function initMap() {
+            // Set coordinates for Warehouse and Customer
+            const warehouse = { lat: 27.706186868208928, lng: 85.32996238161454};  // e.g., NYC New York
+            const customer = { lat: 40.7306, lng: -73.9352 };   // e.g., Brooklyn New York
+
+            // 2. Render the visual map using the Google API
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: warehouse,
+            });
+
+            // 3. Drop visual markers onto the map
+            new google.maps.Marker({ position: warehouse, map: map, title: "Warehouse Hub" });
+            new google.maps.Marker({ position: customer, map: map, title: "Customer Delivery Address" });
+
+            // 4. Run your custom math calculations locally
+            const results = calculateMetrics(warehouse.lat, warehouse.lng, customer.lat, customer.lng);
+
+            // 5. Inject the math results into your website's HTML text boxes
+            document.getElementById("distance-output").innerText = results.distance;
+            document.getElementById("eta-output").innerText = results.eta;
+        }
+
+        // The math formula that bypasses the need for a credit card
+        function calculateMetrics(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            
+            const straightLine = R * c;
+            const drivingEstimate = straightLine * 1.3; // Simulates real street curves
+            const timeMinutes = Math.round((drivingEstimate / 40) * 60); // Assumes 40 km/h average speed
+
+            return {
+                distance: drivingEstimate.toFixed(2) + " km",
+                eta: timeMinutes + " minutes"
+            };
+        }
+
+        // Trigger the map load when the webpage opens
+        window.onload = initMap;
   </script>
 
 </body>

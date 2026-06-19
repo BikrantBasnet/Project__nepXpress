@@ -1,27 +1,81 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="padding:50px; text-align:center;">
-   <div style="padding:50px; text-align:center;">
-    <h1>Contact Us</h1>
-    <p>We're here to help with all your shipment and logistics needs.</p>
+<style>
+    .contact-section {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+        padding: 40px;
+    }
 
-    <div class="contact-cards">
-        <div class="contact-card">
-            <h3>📧 Email</h3>
-            <p>nepxpress@gmail.com</p>
+    .contact-card {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .contact-card h1 {
+        color: #1e3a8a;
+        margin-bottom: 20px;
+        font-size: 2.5rem;
+    }
+
+    .contact-item {
+        margin: 15px 0;
+        font-size: 1.1rem;
+        color: #444;
+    }
+
+    .contact-item i {
+        color: #2563eb;
+        margin-right: 10px;
+    }
+
+    .contact-btn {
+        display: inline-block;
+        margin-top: 25px;
+        padding: 12px 25px;
+        background: #2563eb;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: 0.3s;
+    }
+
+    .contact-btn:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="contact-section">
+    <div class="contact-card">
+        <h1>📞 Contact Us</h1>
+
+        <div class="contact-item">
+            📧 <strong>Email:</strong> nepxpress@gmail.com
         </div>
 
-        <div class="contact-card">
-            <h3>📞 Phone</h3>
-            <p>+977 9841234567</p>
+        <div class="contact-item">
+            📱 <strong>Phone:</strong> +977 9841234567
         </div>
 
-        <div class="contact-card">
-            <h3>📍 Address</h3>
-            <p>Kathmandu, Nepal</p>
+        <div class="contact-item">
+            📍 <strong>Address:</strong> Kathmandu, Nepal
         </div>
+
+        <a href="mailto:nepxpress@gmail.com" class="contact-btn">
+            Send Email
+        </a>
     </div>
 </div>
-</div>
 {% endblock %}
+
+
