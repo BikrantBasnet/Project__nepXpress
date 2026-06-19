@@ -20,16 +20,17 @@ class Shipment(BaseModel):
             if not existing:
                 db.close()
                 return tid
+
     def create(self, data):
         db = Database()
         query = (
             "INSERT INTO shipments "
             "(tracking_id, user_id, sender_name, sender_phone, sender_address, "
             " sender_city, sender_district, receiver_name, receiver_phone, "
-            " receiver_address, receiver_city, receiver_district, package_type, "
-            " weight, estimated_value, delivery_cost, length_cm, width_cm, height_cm, "
-            " delivery_type, payment_method, status, instructions, destination) "  # ← added
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"  # ← 24
+            " receiver_address, receiver_city, receiver_district, destination, package_type, "
+            " weight, estimated_value, delivery_cost, "
+            " delivery_type, payment_method, status, instructions) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         )
         db.execute(query, (
             data["tracking_id"],
@@ -51,12 +52,11 @@ class Shipment(BaseModel):
             data.get("delivery_cost") or 0,
             data.get("delivery_type", "Standard"),
             data.get("payment_method", "cod"),
-            data.get("status", "Pending"),
+            data.get("status", "processing"),
             data.get("instructions", ""),
-            # destination = "receiver_city, receiver_district" for the agent delivery list
-            f"{data.get('receiver_city', '')} {data.get('receiver_district', '')}".strip(),  # ← added
         ))
         db.close()
+
     # ---- READ: history page ----
     def find_by_user(self, user_id, status=None):
         db = Database()
@@ -107,8 +107,8 @@ class Shipment(BaseModel):
             ORDER BY s.updated_at DESC
         """
         return execute_query(sql, (agent_id,), fetchall=True)
-    
-# ---- READ: summary page numbers ----
+
+    # ---- READ: summary page numbers ----
     def get_summary_for_user(self, user_id):
         db = Database()
         rows = db.fetch_all(
@@ -118,7 +118,7 @@ class Shipment(BaseModel):
         db.close()
 
         total = len(rows)
-        delivered = in_transit = failed = processing = delayed = 0
+        delivered = in_transit = failed = processing = delayed = cancelled = 0
         value_spent = value_this_month = value_last_month = 0.0   # package value
         ship_spent = 0.0                                          # delivery cost
 
@@ -140,10 +140,12 @@ class Shipment(BaseModel):
                 in_transit += 1
             elif st == "delayed":
                 delayed += 1
+                in_transit += 1   # delayed counts toward in-transit total
+            elif st == "cancelled":
+                cancelled += 1
+                failed += 1       # cancelled counts toward failed total
             elif st == "processing":
                 processing += 1
-            elif st == "cancelled":
-                failed += 1
             d = r["created_at"]
             if d:
                 if d.month == this_m and d.year == this_y:
@@ -156,8 +158,13 @@ class Shipment(BaseModel):
         success_rate = (delivered / total * 100) if total else 0
         base = total if total else 1
         return {
-            "total": total, "delivered": delivered, "in_transit": in_transit,
-            "processing": processing, "delayed": delayed, "failed": failed,
+            "total": total,
+            "delivered": delivered,
+            "in_transit": in_transit,
+            "failed": failed,
+            "processing": processing,
+            "delayed": delayed,
+            "cancelled": cancelled,
             "value_spent": value_spent, "avg_value": avg_value,
             "ship_spent": ship_spent, "avg_ship": avg_ship,
             "value_this_month": value_this_month, "value_last_month": value_last_month,
@@ -167,6 +174,7 @@ class Shipment(BaseModel):
             "pct_processing": round(processing / base * 100),
             "pct_delayed": round(delayed / base * 100),
             "pct_failed": round(failed / base * 100),
+            "pct_cancelled": round(cancelled / base * 100),
         }
 
     # ---- READ: dashboard + summary recent list ----
@@ -205,3 +213,79 @@ class Shipment(BaseModel):
         db.connection.commit()
         db.close()
         return affected_rows
+
+    @classmethod
+    def get_active_for_agent(cls, agent_id):
+        # Step 1: get the shipments
+        shipments = execute_query(
+            """
+            SELECT id, tracking_id, sender_name, sender_phone,
+                sender_address, sender_city, receiver_name, receiver_phone,
+                receiver_address, receiver_city, package_type, weight,
+                delivery_cost, payment_method, status, instructions, attempts
+            FROM shipments
+            WHERE agent_id = %s
+            AND status NOT IN ('delivered', 'cancelled', 'return_to_sender')
+            ORDER BY created_at ASC
+            """,
+            (agent_id,), fetchall=True
+        )
+
+        if not shipments:
+            return []
+
+        # Step 2: for each shipment, fetch its status log from the notebook
+        for shipment in shipments:
+            logs = execute_query(
+                """
+                SELECT status, notes,
+                    DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') AS time
+                FROM shipment_status_logs
+                WHERE shipment_id = %s
+                ORDER BY created_at ASC
+                """,
+                (shipment["id"],), fetchall=True
+            )
+            # Attach the history so the template can read it
+            # If no logs yet, seed with the current status so the timeline isn't empty
+            shipment["history"] = logs if logs else [
+                {"status": shipment["status"], "time": "—", "notes": None}
+            ]
+
+        return shipments
+
+    @classmethod
+    def update_status(cls, shipment_id, agent_id, new_status, notes=None):
+        # Update the current status on the shipment (the whiteboard)
+        execute_query(
+            "UPDATE shipments SET status = %s, updated_at = NOW() "
+            "WHERE id = %s AND agent_id = %s",
+            (new_status, shipment_id, agent_id)
+        )
+        # Write to the notebook so history is never lost
+        cls.log_status_change(shipment_id, new_status, agent_id, notes)
+
+    @classmethod
+    def record_failed_attempt(cls, shipment_id, agent_id, reason=None):
+        execute_query(
+            "UPDATE shipments SET attempts = attempts + 1, updated_at = NOW() "
+            "WHERE id = %s AND agent_id = %s",
+            (shipment_id, agent_id)
+        )
+        row = execute_query(
+            "SELECT attempts FROM shipments WHERE id = %s",
+            (shipment_id,), fetchone=True
+        )
+        new_attempts = row["attempts"] if row else 0
+        # Log it with the reason as a note
+        cls.log_status_change(shipment_id, "Failed Attempt", agent_id, notes=reason)
+        return new_attempts
+
+    @classmethod
+    def log_status_change(cls, shipment_id, new_status, agent_id, notes=None):
+        """Write one row to the notebook every time status changes."""
+        execute_query(
+            "INSERT INTO shipment_status_logs (shipment_id, status, changed_by, notes) "
+            "VALUES (%s, %s, %s, %s)",
+            (shipment_id, new_status, agent_id, notes)
+        )

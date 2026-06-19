@@ -133,6 +133,20 @@ class Database:
             ")"
         )
 
+        # ── shipment_status_logs ─────────────────────────────────────────────── #
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS shipment_status_logs ("
+            "id           INT PRIMARY KEY AUTO_INCREMENT,"
+            "shipment_id  INT NOT NULL,"
+            "status       VARCHAR(50) NOT NULL,"
+            "changed_by   INT,"
+            "notes        TEXT,"
+            "created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+            "FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE,"
+            "FOREIGN KEY (changed_by)  REFERENCES users(id) ON DELETE SET NULL"
+            ")"
+        )
+
         # ── seed admin user ──────────────────────────────────────────── #
         admin_password = generate_password_hash("admin123")
         db.execute(

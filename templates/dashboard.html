@@ -33,9 +33,9 @@
       <!-- QUICK ACTIONS -->
       <section class="quick-actions">
         <a href="/create-shipment" class="action-card light">
-          <div class="action-icon">
-            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-          </div>
+         <div class="action-icon">
+           📦
+         </div>
           <div class="action-text">
             <h3>Create Delivery</h3>
             <p>Send a new package</p>
@@ -44,7 +44,7 @@
 
         <a href="/summary" class="action-card light">
           <div class="action-icon">
-            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+             📊
           </div>
           <div class="action-text">
             <h3>Summary</h3>
@@ -54,7 +54,7 @@
 
         <a href="/shipment-history" class="action-card light">
           <div class="action-icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            🕐
           </div>
           <div class="action-text">
             <h3>History</h3>
@@ -64,38 +64,41 @@
       </section>
 
       <!-- RECENT ACTIVITY -->
-      <section class="panel-section recent-card">
-        <div class="panel-header">
-          <h3>Recent Activity</h3>
-          <a href="/shipment-history">View More →</a>
+<section class="panel-section recent-card">
+  <div class="panel-header">
+    <h3>Recent Activity</h3>
+    <a href="/shipment-history">View More →</a>
+  </div>
+  <div class="shipment-list">
+    {% set status_map = {
+      'in_transit': ('transit', 'In Transit'),
+      'delivered':  ('delivered', 'Delivered'),
+      'processing': ('processing', 'Processing'),
+      'pending':    ('processing', 'Pending'),
+      'delayed':    ('transit', 'Delayed'),
+      'cancelled':  ('cancelled', 'Cancelled')
+    } %}
+    {% for s in recent %}
+      {% set raw = s.status | lower %}
+      {% set cls, label = status_map.get(raw, ('', raw | capitalize)) %}
+      <div class="shipment-item">
+        <div class="shipment-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         </div>
-        <div class="shipment-list">
-          {% for s in recent %}
-            {% set raw = s.status | lower %}
-            {% if raw == 'in_transit' %}{% set cls = 'transit' %}{% set label = 'In Transit' %}
-            {% elif raw == 'delivered' %}{% set cls = 'delivered' %}{% set label = 'Delivered' %}
-            {% elif raw in ['processing','pending'] %}{% set cls = 'processing' %}{% set label = raw | capitalize %}
-            {% elif raw == 'delayed' %}{% set cls = 'transit' %}{% set label = 'Delayed' %}
-            {% elif raw == 'cancelled' %}{% set cls = 'cancelled' %}{% set label = 'Cancelled' %}
-            {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
-            <div class="shipment-item">
-              <div class="shipment-icon">
-                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-              </div>
-              <div class="shipment-body">
-                <strong>{{ s.tracking_id }}</strong>
-                <span>{{ s.receiver_city or '—' }}</span>
-                <time>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '' }}</time>
-              </div>
-              <span class="badge {{ cls }}">{{ label }}</span>
-            </div>
-          {% else %}
-            <div class="empty-recent">
-              No shipments yet. <a href="/create-shipment">Create your first one →</a>
-            </div>
-          {% endfor %}
+        <div class="shipment-body">
+          <strong>{{ s.tracking_id }}</strong>
+          <span>{{ s.receiver_city or '—' }}</span>
+          <time>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '' }}</time>
         </div>
-      </section>
+        <span class="badge {{ cls }}">{{ label }}</span>
+      </div>
+    {% else %}
+      <div class="empty-recent">
+        No shipments yet. <a href="/create-shipment">Create your first one →</a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
 
     </main>
   </div>

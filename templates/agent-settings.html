@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NepXpress – Agent Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agent-dashboard.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='agent-settings.css') }}"/>
+</head>
+<body>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.style.display='none';">×</button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">NepXpress</div>
+          <div class="brand-sub-text">Agent Portal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="duty-toggle-wrap">
+      <div class="duty-row">
+        <span class="duty-label">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="dutyLabelText">Off Duty</span>
+        </span>
+        <label class="duty-pill">
+          <input type="checkbox" id="dutyToggle" onchange="toggleDuty(this)"/>
+          <span class="duty-pill-track"></span>
+        </label>
+      </div>
+      <div class="duty-status-text" id="dutyStatusText">Not accepting deliveries</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="/agent-dashboard" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="/agent-deliveries" class="nav-item">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Available Deliveries
+      </a>
+      <a href="/agent-routes" class="nav-item">
+        <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Active Shipments
+      </a>
+      <a href="{{ url_for('agent.delivery_history') }}" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Delivery History
+      </a>
+      <a href="/agent-settings" class="nav-item active">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/></svg>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ (user_name[0] if user_name else 'A') | upper }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ user_name if user_name else 'Agent' }}</span>
+        <span class="user-role">Delivery Agent</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ MAIN ═════════════════════════════════════════ -->
+  <div class="main-wrapper">
+
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1>Settings</h1>
+        <p>Manage your account and preferences</p>
+      </div>
+      <button class="notif-btn">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+    </header>
+
+    <main class="content">
+
+      <div class="settings-grid">
+
+        <!-- ── Manage Profile ──────────────────────────── -->
+        <section class="settings-card">
+          <div class="settings-card-head">
+            <div class="settings-card-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <h2 class="settings-card-title">Manage Profile</h2>
+              <p class="settings-card-desc">Update your personal information</p>
+            </div>
+          </div>
+          <form method="POST" action="{{ url_for('agent.settings') }}">
+            <input type="hidden" name="form_type" value="profile"/>
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" name="name" value="{{ user.name if user else '' }}" required/>
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" value="{{ user.email if user else '' }}" readonly class="input-readonly"/>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" name="phone" value="{{ user.phone if user else '' }}" placeholder="+977 98XXXXXXXX"/>
+            </div>
+            <div class="form-group">
+              <label>Zone / Area</label>
+              <input type="text" name="zone" value="{{ user.zone if user else '' }}" placeholder="e.g. Kathmandu Valley"/>
+            </div>
+            <button type="submit" class="btn-save">Save Changes</button>
+          </form>
+        </section>
+
+        <!-- ── Change Password ────────────────────────── -->
+        <section class="settings-card">
+          <div class="settings-card-head">
+            <div class="settings-card-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <h2 class="settings-card-title">Change Password</h2>
+              <p class="settings-card-desc">Update your account password</p>
+            </div>
+          </div>
+          <form method="POST" action="{{ url_for('agent.settings') }}">
+            <input type="hidden" name="form_type" value="password"/>
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" name="current_password" placeholder="Enter current password" required/>
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" name="new_password" placeholder="Enter new password" required/>
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" name="confirm_password" placeholder="Confirm new password" required/>
+            </div>
+            <button type="submit" class="btn-save">Update Password</button>
+          </form>
+        </section>
+
+        <!-- ── Danger Zone ────────────────────────────── -->
+        <section class="settings-card danger-card">
+          <div class="settings-card-head">
+            <div class="settings-card-icon danger-icon">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div>
+              <h2 class="settings-card-title danger-title">Danger Zone</h2>
+              <p class="settings-card-desc">These actions are permanent and cannot be undone</p>
+            </div>
+          </div>
+          <div class="danger-actions">
+            <div class="danger-item">
+              <div>
+                <div class="danger-label">Log Out</div>
+                <div class="danger-desc">Sign out of your NepXpress agent account</div>
+              </div>
+              <button class="btn-outline" id="logoutBtn">Log Out</button>
+            </div>
+            <div class="danger-divider"></div>
+            <div class="danger-item">
+              <div>
+                <div class="danger-label">Delete Account</div>
+                <div class="danger-desc">Permanently delete your agent account and all data</div>
+              </div>
+              <button class="btn-delete" id="deleteAccountBtn">Delete Account</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function toggleDuty(cb) {
+      var label  = document.getElementById('dutyLabelText');
+      var status = document.getElementById('dutyStatusText');
+      if (cb.checked) {
+        label.textContent  = 'On Duty';
+        status.textContent = 'Accepting new deliveries';
+        status.className   = 'duty-status-text on-duty';
+      } else {
+        label.textContent  = 'Off Duty';
+        status.textContent = 'Not accepting deliveries';
+        status.className   = 'duty-status-text';
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      window.location.href = '/logout';
+    });
+
+    document.getElementById('deleteAccountBtn').addEventListener('click', function() {
+      if (confirm('This will permanently delete your agent account and all associated data. This cannot be undone. Continue?')) {
+        window.location.href = '/delete-account';
+      }
+    });
+  </script>
+
+</body>
+</html>

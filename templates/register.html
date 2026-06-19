@@ -118,8 +118,13 @@
 {% block scripts %}
 <script>
   function selectRole(event, role) {
-    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+    // Clear the highlight from all role cards
+    document.querySelectorAll('.role-card').forEach(card => card.classList.remove('active'));
+
+    // Highlight the clicked card
     event.currentTarget.classList.add('active');
+
+    // Tick the matching hidden radio so the form submits this role
     document.querySelector(`input[name="role"][value="${role}"]`).checked = true;
   }
 </script>

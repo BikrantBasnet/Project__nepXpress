@@ -15,13 +15,12 @@
         <p>Fill in the details to send a new package</p>
       </div>
       <a href="/dashboard" class="back-btn">
-        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back
+        ← Back
       </a>
     </header>
 
     <main class="content">
-      <form method="POST" action="{{ url_for('create_shipment') }}">
+      <form method="POST" action="{{ url_for('user.create_shipment') }}">
       <div class="form-grid">
 
 <!-- CARD 1: Sender -->
@@ -184,9 +183,8 @@
         <div class="summary-info">
           <div class="summary-label">Estimated Total</div>
           <div class="summary-amount" id="totalAmount">NPR 150</div>
-          <div class="summary-info">
+      <div class="summary-info">
     <div>ETA: <span id="etaValue">3-5 Business Days</span></div>
-    <div>Distance: <span id="distanceValue">10 km</span></div>
 </div>
         </div>
         <div class="summary-actions">
@@ -206,19 +204,10 @@
     Express: "1-2 Business Days",
     "Same-day": "Delivered Today"
 };
-
-var distance = {
-    Standard: "10 km",
-    Express: "25 km",
-    "Same-day": "50 km"
-};
   document.querySelectorAll('input[name="delivery_type"]').forEach(function(r) {
     r.addEventListener('change', function() {
       document.getElementById('totalAmount').textContent = 'NPR ' + prices[r.value];
-      document.getElementById('etaValue').textContent =
-    eta[r.value];
-document.getElementById('distanceValue').textContent =
-    distance[r.value];
+      document.getElementById('etaValue').textContent = eta[r.value];
     });
   });
 </script>

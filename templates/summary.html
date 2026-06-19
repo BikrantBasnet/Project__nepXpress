@@ -16,8 +16,7 @@
         <p>An overview of your delivery performance</p>
       </div>
       <a href="/dashboard" class="back-btn">
-        <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-        Back
+        ← Back
       </a>
     </header>
 
@@ -71,7 +70,7 @@
               <div class="legend-item"><span class="dot orange"></span> In Transit <b>{{ summary.in_transit }}</b></div>
               <div class="legend-item"><span class="dot blue"></span> Processing <b>{{ summary.processing }}</b></div>
               <div class="legend-item"><span class="dot yellow"></span> Delayed <b>{{ summary.delayed }}</b></div>
-              <div class="legend-item"><span class="dot red"></span> Failed <b>{{ summary.failed }}</b></div>
+              <div class="legend-item"><span class="dot red"></span> Cancelled <b>{{ summary.failed }}</b></div>
             </div>
           </div>
         </section>
@@ -90,33 +89,37 @@
       </div>
 
       <!-- TOP 5 RECENT SHIPMENTS -->
-      <section class="sum-card">
-        <h3 class="sum-card-title">Recent Shipments</h3>
-        <div class="shipment-list">
-          {% for s in recent %}
-            {% set raw = s.status | lower %}
-            {% if raw == 'in_transit' %}{% set cls = 'transit' %}{% set label = 'In Transit' %}
-            {% elif raw == 'delivered' %}{% set cls = 'delivered' %}{% set label = 'Delivered' %}
-            {% elif raw in ['processing','pending'] %}{% set cls = 'processing' %}{% set label = raw | capitalize %}
-            {% elif raw == 'delayed' %}{% set cls = 'transit' %}{% set label = 'Delayed' %}
-            {% elif raw == 'cancelled' %}{% set cls = 'cancelled' %}{% set label = 'Cancelled' %}
-            {% else %}{% set cls = '' %}{% set label = raw | capitalize %}{% endif %}
-            <div class="shipment-item">
-              <div class="shipment-icon">
-                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-              </div>
-              <div class="shipment-body">
-                <strong>{{ s.tracking_id }}</strong>
-                <span>{{ s.receiver_city or '—' }}</span>
-                <time>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '' }}</time>
-              </div>
-              <span class="badge {{ cls }}">{{ label }}</span>
-            </div>
-          {% else %}
-            <div class="empty-recent">No shipments yet. <a href="/create-shipment">Create your first one →</a></div>
-          {% endfor %}
+<!-- TOP 5 RECENT SHIPMENTS -->
+<section class="sum-card">
+  <h3 class="sum-card-title">Recent Shipments</h3>
+  <div class="shipment-list">
+    {% set status_map = {
+      'in_transit': ('transit', 'In Transit'),
+      'delivered':  ('delivered', 'Delivered'),
+      'processing': ('processing', 'Processing'),
+      'pending':    ('processing', 'Pending'),
+      'delayed':    ('transit', 'Delayed'),
+      'cancelled':  ('cancelled', 'Cancelled')
+    } %}
+    {% for s in recent %}
+      {% set raw = s.status | lower %}
+      {% set cls, label = status_map.get(raw, ('', raw | capitalize)) %}
+      <div class="shipment-item">
+        <div class="shipment-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         </div>
-      </section>
+        <div class="shipment-body">
+          <strong>{{ s.tracking_id }}</strong>
+          <span>{{ s.receiver_city or '—' }}</span>
+          <time>{{ s.created_at.strftime('%d %b %Y') if s.created_at else '' }}</time>
+        </div>
+        <span class="badge {{ cls }}">{{ label }}</span>
+      </div>
+    {% else %}
+      <div class="empty-recent">No shipments yet. <a href="/create-shipment">Create your first one →</a></div>
+    {% endfor %}
+  </div>
+</section>
 
     </main>
   </div>
