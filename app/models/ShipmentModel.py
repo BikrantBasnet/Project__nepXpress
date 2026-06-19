@@ -269,13 +269,13 @@ class Shipment(BaseModel):
     @classmethod
     def update_status(cls, shipment_id, agent_id, new_status, notes=None):
         db_status = cls.STATUS_MAP.get(new_status, new_status)
-        execute_query(
+        affected = execute_query(
             "UPDATE shipments SET status = %s, updated_at = NOW() "
             "WHERE id = %s AND agent_id = %s",
             (db_status, shipment_id, agent_id)
         )
-        # Log the human-readable label so history is descriptive
         cls.log_status_change(shipment_id, new_status, agent_id, notes)
+        return affected
 
     @classmethod
     def record_failed_attempt(cls, shipment_id, agent_id, reason=None):
