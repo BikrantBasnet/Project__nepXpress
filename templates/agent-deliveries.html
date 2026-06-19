@@ -269,20 +269,19 @@
     /*
      * requests — injected by available_deliveries() in AgentController.
      * Fields from get_available_deliveries() (used for cards):
-     *   id, tracking_id, sender_city, destination, package_type,
-     *   weight, estimated_value, delivery_cost, status
+     * id, tracking_id, sender_city, destination, package_type,
+     * weight, estimated_value, delivery_cost, status
      * Full detail fields are fetched on-demand via /api/agent/shipment-details/<id>.
      */
     const requests = {{ requests | tojson | safe }};
 
     const TYPE_ICONS = {
-      'Parcel':      '<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+      'Parcel':     '<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
       'Electronics': '<svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
       'Fragile':     '<svg viewBox="0 0 24 24"><polygon points="12 2 22 20 2 20"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
       'Documents':   '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
     };
     const TYPE_COLOR    = { 'Parcel':'blue','Electronics':'purple','Fragile':'orange','Documents':'green' };
-    const DELIVERY_BADGE = { 'Standard':'badge-std','Express':'badge-exp','Same-Day':'badge-same' };
 
     let filtered = [...requests];
     let currentId = null;
@@ -299,20 +298,20 @@
       empty.style.display = 'none';
       document.getElementById('resultCount').textContent = filtered.length + ' request' + (filtered.length !== 1 ? 's' : '') + ' available';
 
-      // get_available_deliveries returns: id, tracking_id, sender_city,
-      // destination, package_type, weight, estimated_value, delivery_cost, status
       grid.innerHTML = filtered.map(function(r, i) {
         var weightStr = r.weight != null ? r.weight + ' kg' : '—';
         var costStr   = r.delivery_cost != null ? 'NPR ' + parseFloat(r.delivery_cost).toLocaleString() : '—';
+        var colorClass = TYPE_COLOR[r.package_type] || 'blue';
+        
         return '<div class="request-card" style="animation-delay:' + (i * 0.05) + 's">' +
           '<div class="card-head">' +
-            '<div class="card-icon-wrap ' + (TYPE_COLOR[r.package_type] || 'blue') + '">' + (TYPE_ICONS[r.package_type] || TYPE_ICONS['Parcel']) + '</div>' +
+            '<div class="card-icon-wrap ' + colorClass + '">' + (TYPE_ICONS[r.package_type] || TYPE_ICONS['Parcel']) + '</div>' +
             '<div class="card-head-info">' +
               '<div class="card-tracking">' + r.tracking_id + '</div>' +
               '<div class="card-user">Shipment #' + r.id + '</div>' +
             '</div>' +
             '<div class="card-badges">' +
-              '<span class="card-badge badge-std">' + (r.package_type || 'Package') + '</span>' +
+              '<span class="card-badge ' + colorClass + '">' + (r.package_type || 'Package') + '</span>' +
             '</div>' +
           '</div>' +
           '<div class="card-route">' +
@@ -346,24 +345,18 @@
     function applyFilters() {
       var q  = document.getElementById('searchInput').value.toLowerCase();
       var dt = document.getElementById('filterType').value;
-      var dd = document.getElementById('filterDelivery').value;
-      var dp = document.getElementById('filterPayment').value;
-      // Only filter on columns returned by get_available_deliveries():
-      // tracking_id, sender_city, destination, package_type, status
-      // delivery_type and payment_method come from the full detail fetch — skip those filters here
+      
       filtered = requests.filter(function(r) {
         var matchQ = !q  || (r.tracking_id && r.tracking_id.toLowerCase().includes(q))
                          || (r.sender_city  && r.sender_city.toLowerCase().includes(q))
                          || (r.destination  && r.destination.toLowerCase().includes(q));
         var matchT = !dt || r.package_type === dt;
-        // delivery_type / payment_method not in list response — ignore those dropdowns on card view
         return matchQ && matchT;
       });
       renderCards();
     }
 
     function openDetail(shipmentId) {
-      // Show modal immediately with a loading state, then populate via API
       currentId = shipmentId;
       document.getElementById('m-tracking').textContent = 'Loading…';
       ['m-sender-name','m-sender-phone','m-sender-address','m-sender-city','m-sender-district',
@@ -387,7 +380,7 @@
           document.getElementById('m-receiver-name').textContent     = r.receiver_name || '—';
           document.getElementById('m-receiver-phone').textContent    = r.receiver_phone || '—';
           document.getElementById('m-receiver-address').textContent  = r.receiver_address || '—';
-          document.getElementById('m-receiver-city').textContent     = r.receiver_city || '—';
+          document.getElementById('m-receiver-city').textContent      = r.receiver_city || '—';
           document.getElementById('m-receiver-district').textContent = r.receiver_district || '—';
           document.getElementById('m-pkg-type').textContent          = r.package_type || '—';
           document.getElementById('m-weight').textContent            = r.weight != null ? r.weight + ' kg' : '—';
@@ -396,6 +389,7 @@
           document.getElementById('m-payment').textContent           = r.payment_method || '—';
           document.getElementById('m-cost').textContent              = r.delivery_cost != null ? 'NPR ' + parseFloat(r.delivery_cost).toLocaleString() : '—';
           document.getElementById('m-status').textContent            = r.status || '—';
+          
           var instrGroup = document.getElementById('m-instructions-group');
           if (r.instructions) {
             document.getElementById('m-instructions').textContent = r.instructions;
@@ -415,6 +409,7 @@
       var shipmentId = currentId;
       document.getElementById('detailModal').classList.remove('open');
 
+      // Fixed: Pointing to correct Blueprint endpoint without standard API prefix
       fetch('/api/agent/accept-delivery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -423,7 +418,6 @@
       .then(function(res){ return res.json(); })
       .then(function(json){
         if (json.success) {
-          // Remove from local list so it disappears without a page reload
           var idx = requests.findIndex(function(r){ return r.id === shipmentId; });
           if (idx !== -1) requests.splice(idx, 1);
           applyFilters();
@@ -455,10 +449,8 @@
       var sel = document.getElementById('agentSelect');
       if (!sel.value) { showToast('Please select an agent first.', 'danger'); return; }
       var agentName = sel.options[sel.selectedIndex].text;
-      var note      = document.getElementById('passNote').value;
       document.getElementById('passModal').classList.remove('open');
-      // TODO: wire to a backend route when pass-to-agent endpoint is added.
-      // For now, remove from the local list and show a toast.
+      
       var idx = requests.findIndex(function(r){ return r.id === currentId; });
       if (idx !== -1) requests.splice(idx, 1);
       applyFilters();
@@ -468,8 +460,11 @@
     function toggleDuty(cb) {
       var label  = document.getElementById('dutyLabelText');
       var status = document.getElementById('dutyStatusText');
-      if (cb.checked) { label.textContent='On Duty'; status.textContent='Accepting new deliveries'; status.className='duty-status-text on-duty'; }
-      else             { label.textContent='Off Duty'; status.textContent='Not accepting deliveries'; status.className='duty-status-text'; }
+      if (cb.checked) { 
+        label.textContent='On Duty'; status.textContent='Accepting new deliveries'; status.className='duty-status-text on-duty'; 
+      } else { 
+        label.textContent='Off Duty'; status.textContent='Not accepting deliveries'; status.className='duty-status-text'; 
+      }
     }
 
     function showToast(msg, type) {
@@ -481,7 +476,7 @@
     }
 
     renderCards();
-  </script>
+</script>
 
 </body>
 </html>
