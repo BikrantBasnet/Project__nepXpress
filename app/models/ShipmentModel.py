@@ -207,11 +207,10 @@ class Shipment(BaseModel):
 
     @classmethod
     def assign_agent_to_shipment(cls, shipment_id, agent_id):
-        """Assign agent and move status to in_transit so it leaves the available list."""
-        # Fix #3: use in_transit so accepted shipments are clearly distinguishable
+        """Agent accepts the job. Status becomes 'processing' — assigned but not yet picked up."""
         sql = """
             UPDATE shipments
-            SET agent_id = %s, status = 'in_transit', updated_at = NOW()
+            SET agent_id = %s, status = 'processing', updated_at = NOW()
             WHERE id = %s AND agent_id IS NULL
         """
         db = Database()
@@ -260,9 +259,9 @@ class Shipment(BaseModel):
 
     # Fix #4: map agent-friendly labels to valid DB ENUM values before saving
     STATUS_MAP = {
-        "Picked Up":        "processing",
+        "Picked Up":        "picked_up",
         "In Transit":       "in_transit",
-        "Out for Delivery": "in_transit",
+        "Out for Delivery": "out_for_delivery",
         "Delivered":        "delivered",
         "return_to_sender": "cancelled",
     }
