@@ -50,6 +50,10 @@ class Database:
     def create_tables():
         """
         Creates the user-side tables NepXpress needs.
+        Matches the live production schema exactly (see nepxpress dump),
+        plus shipment_status_logs which the agent routes page depends on,
+        plus agent_id/attempts/out_for_delivery which the agent flow needs
+        but were missing from the original dump.
         """
         db = Database()
 
@@ -61,11 +65,11 @@ class Database:
             "email VARCHAR(100) NOT NULL UNIQUE,"
             "password VARCHAR(255) NOT NULL,"
             "role VARCHAR(20) NOT NULL DEFAULT 'customer',"
-            "status VARCHAR(20) NOT NULL DEFAULT 'active',"
-            "phone VARCHAR(20),"
-            "address TEXT,"
+            "created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,"
             "security_answer VARCHAR(255) DEFAULT NULL,"
-            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+            "phone VARCHAR(20) DEFAULT NULL,"
+            "address TEXT,"
+            "status VARCHAR(20) NOT NULL DEFAULT 'active'"
             ")"
         )
 
@@ -75,20 +79,24 @@ class Database:
             "id INT PRIMARY KEY AUTO_INCREMENT,"
             "name VARCHAR(120) NOT NULL,"
             "email VARCHAR(180) NOT NULL UNIQUE,"
-            "phone VARCHAR(20),"
+            "phone VARCHAR(20) DEFAULT NULL,"
             "status ENUM('active','inactive','offline') NOT NULL DEFAULT 'active',"
-            "zone VARCHAR(100),"
+            "zone VARCHAR(100) DEFAULT NULL,"
             "created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
             "updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
             ")"
         )
 
-        # ── shipments (customer-side shape) ──────────────────────────── #
+        # ── shipments ─────────────────────────────────────────────────── #
+        # Matches live dump exactly, plus 3 columns the agent flow needs
+        # that are missing from the dump: agent_id, attempts, and the
+        # extra ENUM value 'out_for_delivery'.
         db.execute(
             "CREATE TABLE IF NOT EXISTS shipments ("
             "id INT PRIMARY KEY AUTO_INCREMENT,"
             "tracking_id VARCHAR(40) NOT NULL UNIQUE,"
             "user_id INT NOT NULL,"
+            "agent_id INT DEFAULT NULL,"
             "sender_name VARCHAR(120),"
             "sender_phone VARCHAR(20),"
             "sender_address VARCHAR(255),"
@@ -106,17 +114,19 @@ class Database:
             "delivery_cost DECIMAL(12,2) NOT NULL DEFAULT 0.00,"
             "delivery_type VARCHAR(20) NOT NULL DEFAULT 'Standard',"
             "payment_method VARCHAR(20) NOT NULL DEFAULT 'cod',"
-            "status ENUM('pending','processing','in_transit','delivered','delayed','cancelled')"
+            "status ENUM('pending','processing','picked_up','in_transit','out_for_delivery','delivered','delayed','cancelled')"
             "  NOT NULL DEFAULT 'pending',"
+            "attempts TINYINT NOT NULL DEFAULT 0,"
             "instructions TEXT,"
-            "processing_at DATETIME DEFAULT NULL,"
+            "created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+            "updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
+            "processing_at DATETIME DEFAULT CURRENT_TIMESTAMP,"
             "in_transit_at DATETIME DEFAULT NULL,"
             "delivered_at DATETIME DEFAULT NULL,"
             "delayed_at DATETIME DEFAULT NULL,"
             "cancelled_at DATETIME DEFAULT NULL,"
-            "created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
-            "updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
-            "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+            "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,"
+            "FOREIGN KEY (agent_id) REFERENCES users(id) ON DELETE SET NULL"
             ")"
         )
 
@@ -133,7 +143,9 @@ class Database:
             ")"
         )
 
-        # ── shipment_status_logs ─────────────────────────────────────────────── #
+        # ── shipment_status_logs ──────────────────────────────────────── #
+        # Not present in the live dump yet — required by get_active_for_agent
+        # and update_status/record_failed_attempt in ShipmentModel.
         db.execute(
             "CREATE TABLE IF NOT EXISTS shipment_status_logs ("
             "id           INT PRIMARY KEY AUTO_INCREMENT,"
