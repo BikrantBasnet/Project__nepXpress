@@ -38,13 +38,13 @@
 
       <!-- FILTERS (tabs are links; backend filters via ?status=) -->
       <div class="filters-bar">
-        <div class="filter-tabs">
-          <a class="filter-tab {{ 'active' if current_filter == 'all' }}"        href="{{ url_for('user.shipment_history') }}">All</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'delivered' }}"  href="{{ url_for('user.shipment_history', status='delivered') }}">Delivered</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}" href="{{ url_for('user.shipment_history', status='in_transit') }}">In Transit</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'delayed' }}"    href="{{ url_for('user.shipment_history', status='delayed') }}">Delayed</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'processing' }}" href="{{ url_for('user.shipment_history', status='processing') }}">Processing</a>
-          <a class="filter-tab {{ 'active' if current_filter == 'cancelled' }}"  href="{{ url_for('user.shipment_history', status='cancelled') }}">Cancelled</a>
+       <div class="filter-tabs">
+          <a class="filter-tab {{ 'active' if current_filter == 'all' }}"         href="{{ url_for('user.shipment_history') }}">All</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'processing' }}"  href="{{ url_for('user.shipment_history', status='processing') }}">Processing</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'in_transit' }}"  href="{{ url_for('user.shipment_history', status='in_transit') }}">In Transit</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'delayed' }}"     href="{{ url_for('user.shipment_history', status='delayed') }}">Delayed</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'delivered' }}"   href="{{ url_for('user.shipment_history', status='delivered') }}">Delivered</a>
+          <a class="filter-tab {{ 'active' if current_filter == 'cancelled' }}"   href="{{ url_for('user.shipment_history', status='cancelled') }}">Cancelled</a>
         </div>
         <div class="filter-right">
           <div class="search-box">
@@ -70,12 +70,12 @@
             </tr>
           </thead>
         <tbody id="rows">
-    {% set status_map = {
-      'in_transit': ('transit', 'In Transit'),
-      'delivered':  ('delivered', 'Delivered'),
-      'processing': ('processing', 'Processing'),
-      'delayed':    ('transit', 'Delayed'),
-      'cancelled':  ('cancelled', 'Cancelled')
+   {% set status_map = {
+      'processing':  ('processing', 'Processing'),
+      'in_transit':  ('transit',    'In Transit'),
+      'delivered':   ('delivered',  'Delivered'),
+      'delayed':     ('delayed',    'Delayed'),
+      'cancelled':   ('cancelled',  'Cancelled')
     } %}
     {% for s in shipments %}
       {% set raw = s.status | lower %}
