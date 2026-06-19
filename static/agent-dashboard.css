@@ -4,6 +4,8 @@
    All variables inherited from common.css :root
    ══════════════════════════════════════════════════════ */
 
+
+#map { height: 450px; width: 100%; border-radius: 8px; margin-top: 15px; }
 /* ── Duty Toggle (sidebar) ──────────────────────────── */
 .duty-toggle-wrap {
   margin: 0 12px 6px;
