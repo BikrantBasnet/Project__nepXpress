@@ -18,8 +18,8 @@
       <span class="nx-logo__nep">Nep</span><span class="nx-logo__x">X</span><span class="nx-logo__press">press</span>
     </a>
     <ul class="nx-nav__links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/about" class="active">About</a></li>
+      <li><a href="#home" id="home-link" class="active">Home</a></li>
+      <li><a href="#mission" id="about-link">About</a></li>
       <li><a href="/contact">Contact</a></li>
     </ul>
     <div class="nx-nav__cta">
@@ -32,7 +32,7 @@
   </div>
   <div class="nx-nav__mobile" id="mobile-menu">
     <a href="/">Home</a>
-    <a href="/about">About</a>
+    <a href="#about">About</a>
     <a href="/contact">Contact</a>
     <a href="/login">Log in</a>
     <a href="/register">Get Started</a>
@@ -40,7 +40,7 @@
 </nav>
 
 <!-- ═══════════════════════════════════════════ HERO ══════════════════════ -->
-<section class="nx-hero">
+<section class="nx-hero" id="home">
   <!-- ambient orbs -->
   <div class="orb orb--blue"></div>
   <div class="orb orb--orange"></div>
@@ -57,13 +57,13 @@
     <!-- Left: text -->
     <div class="nx-hero__text reveal-up">
       <div class="nx-eyebrow">
-        <span class="dot"></span> Nepal's Premier Logistics Platform
+        <span class="dot"></span> Nepal's Trusted Logistics Network
       </div>
       <h1 class="nx-hero__headline">
         Moving Nepal<br />
         <span class="nx-gradient-text">Forward</span>
       </h1>
-      <p class="nx-hero__sub">One Delivery at a Time</p>
+      <p class="nx-hero__sub">Connecting Nepal Through Smart Logistics </p>
       <p class="nx-hero__desc">
         NepXpress is a modern logistics platform designed to simplify shipment management,
         real-time tracking, and delivery operations across Nepal. We help businesses and
@@ -71,12 +71,12 @@
         logistics network.
       </p>
       <div class="nx-feature-box">
-    <h3>Why Choose NepXpress?</h3>
+    <h3>Why Businesses Trust NepXpress</h3>
     <ul>
-        <li>Real-Time Shipment Tracking</li>
-        <li>Fast Delivery Across Nepal</li>
+        <li>Advanced Shipment Tracking</li>
+        <li>Express Delivery Across Nepal</li>
         <li>24/7 Customer Support</li>
-        <li>Secure Logistics Network</li>
+        <li>Reliable Logistics Network</li>
         <li>Nationwide Delivery Coverage</li>
     </ul>
       </div>
@@ -145,11 +145,7 @@
           <line x1="202" y1="140" x2="320" y2="140" stroke="#475569" stroke-width="2" stroke-dasharray="6,4"/>
           <circle cx="326" cy="140" r="6" fill="#2563eb"/>
         </svg>
-        <!-- live tracking badge -->
-        <div class="nx-tracking-badge">
-          <span class="pulse-dot"></span>
-          Live Tracking Active
-        </div>
+      
       </div>
     </div>
   </div>
@@ -171,7 +167,7 @@
       <div class="nx-card__icon" style="background: linear-gradient(135deg,#2563eb22,#2563eb44)">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       </div>
-      <h3 class="nx-card__title">Our Mission</h3>
+      <h3 class="nx-card__title">Our Core Mission</h3>
       <p class="nx-card__body">To simplify logistics and empower businesses and individuals through reliable, technology-driven shipment management solutions that work at the speed of modern commerce.</p>
     </div>
     <div class="nx-card nx-card--glass reveal-up" style="--delay:.12s">
@@ -183,7 +179,7 @@
     </div>
   </div>
   <div class="nx-card nx-card--glass reveal-up" style="--delay:18s">
-    <h3 class="nx-card__title">Why Choose NepXpress</h3>
+    <h3 class="nx-card__title">Why Trust  NepXpress</h3>
     <p class="nx-card__body">
         Fast delivery, real-time tracking, secure logistics,
         nationwide coverage, and dedicated customer support.
@@ -487,7 +483,25 @@
     </div>
   </div>
 </footer>
+<script>
+window.addEventListener("scroll", function () {
+    const homeLink = document.getElementById("home-link");
+    const aboutLink = document.getElementById("about-link");
+    const missionSection = document.getElementById("mission");
 
+    if (!homeLink || !aboutLink || !missionSection) return;
+
+    const missionTop = missionSection.offsetTop - 100;
+
+    if (window.scrollY >= missionTop) {
+        homeLink.classList.remove("active");
+        aboutLink.classList.add("active");
+    } else {
+        aboutLink.classList.remove("active");
+        homeLink.classList.add("active");
+    }
+});
+</script>
 <script src="{{ url_for('static', filename='js/nepxpress.js') }}"></script>
 </body>
 </html>
