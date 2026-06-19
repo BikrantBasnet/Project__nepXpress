@@ -15,7 +15,7 @@
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">
-      <img src="{{ url_for('static', filename='mainlogo.png') }}" alt="NepXpress Logo" class="brand-logo"/>
+      <div class="logo-text">nep<span>Xpress</span></div>
     </div>
     <div class="logo-sub">Admin Panel</div>
   </div>
@@ -247,12 +247,12 @@ function drawBarChart(canvasId, labels, datasets, opts={}) {
   const gap     = (chartW / labels.length) * 0.4;
 
   // Grid lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.strokeStyle = 'rgba(13,17,23,0.1)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const y = PAD.top + chartH - (i / 4) * chartH;
     ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillStyle = 'rgba(13,17,23,0.7)';
     ctx.font = '10px DM Sans';
     ctx.textAlign = 'right';
     ctx.fillText(opts.formatY ? opts.formatY(maxVal * i / 4) : Math.round(maxVal * i / 4), PAD.left - 6, y + 4);
@@ -276,7 +276,7 @@ function drawBarChart(canvasId, labels, datasets, opts={}) {
     });
 
     // X label
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fillStyle = 'rgba(13,17,23,0.9)';
     ctx.font = '10px DM Sans';
     ctx.textAlign = 'center';
     ctx.fillText(label, slotX + (chartW / labels.length) / 2 + PAD.left - (chartW / labels.length) / 2, H - 10);
@@ -299,12 +299,12 @@ function drawLineChart(canvasId, labels, datasets) {
   const maxVal  = Math.max(...allVals, 1);
 
   // Grid
-  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.strokeStyle = 'rgba(13,17,23,0.1)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const y = PAD.top + chartH - (i / 4) * chartH;
     ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + chartW, y); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillStyle = 'rgba(13,17,23,0.7)';
     ctx.font = '10px DM Sans';
     ctx.textAlign = 'right';
     const val = maxVal * i / 4;
@@ -313,8 +313,8 @@ function drawLineChart(canvasId, labels, datasets) {
 
   // X labels
   labels.forEach((label, i) => {
-    const x = PAD.left + (i / (labels.length - 1)) * chartW;
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    const x = PAD.left + (labels.length > 1 ? (i / (labels.length - 1)) * chartW : chartW / 2);
+    ctx.fillStyle = 'rgba(13,17,23,0.9)';
     ctx.font = '10px DM Sans';
     ctx.textAlign = 'center';
     ctx.fillText(label, x, H - 10);
@@ -323,7 +323,7 @@ function drawLineChart(canvasId, labels, datasets) {
   // Lines + areas
   datasets.forEach(ds => {
     const points = ds.data.map((v, i) => ({
-      x: PAD.left + (i / Math.max(labels.length - 1, 1)) * chartW,
+      x: PAD.left + (labels.length > 1 ? (i / (labels.length - 1)) * chartW : chartW / 2),
       y: PAD.top + chartH - (v / maxVal) * chartH
     }));
 
@@ -353,7 +353,7 @@ function drawLineChart(canvasId, labels, datasets) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#13161e';
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
       ctx.fill();
@@ -386,17 +386,17 @@ function drawDonutChart(canvasId, labels, values, colors) {
   });
 
   // Hole
-  ctx.fillStyle = '#13161e';
+  ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
 
   // Center text
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fillStyle = 'rgba(13,17,23,1)';
   ctx.font = `bold 18px Syne`;
   ctx.textAlign = 'center';
   ctx.fillText(total, cx, cy + 4);
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fillStyle = 'rgba(13,17,23,0.9)';
   ctx.font = '10px DM Sans';
   ctx.fillText('total', cx, cy + 18);
 
@@ -409,11 +409,11 @@ function drawDonutChart(canvasId, labels, values, colors) {
     ctx.beginPath();
     ctx.arc(legendX - 6, y, 5, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillStyle = 'rgba(13,17,23,0.85)';
     ctx.font = '11px DM Sans';
     ctx.textAlign = 'left';
     ctx.fillText(`${label}`, legendX + 4, y + 4);
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillStyle = 'rgba(13,17,23,1)';
     ctx.font = 'bold 11px Syne';
     ctx.textAlign = 'right';
     ctx.fillText(`${pct}%`, W - 10, y + 4);
@@ -441,13 +441,13 @@ function drawHBarChart(canvasId, labels, values, colors) {
     const barW = (values[i] / maxVal) * chartW;
 
     // Label
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.fillStyle = 'rgba(13,17,23,0.8)';
     ctx.font = '12px DM Sans';
     ctx.textAlign = 'right';
     ctx.fillText(label, PAD.left - 8, y + barH / 2 + 4);
 
     // Bar bg
-    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fillStyle = 'rgba(13,17,23,0.1)';
     ctx.beginPath();
     ctx.roundRect(PAD.left, y, chartW, barH, 4);
     ctx.fill();
@@ -459,7 +459,7 @@ function drawHBarChart(canvasId, labels, values, colors) {
     ctx.fill();
 
     // Value
-    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillStyle = 'rgba(13,17,23,0.9)';
     ctx.font = 'bold 11px Syne';
     ctx.textAlign = 'left';
     ctx.fillText(values[i], PAD.left + barW + 6, y + barH / 2 + 4);
@@ -513,6 +513,29 @@ function renderSummary(d) {
 function renderRevenue(rows) {
   hideLoading('revenue-loading');
   if (!rows?.length) return;
+
+  if (rows.length === 1) {
+    // Single month - show a stat card style display instead of a broken line
+    const r = rows[0];
+    document.getElementById('revenue-chart').style.display = 'none';
+    const loading = document.getElementById('revenue-loading');
+    loading.style.display = 'flex';
+    loading.style.background = 'transparent';
+    loading.innerHTML = `
+      <div style="text-align:center">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;color:var(--text)">
+          NPR ${Number(r.revenue).toLocaleString()}
+        </div>
+        <div style="font-size:13px;color:var(--text3);margin-top:6px">
+          ${r.month} · ${r.shipments} delivered shipments
+        </div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:10px">
+          More months will appear here as data accumulates
+        </div>
+      </div>`;
+    return;
+  }
+
   const labels = rows.map(r => r.month);
   const data   = rows.map(r => r.revenue);
   setTimeout(() => drawLineChart('revenue-chart', labels, [

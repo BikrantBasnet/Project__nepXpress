@@ -49,6 +49,7 @@ class Shipment(BaseModel):
             data.get("receiver_city", ""),
             data.get("receiver_district", ""),
             data.get("destination", ""),
+            data.get("destination", ""),
             data.get("package_type", ""),
             data.get("weight") or None,
             data.get("estimated_value") or 0,
@@ -60,6 +61,7 @@ class Shipment(BaseModel):
             data.get("instructions", ""),
         ))
         db.close()
+
 
     # ---- READ: history page ----
     def find_by_user(self, user_id, status=None):
@@ -112,6 +114,8 @@ class Shipment(BaseModel):
         return execute_query(sql, (agent_id,), fetchall=True)
 
     # ---- READ: summary page numbers ----
+
+    # ---- READ: summary page numbers ----
     def get_summary_for_user(self, user_id):
         db = Database()
         rows = db.fetch_all(
@@ -139,10 +143,16 @@ class Shipment(BaseModel):
             ship_spent += ship
             if st == "delivered":
                 delivered += 1
-            elif st in ("in_transit", "delayed"):
+            elif st == "in_transit":
                 in_transit += 1
+            elif st == "delayed":
+                delayed += 1
+                in_transit += 1   # delayed counts toward in-transit total
             elif st == "cancelled":
-                failed += 1
+                cancelled += 1
+                failed += 1       # cancelled counts toward failed total
+            elif st == "processing":
+                processing += 1
             d = r["created_at"]
             if d:
                 if d.month == this_m and d.year == this_y:
@@ -155,14 +165,23 @@ class Shipment(BaseModel):
         success_rate = (delivered / total * 100) if total else 0
         base = total if total else 1
         return {
-            "total": total, "delivered": delivered, "in_transit": in_transit, "failed": failed,
+            "total": total,
+            "delivered": delivered,
+            "in_transit": in_transit,
+            "failed": failed,
+            "processing": processing,
+            "delayed": delayed,
+            "cancelled": cancelled,
             "value_spent": value_spent, "avg_value": avg_value,
             "ship_spent": ship_spent, "avg_ship": avg_ship,
             "value_this_month": value_this_month, "value_last_month": value_last_month,
             "success_rate": success_rate,
             "pct_delivered": round(delivered / base * 100),
             "pct_transit": round(in_transit / base * 100),
+            "pct_processing": round(processing / base * 100),
+            "pct_delayed": round(delayed / base * 100),
             "pct_failed": round(failed / base * 100),
+            "pct_cancelled": round(cancelled / base * 100),
         }
 
     # ---- READ: dashboard + summary recent list ----
@@ -274,6 +293,7 @@ class Shipment(BaseModel):
         new_attempts = row["attempts"] if row else 0
         cls.log_status_change(shipment_id, "Failed Attempt", agent_id, notes=reason)
         return new_attempts
+
 
     @classmethod
     def log_status_change(cls, shipment_id, new_status, agent_id, notes=None):
