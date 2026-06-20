@@ -129,6 +129,14 @@ class Database:
             "FOREIGN KEY (agent_id) REFERENCES users(id) ON DELETE SET NULL"
             ")"
         )
+        db.execute(
+            "ALTER TABLE shipments "
+            "MODIFY COLUMN status ENUM("
+            "'pending','processing','picked_up','in_transit',"
+            "'out_for_delivery','delivered','delayed','cancelled'"
+            ") NOT NULL DEFAULT 'pending'"
+        )
+
 
         # ── system_alerts ────────────────────────────────────────────── #
         db.execute(
