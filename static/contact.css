@@ -30,23 +30,43 @@
     background-repeat: no-repeat;
 }
 
+.cu-hero{
+    position: relative;
+    min-height: 100vh;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+
+    background:
+    linear-gradient(
+        rgba(0,0,0,0.35),
+        rgba(0,0,0,0.55)
+    ),
+    url("/static/images/contact-hero.png");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .cu-hero-content{
     position: relative;
     z-index: 2;
 }
 
 .cu-hero-content h1{
-    color: #ffffff;
-    font-size: 6rem;
-    font-weight: 800;
-    margin-bottom: 15px;
-    text-shadow: 0 5px 20px rgba(0,0,0,.5);
+    color:#fff;
+    font-size:7rem;
+    font-weight:800;
+    text-shadow:0 5px 25px rgba(0,0,0,.5);
 }
 
 .cu-hero-content p{
-    color: #ffffff;
-    font-size: 1.4rem;
-    font-weight: 500;
+    color:#fff;
+    font-size:1.5rem;
+    margin-top:15px;
 }
 
 /* =========================
