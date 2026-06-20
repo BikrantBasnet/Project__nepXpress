@@ -106,30 +106,30 @@
       </div>
 
       <!-- SUMMARY STRIP -->
-      <div class="summary-strip">
+<div class="summary-strip">
         <div class="summary-item">
           <span class="summary-num" id="s-total">0</span>
-          <span class="summary-lbl">Assigned</span>
+          <span class="summary-lbl">Active</span>
         </div>
         <div class="summary-divider"></div>
         <div class="summary-item">
           <span class="summary-num blue" id="s-picked">0</span>
-          <span class="summary-lbl">Picked Up</span>
-        </div>
-        <div class="summary-divider"></div>
-        <div class="summary-item">
-          <span class="summary-num green" id="s-transit">0</span>
           <span class="summary-lbl">In Transit</span>
         </div>
         <div class="summary-divider"></div>
         <div class="summary-item">
-          <span class="summary-num orange" id="s-out">0</span>
-          <span class="summary-lbl">Out for Delivery</span>
+          <span class="summary-num orange" id="s-transit">0</span>
+          <span class="summary-lbl">Delayed</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">
+          <span class="summary-num green" id="s-out">0</span>
+          <span class="summary-lbl">Delivered</span>
         </div>
         <div class="summary-divider"></div>
         <div class="summary-item">
           <span class="summary-num red" id="s-failed">0</span>
-          <span class="summary-lbl">Failed</span>
+          <span class="summary-lbl">Cancelled</span>
         </div>
       </div>
 
@@ -262,66 +262,34 @@
     </div>
   </div>
 
-  <script>
-    // ── Data ─────────────────────────────────────────────
-    // Each delivery's `status` is the RAW DB ENUM value:
-    // 'processing' | 'picked_up' | 'in_transit' | 'out_for_delivery' | 'delivered' | 'Failed Delivery Attempt'
+<script>
+    // STATUS SYSTEM: processing → in_transit → delivered | cancelled | delayed
+    // Agent sees shipments only after accepting (in_transit+).
+    // From in_transit, agent can: Delivered, Cancelled, Delayed.
+    // From delayed, agent can: back to In Transit, or Cancelled.
     const deliveries = {{ deliveries | tojson | safe }};
 
-    // Full progression sequence, raw DB values, used to build the horizontal rail
-    const STATUS_SEQUENCE = ['processing', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'];
-
-    // Raw DB status -> human-readable label
     const STATUS_LABELS = {
-      'processing':              'Pending',
-      'picked_up':                'Picked up',
-      'in_transit':                'In transit',
-      'out_for_delivery':          'Out for delivery',
-      'delivered':                 'Delivered',
-      'Failed Delivery Attempt':   'Failed delivery attempt'
+      'processing':  'Processing',
+      'in_transit':  'In Transit',
+      'delivered':   'Delivered',
+      'delayed':     'Delayed',
+      'cancelled':   'Cancelled',
     };
 
-    // Raw DB status -> pill colour class
     const STATUS_CLASS = {
-      'processing':              'st-pending',
-      'picked_up':                'st-picked',
-      'in_transit':                'st-transit',
-      'out_for_delivery':          'st-out',
-      'delivered':                 'st-delivered',
-      'Failed Delivery Attempt':   'st-failed'
+      'processing':  'st-pending',
+      'in_transit':  'st-transit',
+      'delivered':   'st-delivered',
+      'delayed':     'st-failed',
+      'cancelled':   'st-failed',
     };
 
-    // Raw DB status -> left accent bar colour class
-    const ACCENT_CLASS = {
-      'processing':              'acc-pending',
-      'picked_up':                'acc-picked',
-      'in_transit':                'acc-transit',
-      'out_for_delivery':          'acc-out',
-      'Failed Delivery Attempt':   'acc-failed'
-    };
-
-    // Raw DB status -> rail-current colour class (for the horizontal progress rail)
-    const RAIL_CURRENT_CLASS = {
-      'picked_up':        'rc-picked',
-      'in_transit':        'rc-transit',
-      'out_for_delivery':  'rc-out',
-      'delivered':         'rc-delivered'
-    };
-
-    // Raw DB status -> the agent-facing label to send to /api/agent/update-status
-    const NEXT_LABEL = {
-      'processing':        'Picked Up',
-      'picked_up':         'In Transit',
-      'in_transit':        'Out for Delivery',
-      'out_for_delivery':  'Delivered',
-    };
-
-    // Label returned to controller -> raw DB value, used to update local state optimistically
     const LABEL_TO_RAW = {
-      'Picked Up':         'picked_up',
-      'In Transit':        'in_transit',
-      'Out for Delivery':  'out_for_delivery',
-      'Delivered':         'delivered',
+      'In Transit':  'in_transit',
+      'Delivered':   'delivered',
+      'Delayed':     'delayed',
+      'Cancelled':   'cancelled',
     };
 
     let activeId = null;
@@ -331,7 +299,9 @@
     function render() {
       var list  = document.getElementById('shipmentList');
       var empty = document.getElementById('emptyState');
-      var active = deliveries.filter(function(d){ return d.status !== 'delivered'; });
+      var active = deliveries.filter(function(d){
+        return d.status !== 'delivered' && d.status !== 'cancelled';
+      });
 
       updateSummary();
 
@@ -346,44 +316,41 @@
       document.getElementById('sectionCount').textContent = active.length + ' active';
 
       list.innerHTML = active.map(function(d, i) {
-        var nextLabel = getNextLabel(d.status);
-        var isFailed  = d.status === 'Failed Delivery Attempt';
+        var statusLabel = STATUS_LABELS[d.status] || d.status;
+        var statusClass = STATUS_CLASS[d.status] || 'st-pending';
 
         return '<div class="shipment-row" id="row-' + d.id + '" style="animation-delay:' + (i*0.06) + 's">' +
-          '<div class="row-accent ' + (ACCENT_CLASS[d.status] || 'acc-pending') + '"></div>' +
-          '<div class="row-main">' +
 
-          // ── Always-visible header ──
           '<div class="row-head" onclick="toggleRow(' + d.id + ')">' +
-            '<div class="row-title-wrap">' +
-              '<div class="row-title-line">' +
-                '<span class="row-tracking">' + d.tracking_id + '</span>' +
-                '<span class="st-pill ' + (STATUS_CLASS[d.status] || 'st-pending') + '">' + (STATUS_LABELS[d.status] || d.status) + '</span>' +
-              '</div>' +
+            '<div class="row-num">' + (i+1) + '</div>' +
+            '<div class="row-info">' +
+              '<div class="row-tracking">' + d.tracking_id + '</div>' +
               '<div class="row-route">' +
                 '<span>' + d.sender_city + '</span>' +
                 '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>' +
                 '<span>' + d.receiver_city + '</span>' +
               '</div>' +
             '</div>' +
-            '<svg class="row-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '<div class="row-right">' +
+              '<span class="st-pill ' + statusClass + '">' + statusLabel + '</span>' +
+              '<svg class="row-chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>' +
+            '</div>' +
           '</div>' +
 
-          // ── Expandable body ──
           '<div class="row-body" id="body-' + d.id + '">' +
 
-            // Addresses two-up
             '<div class="addr-grid">' +
-              '<div>' +
-                '<div class="addr-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>Pickup</div>' +
+              '<div class="addr-block">' +
+                '<div class="addr-label">Pickup</div>' +
                 '<div class="addr-val">' + d.sender_address + ', ' + d.sender_city + '</div>' +
                 '<a class="phone-link" href="tel:' + d.sender_phone + '">' +
                   '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>' +
                   d.sender_phone +
                 '</a>' +
               '</div>' +
-              '<div>' +
-                '<div class="addr-label"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Deliver to</div>' +
+              '<div class="addr-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>' +
+              '<div class="addr-block">' +
+                '<div class="addr-label">Deliver to</div>' +
                 '<div class="addr-val">' + d.receiver_address + ', ' + d.receiver_city + '</div>' +
                 '<a class="phone-link" href="tel:' + d.receiver_phone + '">' +
                   '<svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>' +
@@ -392,77 +359,81 @@
               '</div>' +
             '</div>' +
 
-            // Instructions
             (d.instructions ? '<div class="instr-block"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' + d.instructions + '</div>' : '') +
 
-            // Horizontal progress rail
-            buildRail(d.status, isFailed) +
-
-            // Actions
-            '<div class="row-actions">' +
-              buildActions(d, nextLabel, isFailed) +
+            '<div class="timeline-wrap">' +
+              '<div class="timeline-lbl">Status history</div>' +
+              '<div class="timeline">' +
+                d.history.map(function(h, hi) {
+                  var last = hi === d.history.length - 1;
+                  var label = STATUS_LABELS[h.status] || h.status;
+                  return '<div class="tl-step' + (last ? ' tl-active' : '') + '">' +
+                    '<div class="tl-dot' + (last ? ' tl-dot-live' : '') + '"></div>' +
+                    '<div class="tl-detail"><div class="tl-st">' + label + '</div><div class="tl-time">' + (h.time || '') + '</div>' + (h.notes ? '<div class="tl-notes">' + h.notes + '</div>' : '') + '</div>' +
+                  '</div>';
+                }).join('') +
+              '</div>' +
             '</div>' +
 
-          '</div>' + // row-body
-          '</div>' + // row-main
-        '</div>'; // shipment-row
+            '<div class="row-actions">' +
+              buildActions(d) +
+            '</div>' +
+
+          '</div>' +
+        '</div>';
       }).join('');
 
       sigCtx = null;
     }
 
-    // Build the horizontal progress rail for one shipment
-    function buildRail(rawStatus, isFailed) {
-      var currentIdx = STATUS_SEQUENCE.indexOf(isFailed ? 'picked_up' : rawStatus);
-      var labels = ['Pending', 'Picked up', 'In transit', 'Out for delivery', 'Delivered'];
-
-      var html = '<div class="progress-rail">';
-      STATUS_SEQUENCE.forEach(function(stepKey, idx) {
-        var isDone    = idx < currentIdx;
-        var isCurrent = idx === currentIdx;
-        var stepClass = 'rail-step';
-        if (isDone)    stepClass += ' rail-done';
-        if (isCurrent) stepClass += ' rail-current ' + (RAIL_CURRENT_CLASS[stepKey] || '');
-
-        html += '<div class="' + stepClass + '"><span class="rail-dot"></span>' + labels[idx] + '</div>';
-
-        if (idx < STATUS_SEQUENCE.length - 1) {
-          var lineDone = idx < currentIdx;
-          html += '<div class="rail-line' + (lineDone ? ' rail-line-done' : '') + '"></div>';
-        }
-      });
-      html += '</div>';
-      return html;
-    }
-
-    function buildActions(d, nextLabel, isFailed) {
+    function buildActions(d) {
       var html = '';
 
-      if (nextLabel && !isFailed) {
-        if (nextLabel === 'Delivered') {
-          html += '<button class="act-btn act-deliver" onclick="openCompleteModal(' + d.id + ')">' +
-            '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Mark as delivered</button>';
-        } else {
-          html += '<button class="act-btn act-next" onclick="advanceStatus(' + d.id + ')">' +
-            '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Mark as ' + nextLabel.toLowerCase() + '</button>';
-        }
+      if (d.status === 'in_transit') {
+        // Primary action: mark delivered
+        html += '<button class="act-btn act-deliver" onclick="openCompleteModal(' + d.id + ')">' +
+          '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Mark as Delivered</button>';
+        // Secondary: delay
+        html += '<button class="act-btn act-next" onclick="updateStatus(' + d.id + ', \'Delayed\')">' +
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Mark as Delayed</button>';
+        // Tertiary: cancel
+        html += '<button class="act-btn act-fail" onclick="updateStatus(' + d.id + ', \'Cancelled\')">' +
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel Shipment</button>';
       }
 
-      if (isFailed) {
-        html += '<button class="act-btn act-next" onclick="retryAfterFail(' + d.id + ')">' +
-          '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Retry — mark picked up</button>';
-      }
-
-      if (!isFailed) {
-        html += '<button class="act-btn act-fail" onclick="openFailModal(' + d.id + ')">' +
-          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Failed attempt</button>';
+      if (d.status === 'delayed') {
+        // Can retry (back to in_transit) or cancel
+        html += '<button class="act-btn act-next" onclick="updateStatus(' + d.id + ', \'In Transit\')">' +
+          '<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>Retry — Mark In Transit</button>';
+        html += '<button class="act-btn act-deliver" onclick="openCompleteModal(' + d.id + ')">' +
+          '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Mark as Delivered</button>';
+        html += '<button class="act-btn act-fail" onclick="updateStatus(' + d.id + ', \'Cancelled\')">' +
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel Shipment</button>';
       }
 
       return html;
     }
 
-    function getNextLabel(rawStatus) {
-      return NEXT_LABEL[rawStatus] || null;
+    // ── Generic status update ─────────────────────────────
+    function updateStatus(id, label, notes) {
+      var d = deliveries.find(function(x){ return x.id === id; });
+      if (!d) return;
+
+      fetch('/api/agent/update-status', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({shipment_id: id, status: label, notes: notes || null})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(json){
+        if (json.success) {
+          d.status = LABEL_TO_RAW[label] || label;
+          d.history.push({status: d.status, time: nowStr(), notes: notes || null});
+          render();
+          setTimeout(function(){ toggleRow(id); }, 50);
+          showToast('Status updated to "' + label + '"', label === 'Cancelled' ? 'danger' : 'success');
+        } else { showToast(json.message, 'danger'); }
+      })
+      .catch(function(){ showToast('Network error — try again.', 'danger'); });
     }
 
     // ── Toggle expand ─────────────────────────────────────
@@ -475,68 +446,14 @@
       if (!open) { body.classList.add('open'); row.classList.add('expanded'); }
     }
 
-    // Re-expand a specific row after a re-render (used after status updates)
-    function reopenRow(id) {
-      var body = document.getElementById('body-' + id);
-      var row  = document.getElementById('row-'  + id);
-      if (body && row) { body.classList.add('open'); row.classList.add('expanded'); }
-    }
-
-    // ── Advance status ────────────────────────────────────
-    function advanceStatus(id) {
-      var d = deliveries.find(function(x){ return x.id === id; });
-      if (!d) return;
-      var nextLabel = getNextLabel(d.status);
-      if (!nextLabel || nextLabel === 'Delivered') return;
-
-      fetch('/api/agent/update-status', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({shipment_id: id, status: nextLabel})
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if (json.success) {
-          var rawNext = LABEL_TO_RAW[nextLabel] || nextLabel;
-          d.status = rawNext;
-          d.history.push({status: rawNext, time: nowStr()});
-          render();
-          reopenRow(id);
-          showToast('Status updated to "' + nextLabel + '"', 'success');
-        } else { showToast(json.message, 'danger'); }
-      })
-      .catch(function(){ showToast('Network error — try again.', 'danger'); });
-    }
-
-    // Retry after a failed attempt — sends agent back to "Picked Up"
-    function retryAfterFail(id) {
-      var d = deliveries.find(function(x){ return x.id === id; });
-      if (!d) return;
-
-      fetch('/api/agent/update-status', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({shipment_id: id, status: 'Picked Up'})
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if (json.success) {
-          d.status = 'picked_up';
-          d.history.push({status: 'picked_up', time: nowStr()});
-          render();
-          reopenRow(id);
-          showToast('Retrying delivery — marked as picked up', 'success');
-        } else { showToast(json.message, 'danger'); }
-      })
-      .catch(function(){ showToast('Network error — try again.', 'danger'); });
-    }
-
-    // ── Summary ───────────────────────────────────────────
+    // ── Summary strip ─────────────────────────────────────
     function updateSummary() {
-      var active = deliveries.filter(function(d){ return d.status !== 'delivered'; });
-      document.getElementById('s-total').textContent  = active.length;
-      document.getElementById('s-picked').textContent = active.filter(function(d){ return d.status === 'picked_up'; }).length;
-      document.getElementById('s-transit').textContent= active.filter(function(d){ return d.status === 'in_transit'; }).length;
-      document.getElementById('s-out').textContent    = active.filter(function(d){ return d.status === 'out_for_delivery'; }).length;
-      document.getElementById('s-failed').textContent = active.filter(function(d){ return d.status === 'Failed Delivery Attempt'; }).length;
+      var active = deliveries.filter(function(d){ return d.status !== 'delivered' && d.status !== 'cancelled'; });
+      document.getElementById('s-total').textContent   = active.length;
+      document.getElementById('s-picked').textContent  = active.filter(function(d){ return d.status === 'in_transit'; }).length;
+      document.getElementById('s-transit').textContent = active.filter(function(d){ return d.status === 'delayed'; }).length;
+      document.getElementById('s-out').textContent     = deliveries.filter(function(d){ return d.status === 'delivered'; }).length;
+      document.getElementById('s-failed').textContent  = deliveries.filter(function(d){ return d.status === 'cancelled'; }).length;
     }
 
     // ── Complete modal ────────────────────────────────────
@@ -581,43 +498,7 @@
           d.history.push({status:'delivered', time: nowStr()});
           document.getElementById('completeModal').classList.remove('open');
           render();
-          showToast(d.tracking_id + ' marked as delivered!', 'success');
-        } else { showToast(json.message, 'danger'); }
-      })
-      .catch(function(){ showToast('Network error.', 'danger'); });
-    }
-
-    // ── Fail modal ────────────────────────────────────────
-    function openFailModal(id) {
-      activeId = id;
-      var d = deliveries.find(function(x){ return x.id === id; });
-      document.getElementById('fm-id').textContent = d.tracking_id;
-      document.querySelectorAll('input[name="failReason"]').forEach(function(r){ r.checked=false; });
-      document.getElementById('failNotes').value = '';
-      document.getElementById('failModal').classList.add('open');
-    }
-
-    function closeFailModal(e) {
-      if (!e || e.target.id === 'failModal') document.getElementById('failModal').classList.remove('open');
-    }
-
-    function confirmFail() {
-      var reason = document.querySelector('input[name="failReason"]:checked');
-      if (!reason) { showToast('Please select a reason.', 'danger'); return; }
-      var d = deliveries.find(function(x){ return x.id === activeId; });
-
-      fetch('/api/agent/fail-delivery', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({shipment_id: activeId, reason: reason.value})
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(json){
-        if (json.success) {
-          d.status = 'Failed Delivery Attempt';
-          d.history.push({status:'Failed Delivery Attempt', time: nowStr()});
-          document.getElementById('failModal').classList.remove('open');
-          render();
-          showToast(json.message, 'danger');
+          showToast(d.tracking_id + ' marked as Delivered!', 'success');
         } else { showToast(json.message, 'danger'); }
       })
       .catch(function(){ showToast('Network error.', 'danger'); });
@@ -669,7 +550,7 @@
 
     // ── Init ──────────────────────────────────────────────
     render();
-    setTimeout(function(){ if(deliveries.length) reopenRow(deliveries[0].id); }, 80);
+    setTimeout(function(){ if(deliveries.length) toggleRow(deliveries[0].id); }, 80);
   </script>
 
 </body>
