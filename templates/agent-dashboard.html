@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='agent-dashboard.css') }}"/>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAStQP_A3Ad4PdkBJ8tWz8L2BN_2sgfbTM"></script>
 </head>
 <body>
 
@@ -25,7 +24,6 @@
   <!-- ══ SIDEBAR ══════════════════════════════════════ -->
   <aside class="sidebar">
 
-    <!-- Brand (identical markup to customer dashboard) -->
     <div class="sidebar-brand">
       <div class="brand">
         <div class="brand-icon">
@@ -38,7 +36,6 @@
       </div>
     </div>
 
-    <!-- On / Off Duty toggle -->
     <div class="duty-toggle-wrap">
       <div class="duty-row">
         <span class="duty-label">
@@ -53,7 +50,6 @@
       <div class="duty-status-text" id="dutyStatusText">Not accepting deliveries</div>
     </div>
 
-    <!-- Nav -->
     <nav class="sidebar-nav">
       <a href="/agent-dashboard" class="nav-item active">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -77,7 +73,6 @@
       </a>
     </nav>
 
-    <!-- User block (identical markup to customer dashboard) -->
     <div class="sidebar-user">
       <div class="user-avatar">{{ (user_name[0] if user_name else 'A') | upper }}</div>
       <div class="user-info">
@@ -104,14 +99,14 @@
 
     <main class="content">
 
-      <!-- ── STAT CARDS ──────────────────────────────── -->
+      <!-- ── STAT CARDS (real data) ──────────────────── -->
       <div class="agent-stats">
 
         <div class="agent-stat-card">
           <div class="stat-left">
             <div class="stat-lbl">Today's Deliveries</div>
-            <div class="stat-val">12</div>
-            <div class="stat-sub up">+3 from yesterday</div>
+            <div class="stat-val">{{ stats.today_count if stats else 0 }}</div>
+            <div class="stat-sub muted">Delivered today</div>
           </div>
           <div class="stat-icon-wrap blue">
             <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
@@ -121,8 +116,8 @@
         <div class="agent-stat-card">
           <div class="stat-left">
             <div class="stat-lbl">Today's Earnings</div>
-            <div class="stat-val" style="font-size:22px;">NPR 2,400</div>
-            <div class="stat-sub up">+15% from yesterday</div>
+            <div class="stat-val" style="font-size:22px;">NPR {{ "%.0f"|format(stats.today_earnings) if stats else 0 }}</div>
+            <div class="stat-sub muted">From today's deliveries</div>
           </div>
           <div class="stat-icon-wrap green">
             <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -131,20 +126,20 @@
 
         <div class="agent-stat-card">
           <div class="stat-left">
-            <div class="stat-lbl">Average Rating</div>
-            <div class="stat-val">4.8</div>
-            <div class="stat-sub muted">Based on 245 reviews</div>
+            <div class="stat-lbl">Active Deliveries</div>
+            <div class="stat-val">{{ stats.active_count if stats else 0 }}</div>
+            <div class="stat-sub muted">Currently in progress</div>
           </div>
           <div class="stat-icon-wrap orange">
-            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
           </div>
         </div>
 
         <div class="agent-stat-card">
           <div class="stat-left">
             <div class="stat-lbl">Success Rate</div>
-            <div class="stat-val">98%</div>
-            <div class="stat-sub up">Excellent performance</div>
+            <div class="stat-val">{{ stats.success_rate if stats else 0 }}%</div>
+            <div class="stat-sub muted">Delivered vs cancelled</div>
           </div>
           <div class="stat-icon-wrap purple">
             <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
@@ -175,95 +170,42 @@
         </a>
       </section>
 
-      <!-- ── LIVE ROUTE MAP ──────────────────────────── -->
-      <section class="map-section">
-        <div class="map-header">
-          <div>
-            <h3>Live Route Map</h3>
-            <p>Your current location and active deliveries</p>
-          </div>
-          <button class="btn-map">
-            <svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-            View Full Map
-          </button>
-        </div>
-        <div class="map-body">
-          <div id="map"></div>
-        </div>
-      </section>
-
-      <!-- ── ACTIVE DELIVERIES ───────────────────────── -->
+      <!-- ── ACTIVE DELIVERIES (real data, links to /agent-routes) ── -->
       <section class="active-deliveries-section">
         <div class="section-header">
           <h3>Active Deliveries</h3>
-          <span>3 in progress</span>
+          <span>{{ active_deliveries|length }} in progress</span>
         </div>
 
         <div class="active-delivery-list">
-
-          <div class="active-delivery-item">
-            <div class="ad-icon">
-              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div class="ad-info">
-              <strong>NXP-2850</strong>
-              <span class="ad-badge picked-up">Picked Up</span>
-            </div>
-            <div class="ad-route">
-              <div class="ad-route-row">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                Pickup: <strong>Kathmandu</strong>
-              </div>
-              <div class="ad-route-row">
-                <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-                Delivery: <strong>Lalitpur</strong>
-              </div>
-            </div>
-            <button class="btn-navigate">Navigate</button>
-          </div>
-
-          <div class="active-delivery-item">
-            <div class="ad-icon">
-              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div class="ad-info">
-              <strong>NXP-2851</strong>
-              <span class="ad-badge pending">Pending Pickup</span>
-            </div>
-            <div class="ad-route">
-              <div class="ad-route-row">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                Pickup: <strong>Bhaktapur</strong>
-              </div>
-              <div class="ad-route-row">
-                <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-                Delivery: <strong>Pokhara</strong>
-              </div>
-            </div>
-            <button class="btn-navigate">Navigate</button>
-          </div>
-
-          <div class="active-delivery-item">
-            <div class="ad-icon">
-              <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-            </div>
-            <div class="ad-info">
-              <strong>NXP-2852</strong>
-              <span class="ad-badge in-transit">In Transit</span>
-            </div>
-            <div class="ad-route">
-              <div class="ad-route-row">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-                Pickup: <strong>Patan</strong>
-              </div>
-              <div class="ad-route-row">
-                <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-                Delivery: <strong>Chitwan</strong>
-              </div>
-            </div>
-            <button class="btn-navigate">Navigate</button>
-          </div>
-
+          {% if active_deliveries and active_deliveries|length > 0 %}
+            {% for d in active_deliveries[:5] %}
+              {% set status_class = 'picked-up' if d.status == 'picked_up' else ('in-transit' if d.status in ['in_transit', 'out_for_delivery'] else 'pending') %}
+              {% set status_label = d.status.replace('_', ' ').title() %}
+              <a href="/agent-routes" class="active-delivery-item" style="text-decoration:none;cursor:pointer;">
+                <div class="ad-icon">
+                  <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+                <div class="ad-info">
+                  <strong>{{ d.tracking_id }}</strong>
+                  <span class="ad-badge {{ status_class }}">{{ status_label }}</span>
+                </div>
+                <div class="ad-route">
+                  <div class="ad-route-row">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    Pickup: <strong>{{ d.sender_city or '—' }}</strong>
+                  </div>
+                  <div class="ad-route-row">
+                    <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                    Delivery: <strong>{{ d.receiver_city or '—' }}</strong>
+                  </div>
+                </div>
+                <button class="btn-navigate" onclick="event.preventDefault(); window.location.href='/agent-routes';">View Route</button>
+              </a>
+            {% endfor %}
+          {% else %}
+            <div class="empty-deliveries">No active deliveries right now. Check Available Deliveries to accept a new request.</div>
+          {% endif %}
         </div>
       </section>
 
@@ -273,94 +215,51 @@
   <!-- ══ RIGHT PANEL ═══════════════════════════════════ -->
   <aside class="right-panel">
 
-    <!-- Nearby / Available Deliveries -->
+    <!-- Trust / Confidence promo card (agent-flavored) -->
     <section class="panel-section">
-      <div class="panel-header">
-        <h3>Available Nearby</h3>
-        <a href="/agent-deliveries">View All</a>
-      </div>
-      <div class="nearby-list">
-
-        <div class="nearby-item">
-          <div class="nearby-top">
-            <span class="nearby-id">NXP-2853</span>
-            <span class="nearby-fee">NPR 180</span>
-          </div>
-          <div class="nearby-location">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-            Kathmandu
-          </div>
-          <div class="nearby-dist">1.2 km away</div>
-          <button class="btn-accept" onclick="openDeliveryDetail('NXP-2853','Kathmandu','Lalitpur','Parcel','1.2 kg','NPR 180','1.2 km')">Accept Delivery</button>
+      <div class="promo-card">
+        <h3>Deliver with Confidence</h3>
+        <p>Every package you carry reaches its destination safely and on time.</p>
+        <div class="promo-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
         </div>
-
-        <div class="nearby-item">
-          <div class="nearby-top">
-            <span class="nearby-id">NXP-2854</span>
-            <span class="nearby-fee">NPR 220</span>
-          </div>
-          <div class="nearby-location">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-            Patan
-          </div>
-          <div class="nearby-dist">2.8 km away</div>
-          <button class="btn-accept" onclick="openDeliveryDetail('NXP-2854','Patan','Bhaktapur','Electronics','0.8 kg','NPR 220','2.8 km')">Accept Delivery</button>
-        </div>
-
-        <div class="nearby-item">
-          <div class="nearby-top">
-            <span class="nearby-id">NXP-2855</span>
-            <span class="nearby-fee">NPR 300</span>
-          </div>
-          <div class="nearby-location">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
-            Bhaktapur
-          </div>
-          <div class="nearby-dist">4.5 km away</div>
-          <button class="btn-accept" onclick="openDeliveryDetail('NXP-2855','Bhaktapur','Pokhara','Fragile','2.0 kg','NPR 300','4.5 km')">Accept Delivery</button>
-        </div>
-
       </div>
     </section>
 
-    <!-- Notifications -->
+    <!-- Support / Contact card -->
     <section class="panel-section">
       <div class="panel-header">
-        <h3>Notifications</h3>
-        <a href="#">View All</a>
+        <h3>Agent Support</h3>
       </div>
-      <div class="notif-list">
+      <div class="contact-list">
 
-        <div class="notif-item">
-          <div class="notif-icon blue">
-            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="contact-item">
+          <div class="contact-icon blue">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
           </div>
-          <div class="notif-body">
-            <strong>New Delivery Request</strong>
-            <p>Package pickup at Kathmandu – 2.5km away</p>
-            <time>2 min ago</time>
+          <div class="contact-text">
+            <span class="contact-label">Email</span>
+            <span class="contact-val">agentsupport@nepxpress.com</span>
           </div>
         </div>
 
-        <div class="notif-item">
-          <div class="notif-icon green">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="contact-item">
+          <div class="contact-icon orange">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.08 6.08l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/></svg>
           </div>
-          <div class="notif-body">
-            <strong>Delivery Completed</strong>
-            <p>Package #NXP-2847 marked as delivered</p>
-            <time>15 min ago</time>
+          <div class="contact-text">
+            <span class="contact-label">Support Hotline</span>
+            <span class="contact-val">01-4567890</span>
           </div>
         </div>
 
-        <div class="notif-item">
-          <div class="notif-icon orange">
-            <svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        <div class="contact-item">
+          <div class="contact-icon purple">
+            <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
           </div>
-          <div class="notif-body">
-            <strong>Route Update</strong>
-            <p>Optimal route updated for next delivery</p>
-            <time>1 hour ago</time>
+          <div class="contact-text">
+            <span class="contact-label">Dispatch Line</span>
+            <span class="contact-val">+977-9812345678</span>
           </div>
         </div>
 
@@ -370,33 +269,6 @@
   </aside>
 
   <button class="help-btn">?</button>
-
-  <!-- ── DELIVERY DETAIL MODAL ───────────────────────── -->
-  <div id="deliveryModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:20px;width:420px;max-width:95vw;box-shadow:0 24px 60px rgba(0,0,0,0.18);overflow:hidden;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #e2e5eb;">
-        <div>
-          <div style="font-size:17px;font-weight:700;color:#1a1f2e;" id="modal-id">—</div>
-          <div style="font-size:13px;color:#8a93a8;margin-top:3px;">Shipment Request</div>
-        </div>
-        <button onclick="closeModal()" style="background:#f4f5f7;border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;color:#8a93a8;">✕</button>
-      </div>
-      <div style="padding:20px 24px;display:flex;flex-direction:column;gap:12px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8a93a8;margin-bottom:2px;">Route</div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#8a93a8;">Pickup</span><strong id="modal-from">—</strong></div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#8a93a8;">Delivery</span><strong id="modal-to">—</strong></div>
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#8a93a8;margin-top:6px;margin-bottom:2px;">Package</div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#8a93a8;">Type</span><strong id="modal-type">—</strong></div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#8a93a8;">Weight</span><strong id="modal-weight">—</strong></div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;border-bottom:1px solid #f1f5f9;"><span style="color:#8a93a8;">Earnings</span><strong id="modal-fee" style="color:#22c55e;">—</strong></div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;padding:5px 0;"><span style="color:#8a93a8;">Distance</span><strong id="modal-dist">—</strong></div>
-      </div>
-      <div style="display:flex;gap:10px;padding:0 24px 22px;">
-        <button onclick="rejectDelivery()" style="flex:1;background:#f4f5f7;color:#8a93a8;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">Reject</button>
-        <button onclick="acceptDelivery()" style="flex:2;background:#0d0f14;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">Accept Delivery</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     // ── Duty Toggle ────────────────────────────────────
@@ -414,43 +286,6 @@
       }
     }
 
-    // ── Delivery Detail Modal ──────────────────────────
-    var currentDeliveryId = null;
-
-    function openDeliveryDetail(id, from, to, type, weight, fee, dist) {
-      currentDeliveryId = id;
-      document.getElementById('modal-id').textContent     = id;
-      document.getElementById('modal-from').textContent   = from;
-      document.getElementById('modal-to').textContent     = to;
-      document.getElementById('modal-type').textContent   = type;
-      document.getElementById('modal-weight').textContent = weight;
-      document.getElementById('modal-fee').textContent    = fee;
-      document.getElementById('modal-dist').textContent   = dist;
-      var modal = document.getElementById('deliveryModal');
-      modal.style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('deliveryModal').style.display = 'none';
-      currentDeliveryId = null;
-    }
-
-    function acceptDelivery() {
-      // TODO: POST to /agent/accept-delivery with currentDeliveryId
-      closeModal();
-      showToast('Delivery ' + currentDeliveryId + ' accepted!', 'success');
-    }
-
-    function rejectDelivery() {
-      closeModal();
-      showToast('Delivery rejected.', 'danger');
-    }
-
-    // Close on overlay click
-    document.getElementById('deliveryModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-
     // ── Toast helper ───────────────────────────────────
     function showToast(msg, type) {
       var el = document.createElement('div');
@@ -459,50 +294,6 @@
       document.body.appendChild(el);
       setTimeout(function() { if (el.parentNode) el.remove(); }, 3200);
     }
-    function initMap() {
-            // Set coordinates for Warehouse and Customer
-            const warehouse = { lat: 27.706186868208928, lng: 85.32996238161454};  // e.g., NYC New York
-            const customer = { lat: 40.7306, lng: -73.9352 };   // e.g., Brooklyn New York
-
-            // 2. Render the visual map using the Google API
-            const map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 12,
-                center: warehouse,
-            });
-
-            // 3. Drop visual markers onto the map
-            new google.maps.Marker({ position: warehouse, map: map, title: "Warehouse Hub" });
-            new google.maps.Marker({ position: customer, map: map, title: "Customer Delivery Address" });
-
-            // 4. Run your custom math calculations locally
-            const results = calculateMetrics(warehouse.lat, warehouse.lng, customer.lat, customer.lng);
-
-            // 5. Inject the math results into your website's HTML text boxes
-            document.getElementById("distance-output").innerText = results.distance;
-            document.getElementById("eta-output").innerText = results.eta;
-        }
-
-        // The math formula that bypasses the need for a credit card
-        function calculateMetrics(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Earth's radius in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            
-            const straightLine = R * c;
-            const drivingEstimate = straightLine * 1.3; // Simulates real street curves
-            const timeMinutes = Math.round((drivingEstimate / 40) * 60); // Assumes 40 km/h average speed
-
-            return {
-                distance: drivingEstimate.toFixed(2) + " km",
-                eta: timeMinutes + " minutes"
-            };
-        }
-
-        // Trigger the map load when the webpage opens
-        window.onload = initMap;
   </script>
 
 </body>
