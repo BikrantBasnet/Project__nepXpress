@@ -8,37 +8,16 @@
 /* ===== HERO ===== */
 .cu-hero {
     position: relative;
-    min-height: 55vh;
-    background: linear-gradient(rgba(10, 20, 35, 0.82), rgba(10, 20, 35, 0.88)),
-                url('https://images.unsplash.com/photo-1727101981835-50bade3c4eaf?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    min-height: 75vh;
+    background: url('contact-hero.png') center top / cover no-repeat;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     overflow: hidden;
 }
 
-.cu-hero::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 30% 30%, rgba(41,182,232,0.18), transparent 60%);
-    animation: pulseGlow 6s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-
 .cu-hero h1 {
-    position: relative;
-    z-index: 2;
-    color: #fff;
-    font-size: 3rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    opacity: 0;
-    animation: fadeUp 1s ease forwards 0.2s;
+    display: none;
 }
 
 @keyframes fadeUp {
