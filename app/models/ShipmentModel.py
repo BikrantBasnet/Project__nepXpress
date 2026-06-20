@@ -118,6 +118,60 @@ class Shipment(BaseModel):
         """
         return execute_query(sql, (agent_id,), fetchall=True)
 
+    @classmethod
+    def get_agent_dashboard_stats(cls, agent_id):
+        """
+        Stats for the agent dashboard cards:
+          - today's deliveries (delivered today)
+          - today's earnings (sum of delivery_cost for today's deliveries)
+          - success rate (delivered / (delivered + cancelled), all-time)
+          - active count (currently in-progress)
+        """
+        today_row = execute_query(
+            """
+            SELECT COUNT(*) AS cnt, COALESCE(SUM(delivery_cost), 0) AS earnings
+            FROM shipments
+            WHERE agent_id = %s
+              AND status = 'delivered'
+              AND DATE(updated_at) = CURDATE()
+            """,
+            (agent_id,), fetchone=True
+        )
+
+        rate_row = execute_query(
+            """
+            SELECT
+                SUM(CASE WHEN status = 'delivered' THEN 1 ELSE 0 END) AS delivered,
+                SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled
+            FROM shipments
+            WHERE agent_id = %s
+              AND status IN ('delivered', 'cancelled')
+            """,
+            (agent_id,), fetchone=True
+        )
+
+        active_row = execute_query(
+            """
+            SELECT COUNT(*) AS cnt
+            FROM shipments
+            WHERE agent_id = %s
+              AND status NOT IN ('delivered', 'cancelled')
+            """,
+            (agent_id,), fetchone=True
+        )
+
+        delivered = (rate_row["delivered"] or 0) if rate_row else 0
+        cancelled = (rate_row["cancelled"] or 0) if rate_row else 0
+        total_closed = delivered + cancelled
+        success_rate = round((delivered / total_closed) * 100) if total_closed else 0
+
+        return {
+            "today_count": today_row["cnt"] if today_row else 0,
+            "today_earnings": float(today_row["earnings"]) if today_row else 0.0,
+            "success_rate": success_rate,
+            "active_count": active_row["cnt"] if active_row else 0,
+        }
+
     # ---- READ: summary page numbers ----
     def get_summary_for_user(self, user_id):
         db = Database()
