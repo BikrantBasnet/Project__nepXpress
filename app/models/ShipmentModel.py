@@ -262,13 +262,27 @@ class Shipment(BaseModel):
 
     @classmethod
     def update_status(cls, shipment_id, agent_id, new_status, notes=None):
-        db_status = cls.STATUS_MAP.get(new_status, new_status)
-        execute_query(
+        # Normalize: lowercase, strip whitespace, collapse to underscore-safe key
+        clean = new_status.strip().lower()
+
+        if "picked" in clean:
+            db_status = "picked_up"
+        elif "out for delivery" in clean:
+            db_status = "out_for_delivery"
+        elif "transit" in clean:
+            db_status = "in_transit"
+        elif "delivered" in clean:
+            db_status = "delivered"
+        else:
+            db_status = clean.replace(" ", "_")  # fallback
+
+        affected = execute_query(
             "UPDATE shipments SET status = %s, updated_at = NOW() "
             "WHERE id = %s AND agent_id = %s",
             (db_status, shipment_id, agent_id)
         )
         cls.log_status_change(shipment_id, new_status, agent_id, notes)
+        return affected
 
     @classmethod
     def record_failed_attempt(cls, shipment_id, agent_id, reason=None):
