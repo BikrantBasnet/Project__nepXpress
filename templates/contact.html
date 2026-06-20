@@ -7,55 +7,121 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
         padding: 40px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(-45deg, #1e3a8a, #2563eb, #38bdf8, #1e3a8a);
+        background-size: 400% 400%;
+        animation: gradientShift 12s ease infinite;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Floating decorative shapes */
+    .contact-section::before,
+    .contact-section::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        filter: blur(2px);
+    }
+
+    .contact-section::before {
+        width: 250px;
+        height: 250px;
+        top: -60px;
+        left: -60px;
+        animation: floatSlow 9s ease-in-out infinite;
+    }
+
+    .contact-section::after {
+        width: 350px;
+        height: 350px;
+        bottom: -100px;
+        right: -80px;
+        animation: floatSlow 11s ease-in-out infinite reverse;
+    }
+
+    @keyframes floatSlow {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(30px, -30px) scale(1.1); }
+    }
+
+    /* Extra floating particles */
+    .particle {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+        pointer-events: none;
+        animation: drift linear infinite;
+    }
+
+    @keyframes drift {
+        0% { transform: translateY(0) translateX(0); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(-600px) translateX(40px); opacity: 0; }
     }
 
     .contact-card {
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        padding: 45px 40px;
+        border-radius: 22px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.25);
         max-width: 600px;
         width: 100%;
         text-align: center;
+        position: relative;
+        z-index: 2;
+        animation: cardEntrance 0.8s ease-out;
+    }
+
+    @keyframes cardEntrance {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     .contact-card h1 {
         color: #1e3a8a;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         font-size: 2.5rem;
     }
 
     .contact-item {
-        margin: 15px 0;
-        font-size: 1.1rem;
+        margin: 18px 0;
+        font-size: 1.15rem;
         color: #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: transform 0.25s ease;
     }
 
-    .contact-item i {
-        color: #2563eb;
-        margin-right: 10px;
+    .contact-item:hover {
+        transform: scale(1.04);
     }
 
-    .contact-btn {
-        display: inline-block;
-        margin-top: 25px;
-        padding: 12px 25px;
-        background: #2563eb;
-        color: white;
-        text-decoration: none;
-        border-radius: 10px;
-        transition: 0.3s;
-    }
-
-    .contact-btn:hover {
-        background: #1d4ed8;
-        transform: translateY(-2px);
+    .contact-item strong {
+        color: #1e3a8a;
     }
 </style>
 
 <div class="contact-section">
+    <!-- Floating particles (decorative, no JS needed) -->
+    <div class="particle" style="width:10px;height:10px;left:10%;bottom:0;animation-duration:8s;animation-delay:0s;"></div>
+    <div class="particle" style="width:14px;height:14px;left:25%;bottom:0;animation-duration:11s;animation-delay:2s;"></div>
+    <div class="particle" style="width:8px;height:8px;left:40%;bottom:0;animation-duration:9s;animation-delay:1s;"></div>
+    <div class="particle" style="width:16px;height:16px;left:55%;bottom:0;animation-duration:13s;animation-delay:3s;"></div>
+    <div class="particle" style="width:10px;height:10px;left:70%;bottom:0;animation-duration:10s;animation-delay:0.5s;"></div>
+    <div class="particle" style="width:12px;height:12px;left:85%;bottom:0;animation-duration:12s;animation-delay:2.5s;"></div>
+
     <div class="contact-card">
         <h1>📞 Contact Us</h1>
 
@@ -70,12 +136,6 @@
         <div class="contact-item">
             📍 <strong>Address:</strong> Kathmandu, Nepal
         </div>
-
-        <a href="mailto:nepxpress@gmail.com" class="contact-btn">
-            Send Email
-        </a>
     </div>
 </div>
 {% endblock %}
-
-
