@@ -162,10 +162,6 @@
           <input type="text" class="form-input" id="agent-phone" placeholder="e.g. 9801234567"/>
         </div>
         <div class="form-group">
-          <label class="form-label">Zone</label>
-          <input type="text" class="form-input" id="agent-zone" placeholder="e.g. Kathmandu"/>
-        </div>
-        <div class="form-group">
           <label class="form-label">Status</label>
           <select class="form-select" id="agent-status">
             <option value="active">Active</option>
@@ -275,12 +271,13 @@ const STATUS_CONFIG = {
 };
 
 const SHIP_STATUS = {
-  delivered:  { cls:'badge-delivered',  label:'Delivered'  },
-  in_transit: { cls:'badge-in_transit', label:'In Transit' },
-  processing: { cls:'badge-processing', label:'Processing' },
-  delayed:    { cls:'badge-delayed',    label:'Delayed'    },
-  pending:    { cls:'badge-pending',    label:'Pending'    },
-  cancelled:  { cls:'badge-cancelled',  label:'Cancelled'  },
+  delivered:        { cls:'badge-delivered',  label:'Delivered'  },
+  in_transit:       { cls:'badge-in_transit', label:'In Transit' },
+  processing:       { cls:'badge-processing', label:'Processing' },
+  picked_up:        { cls:'badge-processing', label:'Picked Up'  },
+  out_for_delivery: { cls:'badge-in_transit', label:'Out for Delivery' },
+  delayed:          { cls:'badge-delayed',    label:'Delayed'    },
+  cancelled:        { cls:'badge-cancelled',  label:'Cancelled'  },
 };
 
 async function apiFetch(path, options={}) {
@@ -357,7 +354,6 @@ function renderGrid(list) {
         </div>
         <div class="agent-card-name">${a.name}</div>
         <div class="agent-card-email">${a.email}</div>
-        <div class="agent-card-zone">${a.zone ? '📍 ' + a.zone : '📍 No zone'}</div>
 
         <div class="agent-card-stats">
           <div class="agent-stat">
@@ -386,7 +382,7 @@ function renderGrid(list) {
 
         <div class="agent-card-footer">
           <button class="action-btn view-btn" title="View details" onclick="openDetail(${a.id})">👁</button>
-          <button class="action-btn edit-btn" title="Edit"         onclick="openEditModal(${a.id},'${a.name}','${a.email}','${a.phone||''}','${a.zone||''}','${a.status}')">✏</button>
+          <button class="action-btn edit-btn" title="Edit"         onclick="openEditModal(${a.id},'${a.name}','${a.email}','${a.phone||''}','${a.status}')">✏</button>
           <button class="action-btn warn-btn" title="Update status" onclick="openStatusModal(${a.id},'${a.name}','${a.status}')">⟳</button>
           <button class="action-btn del-btn"  title="Delete"        onclick="openDeleteModal(${a.id},'${a.name}')">🗑</button>
         </div>
@@ -465,7 +461,6 @@ async function openDetail(id) {
           <div class="detail-row"><span>Name</span><strong>${agent.name}</strong></div>
           <div class="detail-row"><span>Email</span><strong>${agent.email}</strong></div>
           <div class="detail-row"><span>Phone</span><strong>${agent.phone||'—'}</strong></div>
-          <div class="detail-row"><span>Zone</span><strong>${agent.zone||'—'}</strong></div>
           <div class="detail-row"><span>Status</span><span class="agent-status-badge ${sc.cls}">${sc.label}</span></div>
           <div class="detail-row"><span>Joined</span><strong>${formatDate(agent.created_at)}</strong></div>
         </div>
@@ -481,7 +476,7 @@ async function openDetail(id) {
         <div class="detail-section detail-full">
           <div class="detail-section-title">🕒 Recent Shipments</div>
           ${shipments.map(s => {
-            const st = SHIP_STATUS[s.status] || { cls:'badge-pending', label:s.status };
+            const st = SHIP_STATUS[s.status] || { cls:'badge-processing', label:s.status };
             return `<div class="detail-row">
               <span style="font-family:'Syne',sans-serif;color:var(--accent);font-weight:600">${s.tracking_id}</span>
               <span>${s.customer_name||'—'}</span>
@@ -495,7 +490,7 @@ async function openDetail(id) {
 
     $('detail-footer').innerHTML = `
       <button class="btn-secondary" onclick="closeModal('detail-modal')">Close</button>
-      <button class="btn-primary" onclick="closeModal('detail-modal');openEditModal(${agent.id},'${agent.name}','${agent.email}','${agent.phone||''}','${agent.zone||''}','${agent.status}')">Edit</button>
+      <button class="btn-primary" onclick="closeModal('detail-modal');openEditModal(${agent.id},'${agent.name}','${agent.email}','${agent.phone||''}','${agent.status}')">Edit</button>
       <button class="btn-warn" onclick="closeModal('detail-modal');openStatusModal(${agent.id},'${agent.name}','${agent.status}')">Update Status</button>
       <button class="btn-danger" onclick="closeModal('detail-modal');openDeleteModal(${agent.id},'${agent.name}')">Delete</button>`;
 
@@ -513,12 +508,12 @@ function openCreateModal() {
   $('agent-name').value   = '';
   $('agent-email').value  = '';
   $('agent-phone').value  = '';
-  $('agent-zone').value   = '';
   $('agent-status').value = 'active';
   openModal('create-modal');
 }
 
-function openEditModal(id, name, email, phone, zone, status) {
+// FIXED: removed unused 'zone' parameter that was shifting phone/status values
+function openEditModal(id, name, email, phone, status) {
   editMode = true;
   activeAgentId = id;
   $('create-modal-title').textContent = 'Edit Agent';
@@ -526,7 +521,6 @@ function openEditModal(id, name, email, phone, zone, status) {
   $('agent-name').value   = name;
   $('agent-email').value  = email;
   $('agent-phone').value  = phone;
-  $('agent-zone').value   = zone;
   $('agent-status').value = status;
   openModal('create-modal');
 }
@@ -541,7 +535,6 @@ async function submitAgent() {
   const payload = {
     name, email,
     phone:  $('agent-phone').value.trim(),
-    zone:   $('agent-zone').value.trim(),
     status: $('agent-status').value
   };
   try {
