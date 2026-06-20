@@ -422,6 +422,123 @@
 .panel-header a   { font-size: 12.5px; color: var(--muted); text-decoration: none; font-weight: 500; transition: color 0.2s; }
 .panel-header a:hover { color: var(--text); }
 
+/* ── Promo card (Deliver with Confidence) ───────────── */
+.promo-card {
+  background: linear-gradient(160deg, #f5f3ff 0%, #eef2ff 100%);
+  border: 1px solid #e4e1fb;
+  border-radius: 18px;
+  padding: 24px 22px;
+  text-align: left;
+  animation: fadeUp 0.4s ease both;
+}
+
+.promo-card h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.promo-card p {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 22px;
+}
+
+.promo-icon-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 4px;
+}
+
+.promo-icon-wrap svg {
+  width: 88px;
+  height: 88px;
+  stroke: #6d5ef0;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+/* ── Contact / support list ─────────────────────────── */
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.contact-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.contact-icon svg { width: 18px; height: 18px; stroke-width: 2; fill: none; }
+
+.contact-icon.blue   { background: #eff6ff; } .contact-icon.blue   svg { stroke: #3b82f6; }
+.contact-icon.orange { background: #fff7ed; } .contact-icon.orange svg { stroke: #f97316; }
+.contact-icon.purple { background: #f5f3ff; } .contact-icon.purple svg { stroke: #8b5cf6; }
+.contact-icon.green  { background: #f0fdf4; } .contact-icon.green  svg { stroke: #22c55e; }
+
+.contact-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.contact-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.contact-val {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Help button (floating) ─────────────────────────── */
+.help-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 50;
+}
+
+.help-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(15,23,42,0.32);
+}
+
 /* Nearby deliveries in right panel */
 .nearby-list {
   display: flex;
