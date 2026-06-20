@@ -61,19 +61,27 @@ class Shipment(BaseModel):
 
     # ---- READ: history page ----
     def find_by_user(self, user_id, status=None):
-        db = Database()
+        """
+        Fetches all shipments for a specific customer, joining the users 
+        table to retrieve the assigned agent's id and name dynamically.
+        """
+        from app.models.database import execute_query
+
+        query = """
+            SELECT s.*, u.name AS agent_name 
+            FROM shipments s
+            LEFT JOIN users u ON s.agent_id = u.id
+            WHERE s.user_id = %s
+        """
+        params = [user_id]
+
         if status:
-            results = db.fetch_all(
-                "SELECT * FROM shipments WHERE user_id=%s AND status=%s ORDER BY created_at DESC",
-                (user_id, status)
-            )
-        else:
-            results = db.fetch_all(
-                "SELECT * FROM shipments WHERE user_id=%s ORDER BY created_at DESC",
-                (user_id,)
-            )
-        db.close()
-        return results
+            query += " AND s.status = %s"
+            params.append(status)
+
+        query += " ORDER BY s.created_at DESC"
+
+        return execute_query(query, params, fetchall=True)
 
     # ---- READ: history stat cards ----
     def get_stats_for_user(self, user_id):
@@ -254,10 +262,10 @@ class Shipment(BaseModel):
 
     # Map agent-friendly labels to valid DB ENUM values
     STATUS_MAP = {
-        "In Transit":  "in_transit",
-        "Delivered":   "delivered",
-        "Delayed":     "delayed",
-        "Cancelled":   "cancelled",
+        "In Transit":   "in_transit",
+        "Delivered":    "delivered",
+        "Delayed":      "delayed",
+        "Cancelled":    "cancelled",
     }
 
     @classmethod

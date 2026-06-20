@@ -2,80 +2,334 @@
 
 {% block content %}
 <style>
-    .contact-section {
-        min-height: 80vh;
+    :root {
+        --dark-bg: #0f1b2d;
+        --dark-card: #14233a;
+        --accent: #29b6e8;
+        --accent-light: #5fd0f7;
+    }
+
+    /* ===== HERO ===== */
+    .cu-hero {
+        position: relative;
+        min-height: 55vh;
+        background: linear-gradient(rgba(10, 20, 35, 0.78), rgba(10, 20, 35, 0.85)),
+                    url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
         display: flex;
-        justify-content: center;
         align-items: center;
-        background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-        padding: 40px;
+        justify-content: center;
+        overflow: hidden;
     }
 
-    .contact-card {
-        background: white;
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        max-width: 600px;
+    .cu-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 30%, rgba(41,182,232,0.18), transparent 60%);
+        animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+
+    .cu-hero h1 {
+        position: relative;
+        z-index: 2;
+        color: #fff;
+        font-size: 3rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        opacity: 0;
+        animation: fadeUp 1s ease forwards 0.2s;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== MAIN CONTACT AREA ===== */
+    .cu-section {
+        background: var(--dark-bg);
+        padding: 70px 8% 90px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 50px;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    .cu-info {
+        flex: 1 1 380px;
+        color: #fff;
+        opacity: 0;
+        animation: fadeUp 0.9s ease forwards 0.3s;
+    }
+
+    .cu-label {
+        color: var(--accent-light);
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .cu-info h2 {
+        font-size: 2.3rem;
+        margin: 12px 0 18px;
+        font-weight: 700;
+    }
+
+    .cu-info p.cu-desc {
+        color: #aebbcd;
+        line-height: 1.6;
+        max-width: 420px;
+        margin-bottom: 35px;
+    }
+
+    .cu-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px 25px;
+    }
+
+    .cu-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        transition: transform 0.3s ease;
+    }
+
+    .cu-item:hover {
+        transform: translateX(6px);
+    }
+
+    .cu-icon {
+        flex-shrink: 0;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1.5px solid var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--accent-light);
+        transition: all 0.3s ease;
+    }
+
+    .cu-item:hover .cu-icon {
+        background: var(--accent);
+        color: #0f1b2d;
+        box-shadow: 0 0 18px rgba(41,182,232,0.6);
+    }
+
+    .cu-item h4 {
+        font-size: 1rem;
+        margin-bottom: 4px;
+        color: #fff;
+    }
+
+    .cu-item p {
+        font-size: 0.92rem;
+        color: #aebbcd;
+        line-height: 1.4;
+    }
+
+    /* ===== FORM CARD ===== */
+    .cu-card {
+        flex: 1 1 380px;
+        max-width: 440px;
+        background: var(--dark-card);
+        border: 1px solid rgba(41,182,232,0.25);
+        border-radius: 14px;
+        padding: 40px 35px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        align-self: flex-start;
+        margin-top: -90px;
+        position: relative;
+        z-index: 3;
+        opacity: 0;
+        animation: fadeUp 0.9s ease forwards 0.5s;
+    }
+
+    .cu-card h3 {
+        color: var(--accent-light);
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+    }
+
+    .cu-card p {
+        color: #aebbcd;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+
+    .cu-card input,
+    .cu-card textarea {
         width: 100%;
-        text-align: center;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 8px;
+        padding: 13px 16px;
+        margin-bottom: 18px;
+        color: #fff;
+        font-size: 0.95rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .contact-card h1 {
-        color: #1e3a8a;
-        margin-bottom: 20px;
-        font-size: 2.5rem;
+    .cu-card input::placeholder,
+    .cu-card textarea::placeholder {
+        color: #7e8da3;
     }
 
-    .contact-item {
-        margin: 15px 0;
-        font-size: 1.1rem;
-        color: #444;
+    .cu-card input:focus,
+    .cu-card textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(41,182,232,0.2);
     }
 
-    .contact-item i {
-        color: #2563eb;
-        margin-right: 10px;
+    .cu-card textarea {
+        resize: none;
+        height: 110px;
     }
 
-    .contact-btn {
-        display: inline-block;
-        margin-top: 25px;
-        padding: 12px 25px;
-        background: #2563eb;
-        color: white;
-        text-decoration: none;
-        border-radius: 10px;
-        transition: 0.3s;
+    .cu-submit {
+        width: 100%;
+        background: var(--accent);
+        color: #0f1b2d;
+        border: none;
+        padding: 14px;
+        border-radius: 8px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
     }
 
-    .contact-btn:hover {
-        background: #1d4ed8;
+    .cu-submit:hover {
+        background: var(--accent-light);
         transform: translateY(-2px);
+    }
+
+    /* ===== MAP ===== */
+    .cu-map {
+        width: 100%;
+        height: 420px;
+        border: none;
+        display: block;
+        filter: grayscale(20%);
+    }
+
+    /* Scroll-reveal helper */
+    .cu-reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .cu-reveal.cu-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (max-width: 900px) {
+        .cu-card {
+            margin-top: 30px;
+        }
+        .cu-section {
+            padding: 50px 6% 70px;
+        }
     }
 </style>
 
-<div class="contact-section">
-    <div class="contact-card">
-        <h1>📞 Contact Us</h1>
+<!-- HERO -->
+<section class="cu-hero">
+    <h1>Contact Us.</h1>
+</section>
 
-        <div class="contact-item">
-            📧 <strong>Email:</strong> nepxpress@gmail.com
+<!-- INFO + FORM -->
+<section class="cu-section">
+    <div class="cu-info cu-reveal">
+        <span class="cu-label">Contact Us</span>
+        <h2>Get In Touch</h2>
+        <p class="cu-desc">
+            Have a question or need support? Reach out to NepXpress through any
+            of the channels below and our team will get back to you shortly.
+        </p>
+
+        <div class="cu-grid">
+            <div class="cu-item">
+                <div class="cu-icon">📱</div>
+                <div>
+                    <h4>Phone Number</h4>
+                    <p>+977 9841234567</p>
+                </div>
+            </div>
+
+            <div class="cu-item">
+                <div class="cu-icon">🕐</div>
+                <div>
+                    <h4>Business Hours</h4>
+                    <p>Sun – Fri, 10AM – 6PM</p>
+                </div>
+            </div>
+
+            <div class="cu-item">
+                <div class="cu-icon">📧</div>
+                <div>
+                    <h4>Email Address</h4>
+                    <p>nepxpress@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="cu-item">
+                <div class="cu-icon">📍</div>
+                <div>
+                    <h4>Address</h4>
+                    <p>Kathmandu, Nepal</p>
+                </div>
+            </div>
         </div>
-
-        <div class="contact-item">
-            📱 <strong>Phone:</strong> +977 9841234567
-        </div>
-
-        <div class="contact-item">
-            📍 <strong>Address:</strong> Kathmandu, Nepal
-        </div>
-
-        <a href="mailto:nepxpress@gmail.com" class="contact-btn">
-            Send Email
-        </a>
     </div>
-</div>
+
+    <div class="cu-card">
+        <h3>You Have a Question?</h3>
+        <p>Send us a message below and we'll respond as soon as possible.</p>
+        <form action="#" method="POST">
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <input type="text" name="subject" placeholder="Your Subject">
+            <textarea name="message" placeholder="Your Message" required></textarea>
+            <button type="submit" class="cu-submit">Send Message</button>
+        </form>
+    </div>
+</section>
+
+<!-- MAP -->
+<iframe
+    class="cu-map"
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14132.46!2d85.3240!3d27.7172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sKathmandu!5e0!3m2!1sen!2snp"
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
+</iframe>
+
+<script>
+    // Simple scroll-reveal animation
+    document.addEventListener('DOMContentLoaded', function () {
+        const reveals = document.querySelectorAll('.cu-reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('cu-visible');
+                }
+            });
+        }, { threshold: 0.2 });
+        reveals.forEach(el => observer.observe(el));
+    });
+</script>
 {% endblock %}
-
-
