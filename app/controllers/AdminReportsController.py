@@ -9,7 +9,6 @@ class AdminReportsController(BaseController):
     def get_revenue_monthly():
         """GET /api/admin/reports/revenue-monthly"""
         try:
-            # Use DATE_FORMAT with escaped % signs (pymysql uses %s for params)
             rows = execute_query(
                 "SELECT "
                 "  DATE_FORMAT(created_at, '%%b %%Y') AS month, "
@@ -53,7 +52,11 @@ class AdminReportsController(BaseController):
     @staticmethod
     @admin_required
     def get_agent_performance():
-        """GET /api/admin/reports/agent-performance"""
+        """
+        GET /api/admin/reports/agent-performance
+        UPDATED: agents are now users with role='agent' -
+        delivery_agents table is retired.
+        """
         try:
             rows = execute_query(
                 "SELECT "
@@ -63,8 +66,9 @@ class AdminReportsController(BaseController):
                 "  SUM(CASE WHEN s.status='delayed'    THEN 1 ELSE 0 END) AS `delayed`, "
                 "  SUM(CASE WHEN s.status='in_transit' THEN 1 ELSE 0 END) AS in_transit, "
                 "  COALESCE(SUM(s.amount), 0) AS revenue "
-                "FROM delivery_agents a "
+                "FROM users a "
                 "LEFT JOIN shipments s ON s.agent_id = a.id "
+                "WHERE a.role = 'agent' "
                 "GROUP BY a.id, a.name "
                 "ORDER BY delivered DESC",
                 fetchall=True

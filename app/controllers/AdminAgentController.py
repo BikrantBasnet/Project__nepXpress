@@ -155,7 +155,7 @@ class AdminAgentController(BaseController):
         try:
             data = request.get_json(silent=True) or {}
             fields, params = [], []
-            for col in ['name', 'email', 'phone']:
+            for col in ['name', 'email', 'phone','status']:
                 if col in data:
                     fields.append(f"{col} = %s")
                     params.append(data[col].strip())
