@@ -76,7 +76,7 @@
               {% set raw = s.status | lower %}
               {% set cls, label = status_map.get(raw, ('', raw | capitalize)) %}
               <tr>
-                <td class="tracking-id">{{ s.tracking_id }}</td>
+                <td>{{ s.tracking_id }}</td>
                 <td>{{ s.receiver_city or '—' }}</td>
                 <td>{{ s.receiver_name or '—' }}</td>
                 <td>{{ s.created_at.strftime('%d %b %Y, %I:%M %p') if s.created_at else '—' }}</td>

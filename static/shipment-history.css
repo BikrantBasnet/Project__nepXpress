@@ -44,10 +44,7 @@
 .table-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
 .shipment-table { width: 100%; border-collapse: collapse; }
 .shipment-table thead { background: #f8f8f8; border-bottom: 1px solid #e8e8e8; }
-.shipment-table th {
-  text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700;
-  color: #888; text-transform: uppercase; letter-spacing: 0.5px;
-}
+.shipment-table th {text-align: left; padding: 16px 18px; font-size: 13px; font-weight: 800;color: #0d0d0d; text-transform: uppercase; letter-spacing: 0.8px;background: #f1f3f7;}
 .shipment-table tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
 .shipment-table tbody tr:last-child { border-bottom: none; }
 .shipment-table tbody tr:hover { background: #fafafa; }
