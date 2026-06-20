@@ -95,28 +95,41 @@ class AgentController(BaseController):
         )
 
     def update_status(self):
-        """POST /api/agent/update-status"""
+        """POST /api/agent/update-status
+        Valid transitions from in_transit: Delivered, Cancelled, Delayed
+        """
         if "user_id" not in session or session.get("user_role") != "agent":
             return jsonify({"success": False, "message": "Unauthorized"}), 401
 
         data        = request.get_json() or {}
         shipment_id = data.get("shipment_id")
         new_status  = data.get("status")
-
-        VALID_KEYWORDS = ["picked", "transit", "out for delivery", "delivered"]
+        notes       = data.get("notes")
 
         if not shipment_id or not new_status:
             return jsonify({"success": False, "message": "Missing shipment_id or status"}), 400
 
-        clean_status = new_status.strip().lower()
-        if not any(keyword in clean_status for keyword in VALID_KEYWORDS):
-            return jsonify({"success": False, "message": f"Invalid status value: {new_status}"}), 400
+        # Create a mapping dictionary that normalizes lowercase strings to matches
+        VALID_STATUS_MAP = {
+            "in transit": "In Transit",
+            "in_transit": "In Transit",
+            "delivered":  "Delivered",
+            "delayed":    "Delayed",
+            "cancelled":  "Cancelled"
+        }
+
+        # Automatically look up and convert incoming format cleanly
+        normalized_status = new_status.strip().lower()
+        if normalized_status in VALID_STATUS_MAP:
+            new_status = VALID_STATUS_MAP[normalized_status]
+        else:
+            # Check original casing just in case it was already correct
+            VALID_STATUSES = ["In Transit", "Delivered", "Delayed", "Cancelled"]
+            if new_status not in VALID_STATUSES:
+                return jsonify({"success": False, "message": f"Invalid status format: {new_status}"}), 400
 
         agent_id = session.get("user_id")
-        affected = Shipment.update_status(shipment_id, agent_id, new_status)
-        if not affected:
-            return jsonify({"success": False, "message": "Update failed — not your shipment or already closed"}), 400
-
+        Shipment.update_status(shipment_id, agent_id, new_status, notes=notes)
         return jsonify({"success": True, "message": f"Status updated to {new_status}"})
 
     def fail_delivery(self):
