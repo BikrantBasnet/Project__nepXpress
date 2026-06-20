@@ -4,6 +4,11 @@ from app.models.database import execute_query
 
 
 class AdminAgentController(BaseController):
+    """
+    Delivery agents are now just users with role='agent'.
+    The standalone delivery_agents table is retired -
+    shipments.agent_id references users.id directly.
+    """
 
     @staticmethod
     @admin_required
@@ -16,40 +21,41 @@ class AdminAgentController(BaseController):
             search = request.args.get('search', '').strip() or None
             offset = (page - 1) * limit
 
-            conditions, params = [], []
+            conditions = ["a.role = 'agent'"]
+            params = []
             if status:
                 conditions.append("a.status = %s")
                 params.append(status)
             if search:
-                conditions.append("(a.name LIKE %s OR a.email LIKE %s OR a.zone LIKE %s)")
+                conditions.append("(a.name LIKE %s OR a.email LIKE %s)")
                 like = f"%{search}%"
-                params.extend([like, like, like])
+                params.extend([like, like])
 
-            where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+            where = "WHERE " + " AND ".join(conditions)
 
             total = execute_query(
-                f"SELECT COUNT(*) as cnt FROM delivery_agents a {where}",
+                f"SELECT COUNT(*) as cnt FROM users a {where}",
                 params, fetchone=True
             )['cnt']
 
             rows = execute_query(
-               f"""SELECT
-                       a.id, a.name, a.email, a.phone, a.status, a.zone,
-                       a.created_at,
-                       COUNT(s.id)                                            AS total_deliveries,
-                       SUM(CASE WHEN s.status='delivered' THEN 1 ELSE 0 END) AS completed,
-                       SUM(CASE WHEN s.status='delayed'   THEN 1 ELSE 0 END) AS `delayed`
-                   FROM delivery_agents a
-                   LEFT JOIN shipments s ON s.agent_id = a.id
-                   {where}
-                   GROUP BY a.id
-                   ORDER BY a.created_at DESC
-                   LIMIT %s OFFSET %s""",
+                f"""SELECT
+                        a.id, a.name, a.email, a.phone, a.status,
+                        a.created_at,
+                        COUNT(s.id)                                          AS total_deliveries,
+                        SUM(CASE WHEN s.status='delivered' THEN 1 ELSE 0 END) AS completed,
+                        SUM(CASE WHEN s.status='delayed'   THEN 1 ELSE 0 END) AS `delayed`
+                    FROM users a
+                    LEFT JOIN shipments s ON s.agent_id = a.id
+                    {where}
+                    GROUP BY a.id
+                    ORDER BY a.created_at DESC
+                    LIMIT %s OFFSET %s""",
                 params + [limit, offset], fetchall=True
             )
-            
             for r in rows:
                 r['created_at'] = str(r['created_at']) if r.get('created_at') else None
+                r['zone'] = ''  # no zone column on users; keep key for frontend compatibility
 
             return AdminAgentController.success(data={
                 "agents": rows,
@@ -69,23 +75,22 @@ class AdminAgentController(BaseController):
         """GET /api/admin/delivery-agents/<id>"""
         try:
             agent = execute_query(
-    """SELECT a.id, a.name, a.email, a.phone, a.status, a.zone, a.created_at,
-              COUNT(s.id) AS total_deliveries,
-              SUM(CASE WHEN s.status='delivered'  THEN 1 ELSE 0 END) AS completed,
-              SUM(CASE WHEN s.status='delayed'    THEN 1 ELSE 0 END) AS `delayed`,
-              SUM(CASE WHEN s.status='in_transit' THEN 1 ELSE 0 END) AS in_transit
-       FROM delivery_agents a
-       LEFT JOIN shipments s ON s.agent_id = a.id
-       WHERE a.id = %s
-       GROUP BY a.id""",
-    (agent_id,), fetchone=True
-)
-            
+                """SELECT a.id, a.name, a.email, a.phone, a.status, a.created_at,
+                          COUNT(s.id) AS total_deliveries,
+                          SUM(CASE WHEN s.status='delivered'  THEN 1 ELSE 0 END) AS completed,
+                          SUM(CASE WHEN s.status='delayed'    THEN 1 ELSE 0 END) AS `delayed`,
+                          SUM(CASE WHEN s.status='in_transit' THEN 1 ELSE 0 END) AS in_transit
+                   FROM users a
+                   LEFT JOIN shipments s ON s.agent_id = a.id
+                   WHERE a.id = %s AND a.role = 'agent'
+                   GROUP BY a.id""",
+                (agent_id,), fetchone=True
+            )
             if not agent:
                 return AdminAgentController.not_found("Agent not found")
             agent['created_at'] = str(agent['created_at']) if agent.get('created_at') else None
+            agent['zone'] = ''
 
-            # Recent shipments
             shipments = execute_query(
                 """SELECT s.tracking_id, u.name AS customer_name,
                           s.destination, s.status, s.amount, s.created_at
@@ -108,28 +113,31 @@ class AdminAgentController(BaseController):
     @staticmethod
     @admin_required
     def create():
-        """POST /api/admin/delivery-agents"""
+        """POST /api/admin/delivery-agents - creates a new user with role=agent"""
         try:
+            from werkzeug.security import generate_password_hash
             data = request.get_json(silent=True) or {}
             for field in ['name', 'email']:
                 if not data.get(field):
                     return AdminAgentController.error(f"Missing required field: {field}", 400)
 
-            # Check email uniqueness
             existing = execute_query(
-                "SELECT id FROM delivery_agents WHERE email = %s", (data['email'],), fetchone=True
+                "SELECT id FROM users WHERE email = %s", (data['email'],), fetchone=True
             )
             if existing:
                 return AdminAgentController.error("Email already registered", 400)
 
+            temp_password = generate_password_hash(data.get('password', 'agent123'))
+
             new_id = execute_query(
-                "INSERT INTO delivery_agents (name, email, phone, status, zone) VALUES (%s,%s,%s,%s,%s)",
+                "INSERT INTO users (name, email, phone, role, status, password) "
+                "VALUES (%s,%s,%s,'agent',%s,%s)",
                 (
                     data['name'].strip(),
                     data['email'].strip(),
                     data.get('phone', '').strip(),
                     data.get('status', 'active'),
-                    data.get('zone', '').strip()
+                    temp_password
                 )
             )
             return AdminAgentController.success(
@@ -147,7 +155,7 @@ class AdminAgentController(BaseController):
         try:
             data = request.get_json(silent=True) or {}
             fields, params = [], []
-            for col in ['name', 'email', 'phone', 'zone']:
+            for col in ['name', 'email', 'phone']:
                 if col in data:
                     fields.append(f"{col} = %s")
                     params.append(data[col].strip())
@@ -155,7 +163,7 @@ class AdminAgentController(BaseController):
                 return AdminAgentController.error("No fields to update", 400)
             params.append(agent_id)
             execute_query(
-                f"UPDATE delivery_agents SET {', '.join(fields)} WHERE id = %s", params
+                f"UPDATE users SET {', '.join(fields)} WHERE id = %s AND role = 'agent'", params
             )
             return AdminAgentController.success(message="Agent updated successfully")
         except Exception as e:
@@ -171,7 +179,7 @@ class AdminAgentController(BaseController):
             if status not in ('active', 'inactive', 'offline'):
                 return AdminAgentController.error("Status must be active, inactive or offline", 400)
             affected = execute_query(
-                "UPDATE delivery_agents SET status = %s WHERE id = %s", (status, agent_id)
+                "UPDATE users SET status = %s WHERE id = %s AND role = 'agent'", (status, agent_id)
             )
             if not affected:
                 return AdminAgentController.not_found("Agent not found")
@@ -184,12 +192,11 @@ class AdminAgentController(BaseController):
     def delete(agent_id: int):
         """DELETE /api/admin/delivery-agents/<id>"""
         try:
-            # Unassign agent from shipments first
             execute_query(
                 "UPDATE shipments SET agent_id = NULL WHERE agent_id = %s", (agent_id,)
             )
             affected = execute_query(
-                "DELETE FROM delivery_agents WHERE id = %s", (agent_id,)
+                "DELETE FROM users WHERE id = %s AND role = 'agent'", (agent_id,)
             )
             if not affected:
                 return AdminAgentController.not_found("Agent not found")
@@ -202,13 +209,13 @@ class AdminAgentController(BaseController):
     def get_stats():
         """GET /api/admin/delivery-agents/stats"""
         try:
-            total   = execute_query("SELECT COUNT(*) as cnt FROM delivery_agents", fetchone=True)['cnt']
-            active  = execute_query("SELECT COUNT(*) as cnt FROM delivery_agents WHERE status='active'",   fetchone=True)['cnt']
-            offline = execute_query("SELECT COUNT(*) as cnt FROM delivery_agents WHERE status='offline'",  fetchone=True)['cnt']
-            inactive= execute_query("SELECT COUNT(*) as cnt FROM delivery_agents WHERE status='inactive'", fetchone=True)['cnt']
+            total    = execute_query("SELECT COUNT(*) as cnt FROM users WHERE role='agent'", fetchone=True)['cnt']
+            active   = execute_query("SELECT COUNT(*) as cnt FROM users WHERE role='agent' AND status='active'",   fetchone=True)['cnt']
+            offline  = execute_query("SELECT COUNT(*) as cnt FROM users WHERE role='agent' AND status='offline'",  fetchone=True)['cnt']
+            inactive = execute_query("SELECT COUNT(*) as cnt FROM users WHERE role='agent' AND status='inactive'", fetchone=True)['cnt']
             new_month = execute_query(
-                """SELECT COUNT(*) as cnt FROM delivery_agents
-                   WHERE MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())""",
+                """SELECT COUNT(*) as cnt FROM users
+                   WHERE role='agent' AND MONTH(created_at)=MONTH(CURDATE()) AND YEAR(created_at)=YEAR(CURDATE())""",
                 fetchone=True
             )['cnt']
             total_deliveries = execute_query(

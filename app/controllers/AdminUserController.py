@@ -78,7 +78,7 @@ class AdminUserController(BaseController):
                     SUM(CASE WHEN status='delivered'  THEN 1 ELSE 0 END) as delivered,
                     SUM(CASE WHEN status='pending'    THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status='in_transit' THEN 1 ELSE 0 END) as in_transit,
-                    SUM(CASE WHEN status='delayed'    THEN 1 ELSE 0 END) as delayed,
+                    SUM(CASE WHEN status='delayed' THEN 1 ELSE 0 END) as `delayed`,
                     COALESCE(SUM(amount), 0) as total_spent
                 FROM shipments WHERE user_id = %s""",
                 (user_id,), fetchone=True

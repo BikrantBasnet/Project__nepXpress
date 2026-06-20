@@ -201,7 +201,6 @@ const STATUS_MAP = {
   in_transit: { cls:'badge-in_transit', label:'In Transit', color:'#3b82f6' },
   processing: { cls:'badge-processing', label:'Processing', color:'#a855f7' },
   delayed:    { cls:'badge-delayed',    label:'Delayed',    color:'#ef4444' },
-  pending:    { cls:'badge-pending',    label:'Pending',    color:'#eab308' },
   cancelled:  { cls:'badge-cancelled',  label:'Cancelled',  color:'#8b91a8' },
 };
 
@@ -214,7 +213,7 @@ const ALERT_MAP = {
 
 const DONUT_COLORS = {
   delivered:'#22c55e', in_transit:'#3b82f6', processing:'#a855f7',
-  delayed:'#ef4444', pending:'#eab308', cancelled:'#555d78'
+  delayed:'#ef4444', cancelled:'#555d78'
 };
 
 async function apiFetch(path) {
@@ -236,7 +235,6 @@ function renderKPI(stats) {
   const cards = [
     { label:'Total Shipments', value:stats.total_shipments.value, change:stats.total_shipments.change_pct, suffix:'% this month', icon:'📦', color:'#3b82f6' },
     { label:'Delivered',       value:stats.delivered.value,       change:stats.delivered.change_pct,       suffix:'% this month', icon:'✅', color:'#22c55e' },
-    { label:'Pending',         value:stats.pending.value,         change:stats.pending.change_pct,         suffix:'% this month', icon:'⏳', color:'#eab308', downGood:true },
     { label:'Active Users',    value:stats.active_users.value,    change:stats.active_users.new_this_month,suffix:' new this month', icon:'👥', color:'#a855f7', raw:true },
     { label:'Delivery Agents', value:stats.delivery_agents.value, change:stats.delivery_agents.new_this_month, suffix:' new agents', icon:'🛵', color:'#f97316', raw:true },
     { label:'Revenue (NPR)',   value:'NPR '+Number(stats.revenue_npr.value).toLocaleString(), change:stats.revenue_npr.change_pct, suffix:'% this month', icon:'💰', color:'#22c55e' },

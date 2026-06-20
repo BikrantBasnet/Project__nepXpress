@@ -175,7 +175,8 @@ class Shipment(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────── #
-#  Admin ShipmentModel — uses user_id column (renamed in DB)                  #
+#  Admin ShipmentModel — agent_id now references users.id (role='agent')      #
+#  delivery_agents table is retired - all agent lookups use users table.      #
 # ─────────────────────────────────────────────────────────────────────────── #
 
 class ShipmentModel:
@@ -190,8 +191,8 @@ class ShipmentModel:
                    a.name  AS agent_name,
                    s.destination, s.status, s.amount, s.created_at
             FROM shipments s
-            LEFT JOIN users           u ON s.user_id   = u.id
-            LEFT JOIN delivery_agents a ON s.agent_id  = a.id
+            LEFT JOIN users u ON s.user_id  = u.id
+            LEFT JOIN users a ON s.agent_id = a.id AND a.role = 'agent'
             ORDER BY s.created_at DESC
             LIMIT %s
         """
@@ -295,8 +296,8 @@ class ShipmentModel:
                    s.destination, s.status, s.amount, s.notes,
                    s.created_at, s.updated_at
             FROM shipments s
-            LEFT JOIN users           u ON s.user_id   = u.id
-            LEFT JOIN delivery_agents a ON s.agent_id  = a.id
+            LEFT JOIN users u ON s.user_id  = u.id
+            LEFT JOIN users a ON s.agent_id = a.id AND a.role = 'agent'
             {where}
             ORDER BY s.created_at DESC
             LIMIT %s OFFSET %s""",
@@ -313,8 +314,8 @@ class ShipmentModel:
             """SELECT s.*, u.name AS customer_name, u.email AS customer_email,
                       a.name AS agent_name, a.phone AS agent_phone
                FROM shipments s
-               LEFT JOIN users           u ON s.user_id  = u.id
-               LEFT JOIN delivery_agents a ON s.agent_id = a.id
+               LEFT JOIN users u ON s.user_id  = u.id
+               LEFT JOIN users a ON s.agent_id = a.id AND a.role = 'agent'
                WHERE s.id = %s""",
             (shipment_id,), fetchone=True
         )

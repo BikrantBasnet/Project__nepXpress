@@ -63,10 +63,6 @@
         <div><div class="ship-stat-val" id="st-total">—</div><div class="ship-stat-label">Total</div></div>
       </div>
       <div class="ship-stat-card">
-        <div class="ship-stat-icon" style="background:rgba(234,179,8,0.12);color:#eab308">⏳</div>
-        <div><div class="ship-stat-val" id="st-pending">—</div><div class="ship-stat-label">Pending</div></div>
-      </div>
-      <div class="ship-stat-card">
         <div class="ship-stat-icon" style="background:rgba(168,85,247,0.12);color:#a855f7">⟳</div>
         <div><div class="ship-stat-val" id="st-processing">—</div><div class="ship-stat-label">Processing</div></div>
       </div>
@@ -95,7 +91,6 @@
       </div>
       <div class="filter-tabs" id="filter-tabs">
         <button class="filter-tab active" data-status="">All</button>
-        <button class="filter-tab" data-status="pending">Pending</button>
         <button class="filter-tab" data-status="processing">Processing</button>
         <button class="filter-tab" data-status="in_transit">In Transit</button>
         <button class="filter-tab" data-status="delivered">Delivered</button>
@@ -326,7 +321,6 @@ async function loadStats() {
   try {
     const data = await apiFetch('/api/admin/dashboard/stats');
     $('st-total').textContent     = data.total_shipments.value;
-    $('st-pending').textContent   = data.pending.value;
     $('st-delivered').textContent = data.delivered.value;
     $('sb-total').textContent     = data.total_shipments.value;
     const breakdown = await apiFetch('/api/admin/dashboard/delivery-status');
