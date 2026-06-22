@@ -1,193 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    :root {
-        --dark-bg: #0f1b2d;
-        --dark-card: #14233a;
-        --accent: #29b6e8;
-        --accent-light: #5fd0f7;
-    }
 
-    /* ===== HERO ===== */
-    .cu-hero {
-        position: relative;
-        min-height: 55vh;
-        background: linear-gradient(rgba(10, 20, 35, 0.78), rgba(10, 20, 35, 0.85)),
-                    url('https://images.unsplash.com/photo-1727101981835-50bade3c4eaf?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
+<link rel="stylesheet" href="{{ url_for('static', filename='contact.css') }}">
 
-    .cu-hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle at 30% 30%, rgba(41,182,232,0.18), transparent 60%);
-        animation: pulseGlow 6s ease-in-out infinite;
-    }
-
-    @keyframes pulseGlow {
-        0%, 100% { opacity: 0.6; }
-        50% { opacity: 1; }
-    }
-
-    .cu-hero h1 {
-        position: relative;
-        z-index: 2;
-        color: #fff;
-        font-size: 3rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        opacity: 0;
-        animation: fadeUp 1s ease forwards 0.2s;
-    }
-
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(25px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== MAIN CONTACT AREA ===== */
-    .cu-section {
-        background: var(--dark-bg);
-        padding: 70px 8% 90px;
-        display: flex;
-        justify-content: center;
-        position: relative;
-    }
-
-    .cu-info {
-        max-width: 700px;
-        width: 100%;
-        color: #fff;
-        text-align: center;
-        opacity: 0;
-        animation: fadeUp 0.9s ease forwards 0.3s;
-    }
-
-    .cu-label {
-        color: var(--accent-light);
-        font-size: 0.85rem;
-        letter-spacing: 3px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-
-    .cu-info h2 {
-        font-size: 2.3rem;
-        margin: 12px 0 18px;
-        font-weight: 700;
-    }
-
-    .cu-info p.cu-desc {
-        color: #aebbcd;
-        line-height: 1.6;
-        max-width: 480px;
-        margin: 0 auto 40px;
-    }
-
-    .cu-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px 25px;
-        text-align: left;
-    }
-
-    .cu-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 14px;
-        transition: transform 0.3s ease;
-    }
-
-    .cu-item:hover {
-        transform: translateX(6px);
-    }
-
-    .cu-icon {
-        flex-shrink: 0;
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        border: 1.5px solid var(--accent);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        color: var(--accent-light);
-        transition: all 0.3s ease;
-    }
-
-    .cu-item:hover .cu-icon {
-        background: var(--accent);
-        color: #0f1b2d;
-        box-shadow: 0 0 18px rgba(41,182,232,0.6);
-    }
-
-    .cu-item h4 {
-        font-size: 1rem;
-        margin-bottom: 4px;
-        color: #fff;
-    }
-
-    .cu-item p {
-        font-size: 0.92rem;
-        color: #aebbcd;
-        line-height: 1.4;
-    }
-
-    /* ===== MAP ===== */
-    .cu-map {
-        width: 100%;
-        height: 420px;
-        border: none;
-        display: block;
-        filter: grayscale(20%);
-    }
-
-    /* Scroll-reveal helper */
-    .cu-reveal {
-        opacity: 0;
-        transform: translateY(30px);
-        transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .cu-reveal.cu-visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    @media (max-width: 900px) {
-        .cu-section {
-            padding: 50px 6% 70px;
-        }
-        .cu-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<!-- HERO -->
+<!-- HERO SECTION -->
 <section class="cu-hero">
-    <h1>Contact Us.</h1>
+    <div class="cu-hero-content">
+        <h1>Contact Us.</h1>
+        <p>Delivering Nepal to the World.</p>
+    </div>
 </section>
 
-<!-- INFO -->
+<!-- CONTACT SECTION -->
 <section class="cu-section">
     <div class="cu-info cu-reveal">
-        <span class="cu-label">Contact Us</span>
+
+        <span class="cu-label">CONTACT NEPXPRESS</span>
+
         <h2>Get In Touch</h2>
+
         <p class="cu-desc">
-            Have a question or need support? Reach out to NepXpress through any
-            of the channels below and our team will get back to you shortly.
+            Whether you need shipment assistance, tracking support,
+            business inquiries, or customer service, our NepXpress team
+            is ready to help.
         </p>
 
         <div class="cu-grid">
+
             <div class="cu-item">
-                <div class="cu-icon">📱</div>
+                <div class="cu-icon">📞</div>
                 <div>
                     <h4>Phone Number</h4>
                     <p>+977 9841234567</p>
@@ -195,33 +37,35 @@
             </div>
 
             <div class="cu-item">
-                <div class="cu-icon">🕐</div>
-                <div>
-                    <h4>Business Hours</h4>
-                    <p>Sun – Fri, 10AM – 6PM</p>
-                </div>
-            </div>
-
-            <div class="cu-item">
                 <div class="cu-icon">📧</div>
                 <div>
                     <h4>Email Address</h4>
-                    <p>nepXpress@gmail.com</p>
+                    <p>support@nepxpress.com</p>
                 </div>
             </div>
 
             <div class="cu-item">
                 <div class="cu-icon">📍</div>
                 <div>
-                    <h4>Address</h4>
+                    <h4>Office Address</h4>
                     <p>Kathmandu, Nepal</p>
                 </div>
             </div>
+
+            <div class="cu-item">
+                <div class="cu-icon">🕒</div>
+                <div>
+                    <h4>Working Hours</h4>
+                    <p>Sunday - Friday | 10:00 AM - 6:00 PM</p>
+                </div>
+            </div>
+
         </div>
+
     </div>
 </section>
 
-<!-- MAP -->
+<!-- GOOGLE MAP -->
 <iframe
     class="cu-map"
     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14132.46!2d85.3240!3d27.7172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sKathmandu!5e0!3m2!1sen!2snp"
@@ -230,16 +74,27 @@
 </iframe>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const reveals = document.querySelectorAll('.cu-reveal');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('cu-visible');
-                }
-            });
-        }, { threshold: 0.2 });
-        reveals.forEach(el => observer.observe(el));
+document.addEventListener("DOMContentLoaded", function () {
+
+    const reveals = document.querySelectorAll(".cu-reveal");
+
+    const observer = new IntersectionObserver((entries) => {
+
+        entries.forEach(entry => {
+
+            if (entry.isIntersecting) {
+                entry.target.classList.add("cu-visible");
+            }
+
+        });
+
+    }, {
+        threshold: 0.2
     });
+
+    reveals.forEach(el => observer.observe(el));
+
+});
 </script>
+
 {% endblock %}
